@@ -7,7 +7,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:provider/provider.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
-import 'package:healthpilot/features/meet_the_devs/meet_the_devs.dart';
 import 'package:healthpilot/features/onboarding/language_translation.dart';
 import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
 
@@ -277,15 +276,6 @@ class _ProfileAndSettingScreenState extends State<ProfileAndSettingScreen> {
                     settingAdress: 'FAQ',
                     iconData: Icons.arrow_forward,
                     onpressed: null,
-                  ),
-                  HealthInformationSettings(
-                    imageAdress: 'assets/Icons/MeettheDevelopers.svg',
-                    settingAdress: 'Meet the Developers',
-                    iconData: Icons.arrow_forward,
-                    onpressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => MeetTheDevs()));
-                    },
                   ),
                 ],
               ),
