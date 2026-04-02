@@ -4,6 +4,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/providers/app_state.dart';
+import 'package:provider/provider.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:healthpilot/features/meet_the_devs/meet_the_devs.dart';
 import 'package:healthpilot/features/onboarding/language_translation.dart';
@@ -470,6 +472,22 @@ class _SettingsForDarkModeState extends State<SettingsForDarkMode> {
   // ignore: unused_field
   Color _containerColor = Colors.grey; // Initial color
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.settingAdress == 'Dark Mode') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final mode = context.read<AppState>().themeMode;
+        setState(() {
+          _isInnerContainerSwitched = mode == ThemeMode.dark;
+          _containerColor =
+              _isInnerContainerSwitched ? Colors.blue : Colors.grey;
+        });
+      });
+    }
+  }
+
   void _toggleInnerContainer() {
     setState(() {
       _isInnerContainerSwitched = !_isInnerContainerSwitched;
@@ -480,10 +498,16 @@ class _SettingsForDarkModeState extends State<SettingsForDarkMode> {
         _containerColor = Colors.grey;
       }
     });
+    if (widget.settingAdress == 'Dark Mode') {
+      context.read<AppState>().setThemeMode(
+            _isInnerContainerSwitched ? ThemeMode.dark : ThemeMode.light,
+          );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
     return Padding(
       padding: const EdgeInsets.only(top: 3, left: 30, right: 40),
       child: Column(
@@ -510,7 +534,7 @@ class _SettingsForDarkModeState extends State<SettingsForDarkMode> {
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(
                     width: 1,
-                    color: Colors.blue, // You can change the color as needed
+                    color: primary,
                   ),
                 ),
                 child: AnimatedContainer(
@@ -525,8 +549,7 @@ class _SettingsForDarkModeState extends State<SettingsForDarkMode> {
                       height: 8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
-                        color:
-                            Colors.blue, // You can change the color as needed
+                        color: primary,
                       ),
                     ),
                   ),

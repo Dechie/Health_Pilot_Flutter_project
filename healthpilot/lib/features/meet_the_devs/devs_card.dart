@@ -44,9 +44,9 @@ class DevsCard extends StatelessWidget {
               height: size.height * 0.015,
             ),
             const Text('John Doe '),
-            const Text(
+            Text(
               'Flutter Developer',
-              style: AppTheme.helperTextForUserStyle,
+              style: AppTheme.bodyMuted(context),
             ),
             SizedBox(
               height: size.height * 0.015,

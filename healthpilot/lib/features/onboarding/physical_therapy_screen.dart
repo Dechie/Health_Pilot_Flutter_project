@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/get_started/get_started_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
@@ -36,8 +37,9 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
             padding: const EdgeInsets.symmetric(
               horizontal: 43.0,
             ).copyWith(top: 70),
-            child: const Image(
-              image: AssetImage(physicalTherapy),
+            child: SafeRasterAsset(
+              physicalTherapy,
+              fit: BoxFit.contain,
             ),
           ),
           SizedBox(
@@ -46,9 +48,9 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
           SizedBox(
             width: size.width * 0.705,
             height: size.height * 0.072,
-            child: const Text(descriptionTextForSpecialist,
+            child: Text(descriptionTextForSpecialist,
                 textAlign: TextAlign.center,
-                style: AppTheme.descriptionTextForSpecialistStyle),
+                style: AppTheme.headlinePanel(context)),
           ),
           SizedBox(
             height: size.height * 0.026,
@@ -56,9 +58,9 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
           SizedBox(
             width: size.width * 0.705,
             height: size.height * 0.072,
-            child: const Text(helperTextForUser,
+            child: Text(helperTextForUser,
                 textAlign: TextAlign.center,
-                style: AppTheme.helperTextForUserStyle),
+                style: AppTheme.bodyMuted(context)),
           ),
           SizedBox(
             height: size.height * 0.026,
@@ -77,11 +79,10 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
             padding: const EdgeInsets.symmetric(
               horizontal: 43.0,
             ).copyWith(top: 70),
-            child: Image(
+            child: SafeRasterAsset(
+              professionalHealthTeam,
               height: size.height * 0.412,
-              image: const AssetImage(
-                professionalHealthTeam,
-              ),
+              fit: BoxFit.contain,
             ),
           ),
           SizedBox(
@@ -90,9 +91,9 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
           SizedBox(
             width: size.width * 0.705,
             height: size.height * 0.072,
-            child: const Text(expertAssistance,
+            child: Text(expertAssistance,
                 textAlign: TextAlign.center,
-                style: AppTheme.descriptionTextForSpecialistStyle),
+                style: AppTheme.headlinePanel(context)),
           ),
           SizedBox(
             height: size.height * 0.026,
@@ -100,9 +101,9 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
           SizedBox(
             width: size.width * 0.705,
             height: size.height * 0.072,
-            child: const Text(expertAssistanceDescription,
+            child: Text(expertAssistanceDescription,
                 textAlign: TextAlign.center,
-                style: AppTheme.helperTextForUserStyle),
+                style: AppTheme.bodyMuted(context)),
           ),
           SizedBox(
             height: size.height * 0.026,
@@ -121,9 +122,10 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
             padding: const EdgeInsets.symmetric(
               horizontal: 43.0,
             ).copyWith(top: 70),
-            child: Image(
+            child: SafeRasterAsset(
+              chatBotImage,
               height: size.height * 0.367,
-              image: const AssetImage(chatBotImage),
+              fit: BoxFit.contain,
             ),
           ),
           SizedBox(
@@ -132,9 +134,9 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
           SizedBox(
             width: size.width * 0.79,
             height: size.height * 0.103,
-            child: const Text(chatBotText,
+            child: Text(chatBotText,
                 textAlign: TextAlign.center,
-                style: AppTheme.descriptionTextForSpecialistStyle),
+                style: AppTheme.headlinePanel(context)),
           ),
           SizedBox(
             height: size.height * 0.026,
@@ -142,9 +144,9 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
           SizedBox(
             width: size.width * 0.79,
             height: size.height * 0.0903,
-            child: const Text(chatBotDescription,
+            child: Text(chatBotDescription,
                 textAlign: TextAlign.center,
-                style: AppTheme.helperTextForUserStyle),
+                style: AppTheme.bodyMuted(context)),
           ),
           SizedBox(
             height: size.height * 0.026,

@@ -30,43 +30,40 @@ class OverviewCard extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-              border: Border.all(
-                  color:
-                      const Color.fromRGBO(46, 46, 46, 1.000).withOpacity(0.1)),
-              borderRadius: BorderRadius.circular(size.width * 0.02),
-              gradient: AppTheme.cardThemeForHomeScreenOverview.gradient),
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size.width * 0.02),
-                gradient: AppTheme.cardThemeForHomeScreenOverview.gradient),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical: size.width * 0.01, horizontal: size.width * 0.03),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(
-                      top: size.height * 0.004,
-                      right: size.height * 0.01,
-                    ),
-                    child: Icon(
-                      icon,
-                      size: size.width * 0.06,
-                    ),
+            border: Border.all(
+                color:
+                    const Color.fromRGBO(46, 46, 46, 1.000).withOpacity(0.1)),
+            borderRadius: BorderRadius.circular(size.width * 0.02),
+            gradient: AppTheme.homeOverviewGradient(context),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: size.width * 0.01, horizontal: size.width * 0.03),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(
+                    top: size.height * 0.004,
+                    right: size.height * 0.01,
                   ),
-                  Column(children: [
-                    Text(
-                      overviewResult,
-                      style: AppTheme.homePageOverviewResultTextStyle,
-                    ),
-                    Text(
-                      overviewUnit,
-                      style: AppTheme.homePageOverviewUnitTextStyle,
-                    )
-                  ]),
-                ],
-              ),
+                  child: Icon(
+                    icon,
+                    size: size.width * 0.06,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Column(children: [
+                  Text(
+                    overviewResult,
+                    style: AppTheme.overviewMetric(context),
+                  ),
+                  Text(
+                    overviewUnit,
+                    style: AppTheme.overviewUnit(context),
+                  )
+                ]),
+              ],
             ),
           ),
         )

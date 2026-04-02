@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:line_icons/line_icons.dart';
 
@@ -11,12 +11,12 @@ class DiscoverHealthpilot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
     return Container(
       margin: EdgeInsets.all(size.width * 0.06),
       child: Stack(
         children: [
           Container(
-            // color: Colors.amber,
             width: size.width * 0.9,
             height: size.height * 0.2,
             decoration: BoxDecoration(boxShadow: [
@@ -30,11 +30,10 @@ class DiscoverHealthpilot extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size.width * 0.02),
-                gradient: AppTheme.cardThemeForHomeScreenOverview.gradient),
+              borderRadius: BorderRadius.circular(size.width * 0.02),
+              gradient: AppTheme.homeOverviewGradient(context),
+            ),
             child: Stack(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
               children: [
                 Container(
                   margin: EdgeInsets.only(left: size.height * 0.03),
@@ -44,19 +43,20 @@ class DiscoverHealthpilot extends StatelessWidget {
                     children: [
                       Padding(
                         padding: EdgeInsets.only(top: size.height * 0.02),
-                        child: Image(
-                          image: const AssetImage(welcomeLogo),
+                        child: SafeRasterAsset(
+                          welcomeLogo,
                           height: size.height * 0.03,
+                          fit: BoxFit.contain,
                           alignment: Alignment.topLeft,
                         ),
                       ),
                       SizedBox(
                         height: size.height * 0.02,
                       ),
-                      const Text(
+                      Text(
                         'Take a quick tour on what Health Pilot can do to simplify your life.',
                         textAlign: TextAlign.left,
-                        style: AppTheme.homePageOverviewUnitTextStyle,
+                        style: AppTheme.overviewUnit(context),
                         maxLines: 2,
                       ),
                       Row(
@@ -64,24 +64,24 @@ class DiscoverHealthpilot extends StatelessWidget {
                           Icon(
                             LineIcons.clock,
                             size: size.height * 0.025,
-                            color: AppTheme.helperTextForUserStyle.color,
+                            color: cs.onSurfaceVariant,
                           ),
                           SizedBox(
                             width: size.width * 0.01,
                             height: size.height * 0.05,
                           ),
-                          const Text(
+                          Text(
                             '3-5 mins',
-                            style: AppTheme.helperTextForUserStyle,
+                            style: AppTheme.bodyMuted(context),
                           )
                         ],
                       ),
                       Row(children: [
-                        const Text('Let\'s begin',
-                            style: AppTheme.homePageOverviewUnitTextStyle),
+                        Text('Let\'s begin',
+                            style: AppTheme.overviewUnit(context)),
                         Icon(
                           LineIcons.arrowRight,
-                          size: AppTheme.homePageOverviewUnitTextStyle.fontSize,
+                          size: Theme.of(context).textTheme.bodySmall?.fontSize,
                         )
                       ])
                     ],
@@ -91,7 +91,12 @@ class DiscoverHealthpilot extends StatelessWidget {
                     width: double.infinity,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [SvgPicture.asset(dicoverHelthBotSvg)],
+                      children: [
+                        SafeSvgAsset(
+                          dicoverHelthBotSvg,
+                          height: size.height * 0.16,
+                        ),
+                      ],
                     )),
               ],
             ),

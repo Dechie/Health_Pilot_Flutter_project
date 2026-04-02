@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
-import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/core/widgets/safe_assets.dart';
+import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/onboarding/physical_therapy_screen.dart';
+import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -27,14 +29,17 @@ class HealthPilotApp extends StatelessWidget {
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Health Pilot',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-              fontFamily: 'Roboto', // Example font family
-            ),
-            home: const WelcomeScreen(),
+          return Consumer<AppState>(
+            builder: (context, appState, _) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'Health Pilot',
+                theme: AppTheme.light,
+                darkTheme: AppTheme.dark,
+                themeMode: appState.themeMode,
+                home: const WelcomeScreen(),
+              );
+            },
           );
         });
   }
@@ -66,13 +71,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(
+    return SafeArea(
       child: Scaffold(
-          // appBar: AppBar(
-          //   centerTitle: true,
-          //   title: const Text('Health Pilot'),
-          // ),
-          body: Center(child: Image(image: AssetImage(welcomeLogo)))),
+        body: Center(
+          child: SafeRasterAsset(
+            AssetPaths.welcomeLogo,
+            width: 220,
+            height: 220,
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
     );
   }
 }

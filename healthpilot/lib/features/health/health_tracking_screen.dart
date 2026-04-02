@@ -32,7 +32,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          style: AppTheme.buttonStyleForAppBarBackButto,
+          style: AppTheme.circleBackButtonStyle(context),
         ),
         title: const Text(
           "Health Tracking",

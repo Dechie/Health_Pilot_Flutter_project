@@ -51,7 +51,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            style: AppTheme.buttonStyleForAppBarBackButto,
+            style: AppTheme.circleBackButtonStyle(context),
           ),
           title: const Text(
             'Let’s Get Started',

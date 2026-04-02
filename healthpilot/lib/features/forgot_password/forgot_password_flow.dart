@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_controller.dart';
 import 'package:healthpilot/features/forgot_password/widgets/forgot_password_header.dart';
 import 'package:healthpilot/features/forgot_password/widgets/forgot_password_primary_button.dart';
 import 'package:healthpilot/features/onboarding/language_translation.dart';
+import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
-
-const _muted = Color.fromRGBO(42, 42, 42, 0.5);
 
 /// Entry point for the forgot-password flow. Pushes a single route; step 2 stays
 /// under the same [ChangeNotifierProvider] scope.
@@ -41,7 +40,7 @@ class _ForgotPasswordScaffold extends StatelessWidget {
     return Consumer<ForgotPasswordController>(
       builder: (context, controller, _) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           body: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -89,6 +88,8 @@ class _EmailStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.read<ForgotPasswordController>();
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return SingleChildScrollView(
       padding: EdgeInsets.only(
         bottom: MediaQuery.viewInsetsOf(context).bottom + 16,
@@ -109,7 +110,7 @@ class _EmailStep extends StatelessWidget {
               height: screenHeight * 0.36,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
-                child: SvgPicture.asset(
+                child: SafeSvgAsset(
                   forgotPasswordIllustration,
                   fit: BoxFit.contain,
                 ),
@@ -117,17 +118,10 @@ class _EmailStep extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
-              child: const Text(
+              child: Text(
                 "We'll send you an email with instructions on how to reset your password.",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  height: 1.25,
-                  letterSpacing: -0.17,
-                  color: _muted,
-                ),
+                style: AppTheme.bodyMuted(context),
               ),
             ),
             SizedBox(height: screenHeight * 0.028),
@@ -141,16 +135,12 @@ class _EmailStep extends StatelessWidget {
                 onFieldSubmitted: (_) => controller.submitEmail(),
                 decoration: InputDecoration(
                   hintText: 'Email',
-                  hintStyle: const TextStyle(
-                    color: _muted,
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 14,
+                  hintStyle: tt.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w300,
-                    letterSpacing: -0.165,
                   ),
                   prefixIcon: Padding(
                     padding: EdgeInsets.only(left: screenWidth * 0.02),
-                    child: const Icon(Icons.email_outlined, color: _muted),
+                    child: Icon(Icons.email_outlined, color: cs.onSurfaceVariant),
                   ),
                   prefixIconConstraints: const BoxConstraints(
                     minWidth: 48,
@@ -158,17 +148,15 @@ class _EmailStep extends StatelessWidget {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                    borderSide: BorderSide(color: cs.outline),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                    borderSide: BorderSide(color: cs.outline),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Color.fromRGBO(110, 182, 255, 1),
-                    ),
+                    borderSide: BorderSide(color: cs.primary, width: 1.5),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 16,
@@ -182,7 +170,8 @@ class _EmailStep extends StatelessWidget {
             ForgotPasswordPrimaryButton(
               screenWidth: screenWidth,
               label: 'Next',
-              onPressed: () => context.read<ForgotPasswordController>().submitEmail(),
+              onPressed: () =>
+                  context.read<ForgotPasswordController>().submitEmail(),
             ),
           ],
         ),
@@ -205,6 +194,8 @@ class _CheckEmailStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -224,22 +215,24 @@ class _CheckEmailStep extends StatelessWidget {
             ),
             child: SizedBox(
               height: screenHeight * 0.32,
-              child: SvgPicture.asset(
+              child: SafeSvgAsset(
                 forgotPasswordCheckEmailIllustration,
                 fit: BoxFit.contain,
               ),
             ),
           ),
-          const Text(
+          Text(
             'Check your email',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.165,
-              color: Color.fromRGBO(42, 42, 42, 1),
-            ),
+            style: tt.titleLarge?.copyWith(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ) ??
+                TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                ),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(
@@ -248,28 +241,18 @@ class _CheckEmailStep extends StatelessWidget {
               screenWidth * 0.1,
               screenHeight * 0.02,
             ),
-            child: const Text(
+            child: Text(
               "We've emailed you instructions on how to change your password. Please check your inbox.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                height: 1.25,
-                letterSpacing: -0.165,
-                color: _muted,
-              ),
+              style: AppTheme.bodyMuted(context),
             ),
           ),
-          const Text(
+          Text(
             "Didn't receive an email?",
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 16,
+            style: tt.bodyLarge?.copyWith(
               fontWeight: FontWeight.w500,
-              letterSpacing: -0.165,
-              color: Colors.black,
+              color: cs.onSurface,
             ),
           ),
           SizedBox(height: screenHeight * 0.04),

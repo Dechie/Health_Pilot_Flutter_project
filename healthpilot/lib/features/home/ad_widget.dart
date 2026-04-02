@@ -25,10 +25,11 @@ class _AdWidgetState extends State<AdWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
+    final cs = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       height: size.height * 0.2,
-      decoration: AppTheme.cardThemeForHomeScreenOverview,
+      decoration: AppTheme.homeOverviewBoxDecoration(context),
       child: Stack(
         children: [
           PageView.builder(
@@ -48,6 +49,7 @@ class _AdWidgetState extends State<AdWidget> {
                     child: Text(
                       ads[_currentPage],
                       textAlign: TextAlign.left,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
                 ],
@@ -59,9 +61,9 @@ class _AdWidgetState extends State<AdWidget> {
             child: SmoothPageIndicator(
               controller: _pageController,
               count: ads.length,
-              effect: const ExpandingDotsEffect(
-                  activeDotColor: Color.fromRGBO(110, 182, 255, 1),
-                  dotColor: Color.fromRGBO(183, 216, 249, 0.839)),
+              effect: ExpandingDotsEffect(
+                  activeDotColor: cs.primary,
+                  dotColor: cs.primaryContainer),
             ),
           )
         ],

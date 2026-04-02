@@ -60,7 +60,7 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          style: AppTheme.buttonStyleForAppBarBackButto,
+          style: AppTheme.circleBackButtonStyle(context),
         ),
         title: const Text(
           "Symptom Tracking",

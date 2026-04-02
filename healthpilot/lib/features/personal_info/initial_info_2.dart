@@ -31,7 +31,7 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
               // Define the action when the back button is pressed
               Navigator.of(context).pop();
             },
-            style: AppTheme.buttonStyleForAppBarBackButto,
+            style: AppTheme.circleBackButtonStyle(context),
           ),
           title: const Text(
             'Almost There',

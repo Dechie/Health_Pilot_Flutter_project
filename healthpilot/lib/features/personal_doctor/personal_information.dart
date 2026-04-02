@@ -146,9 +146,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   SizedBox(
                     height: size.height * 0.03,
                   ),
-                  const Text(
+                  Text(
                     'Upload your profile photo',
-                    style: AppTheme.helperTextForUserStyle,
+                    style: AppTheme.bodyMuted(context),
                   ),
                 ],
               ),

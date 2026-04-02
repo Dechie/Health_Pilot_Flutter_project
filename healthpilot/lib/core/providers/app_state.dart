@@ -1,5 +1,14 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
-/// Lightweight app-wide state holder. Extend with fields and [notifyListeners]
-/// as features migrate to Provider.
-class AppState extends ChangeNotifier {}
+/// Lightweight app-wide state. [themeMode] is wired into [MaterialApp]; extend as needed.
+class AppState extends ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeMode get themeMode => _themeMode;
+
+  void setThemeMode(ThemeMode mode) {
+    if (_themeMode == mode) return;
+    _themeMode = mode;
+    notifyListeners();
+  }
+}

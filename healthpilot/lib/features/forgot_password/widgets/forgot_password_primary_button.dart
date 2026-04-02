@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-const _primaryBlue = Color.fromRGBO(110, 182, 255, 1);
-
-/// Full-width primary CTA matching the forgot-password mocks.
+/// Full-width primary CTA; colors come from [ThemeData.filledButtonTheme].
 class ForgotPasswordPrimaryButton extends StatelessWidget {
   const ForgotPasswordPrimaryButton({
     super.key,
@@ -25,8 +23,6 @@ class ForgotPasswordPrimaryButton extends StatelessWidget {
         child: FilledButton(
           onPressed: onPressed,
           style: FilledButton.styleFrom(
-            backgroundColor: _primaryBlue,
-            foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -34,12 +30,7 @@ class ForgotPasswordPrimaryButton extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: const TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.16,
-            ),
+            style: Theme.of(context).textTheme.labelLarge,
           ),
         ),
       ),

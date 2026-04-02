@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
 import 'package:healthpilot/features/articles/article_screen.dart';
@@ -62,9 +62,12 @@ class BlogRecomendationCard extends StatelessWidget {
                     padding: EdgeInsets.all(size.width * 0.03),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(size.width * 0.02),
-                        gradient:
-                            AppTheme.cardThemeForHomeScreenOverview.gradient),
-                    child: SvgPicture.asset(img),
+                        gradient: AppTheme.homeOverviewGradient(context)),
+                    child: SafeSvgAsset(
+                      img,
+                      height: size.height * 0.12,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
                 Container(
@@ -84,7 +87,7 @@ class BlogRecomendationCard extends StatelessWidget {
                   width: double.infinity,
                   child: Text(
                     description,
-                    style: AppTheme.blogDescriptionForBlogReccomdation,
+                    style: AppTheme.blogCardDescription(context),
                   ),
                 )
               ],

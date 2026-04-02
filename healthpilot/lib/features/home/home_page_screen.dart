@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/general_chat_screen.dart';
 
@@ -131,17 +132,17 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(ctx).colorScheme.surface,
                           border: Border.all(
-                              color: const Color.fromRGBO(110, 182, 255, 1)),
+                              color: Theme.of(ctx).colorScheme.primary),
                           borderRadius:
                               BorderRadius.circular(size.width * 0.04)),
                       padding: EdgeInsets.all(size.height * 0.02),
-                      child: const Text(
+                      child: Text(
                           'Hello! Feel free to ask me anything, How can I assist you?',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
-                          style: AppTheme.floatingActionButtonAlertText),
+                          style: AppTheme.snackbarAssistiveText(ctx)),
                     ),
                     Positioned(
                       right: size.width * -0.01,
@@ -155,13 +156,13 @@ class _HomePageScreenState extends State<HomePageScreen> {
                           height: 15,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: const Color.fromRGBO(110, 182, 255, 1),
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           child: Center(
                             child: Icon(
                               Icons.close,
                               size: size.width * 0.02,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
                         ),
@@ -173,7 +174,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       child: Icon(
                         Icons.arrow_drop_down,
                         size: size.width * 0.15,
-                        color: const Color.fromRGBO(110, 182, 255, 1),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
@@ -238,7 +239,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 width: size.width * 0.5,
                 child: Text(
                   'Hello, $userName',
-                  style: AppTheme.homePageUserNameTextStyle,
+                  style: AppTheme.userGreeting(context),
                 ),
               ),
               Container(
@@ -253,13 +254,25 @@ class _HomePageScreenState extends State<HomePageScreen> {
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => const LanguageTranslation(),
                             )),
-                        child: SvgPicture.asset(translateIcon)),
+                        child: SafeSvgAsset(
+                          translateIcon,
+                          width: size.width * 0.06,
+                          height: size.width * 0.06,
+                        )),
                     InkWell(
                       splashColor: const Color.fromARGB(100, 0, 0, 0),
                       onTap: () => cancelEmergencyCall(),
-                      child: SvgPicture.asset(triangleExclamationIcon),
+                      child: SafeSvgAsset(
+                        triangleExclamationIcon,
+                        width: size.width * 0.06,
+                        height: size.width * 0.06,
+                      ),
                     ),
-                    SvgPicture.asset(bellReminder),
+                    SafeSvgAsset(
+                      bellReminder,
+                      width: size.width * 0.06,
+                      height: size.width * 0.06,
+                    ),
                   ],
                 ),
               ),
@@ -269,7 +282,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
             margin: EdgeInsets.only(
                 left: size.width * 0.06, top: size.width * 0.06),
             width: double.infinity,
-            child: const Text('Overview'),
+            child: Text(
+              'Overview',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
           ),
           SizedBox(
             height: size.height * 0.01,
@@ -298,9 +314,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
             margin: EdgeInsets.only(
                 left: size.width * 0.06, top: size.height * 0.04),
             width: double.infinity,
-            child: const Text(
+            child: Text(
               'Feeling unwell? Let us help you get better',
               textAlign: TextAlign.left,
+              style: Theme.of(context).textTheme.titleSmall,
             ),
           ),
           Container(
@@ -310,13 +327,13 @@ class _HomePageScreenState extends State<HomePageScreen> {
               width: double.infinity,
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     'Tell us your symptoms',
-                    style: AppTheme.helperTextForUserStyle,
+                    style: AppTheme.bodyMuted(context),
                   ),
                   Icon(
                     LineIcons.arrowRight,
-                    color: AppTheme.helperTextForUserStyle.color,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   )
                 ],
               )),
@@ -324,7 +341,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
             margin: EdgeInsets.only(
                 left: size.width * 0.06, top: size.height * 0.03),
             width: double.infinity,
-            child: const Text('Discover HealthPilot'),
+            child: Text(
+              'Discover HealthPilot',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
           ),
           const DiscoverHealthpilot(),
           SizedBox(
@@ -338,7 +358,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
             margin: EdgeInsets.only(
                 left: size.width * 0.06, top: size.height * 0.03),
             width: double.infinity,
-            child: const Text('Maintain a healthy lifestyle'),
+            child: Text(
+              'Maintain a healthy lifestyle',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
           ),
           SizedBox(
             height: size.height * 0.01,
@@ -390,57 +413,72 @@ class _HomePageScreenState extends State<HomePageScreen> {
         children: [
           Scaffold(
             bottomNavigationBar: BottomNavigationBar(
-              selectedItemColor:
-                  AppTheme.buttonStyleForFloatingActionBtn.backgroundColor,
-              unselectedItemColor: Colors.grey,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              unselectedItemColor:
+                  Theme.of(context).colorScheme.onSurfaceVariant,
+              selectedLabelStyle:
+                  const TextStyle(fontWeight: FontWeight.bold),
               elevation: 30,
-              // type: BottomNavigationBarType.shifting,
               currentIndex: _currentIndex,
               onTap: _onTabTapped,
               items: [
                 BottomNavigationBarItem(
                   icon: SvgPicture.asset(
                     bottomNavBarHomeIcon,
-                    color: _currentIndex == 0
-                        ? const Color.fromARGB(255, 72, 162, 252)
-                        : Colors.grey,
+                    colorFilter: ColorFilter.mode(
+                      _currentIndex == 0
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   label: 'Home',
                 ),
                 BottomNavigationBarItem(
                   icon: SvgPicture.asset(
                     bottomNavBarHealthIcon,
-                    color: _currentIndex == 1
-                        ? const Color.fromRGBO(110, 182, 255, 1)
-                        : Colors.grey,
+                    colorFilter: ColorFilter.mode(
+                      _currentIndex == 1
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   label: 'Health',
                 ),
                 BottomNavigationBarItem(
                   icon: SvgPicture.asset(
                     bottomNavBarAssesmentIcon,
-                    color: _currentIndex == 2
-                        ? const Color.fromRGBO(110, 182, 255, 1)
-                        : Colors.grey,
+                    colorFilter: ColorFilter.mode(
+                      _currentIndex == 2
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   label: 'Assesment',
                 ),
                 BottomNavigationBarItem(
                   icon: SvgPicture.asset(
                     bottomNavBarChatIcon,
-                    color: _currentIndex == 3
-                        ? const Color.fromRGBO(110, 182, 255, 1)
-                        : Colors.grey,
+                    colorFilter: ColorFilter.mode(
+                      _currentIndex == 3
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   label: 'Chat',
                 ),
                 BottomNavigationBarItem(
                   icon: SvgPicture.asset(
                     bottomNavBarProfileIcon,
-                    color: _currentIndex == 4
-                        ? const Color.fromRGBO(110, 182, 255, 1)
-                        : Colors.grey,
+                    colorFilter: ColorFilter.mode(
+                      _currentIndex == 4
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   label: 'Profile',
                 ),
@@ -463,10 +501,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                       );
                     },
-                    backgroundColor: AppTheme
-                        .buttonStyleForFloatingActionBtn.backgroundColor,
-                    foregroundColor: AppTheme
-                        .buttonStyleForFloatingActionBtn.foregroundColor,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primary,
+                    foregroundColor:
+                        Theme.of(context).colorScheme.onPrimary,
                     child: const Icon(LineIcons.robot),
                   )
                 : null,
@@ -490,14 +528,17 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       padding:
                           EdgeInsets.symmetric(horizontal: size.width * 0.03),
                       child: Card(
-                        color: const Color.fromARGB(255, 255, 255, 255),
+                        color: Theme.of(context).colorScheme.surface,
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                               vertical: size.height * 0.02),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(triangeExclamationPic),
+                              SafeSvgAsset(
+                                triangeExclamationPic,
+                                height: size.height * 0.08,
+                              ),
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius:
@@ -551,19 +592,23 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
                                           size.width * 0.02)),
-                                  color: const Color.fromRGBO(110, 182, 255, 1),
+                                  color: Theme.of(context).colorScheme.primary,
                                   onPressed: () {
                                     setState(() {
                                       isOnEmeregencyCalling = false;
                                     });
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     'Cancel',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                   ),
                                 ),
                               )
@@ -595,14 +640,17 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       padding:
                           EdgeInsets.symmetric(horizontal: size.width * 0.03),
                       child: Card(
-                        color: const Color.fromARGB(255, 255, 255, 255),
+                        color: Theme.of(context).colorScheme.surface,
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                               vertical: size.height * 0.02),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(chatBot),
+                              SafeSvgAsset(
+                                chatBot,
+                                height: size.height * 0.12,
+                              ),
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius:
@@ -652,8 +700,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
                                                 size.width * 0.02)),
-                                        color: const Color.fromRGBO(
-                                            110, 182, 255, 1),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                         onPressed: () {
                                           _currentPageOfTutorial++;
                                           setState(() {
@@ -667,13 +716,17 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                             }
                                           });
                                         },
-                                        child: const Text(
+                                        child: Text(
                                           'Next',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                         ),
                                       ),
                                     )
@@ -684,8 +737,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
                                                 size.width * 0.02)),
-                                        color: const Color.fromRGBO(
-                                            110, 182, 255, 1),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                         onPressed: () {
                                           setState(() {
                                             prefs.setBool('isTutorGiven', true);
@@ -695,13 +749,17 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                             _currentIndex = 4;
                                           });
                                         },
-                                        child: const Text(
+                                        child: Text(
                                           'Finish Setup',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -724,13 +782,17 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                       });
                                     });
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     'Skip',
-                                    style: TextStyle(
-                                      color: Color.fromRGBO(42, 42, 42, 1),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                   ),
                                 ),
                               ),
@@ -740,11 +802,13 @@ class _HomePageScreenState extends State<HomePageScreen> {
                               SmoothPageIndicator(
                                 controller: _pageControllerOfTutorial,
                                 count: _tutorText.length,
-                                effect: const ExpandingDotsEffect(
-                                    activeDotColor:
-                                        Color.fromRGBO(110, 182, 255, 1),
-                                    dotColor:
-                                        Color.fromRGBO(183, 216, 249, 0.839)),
+                                effect: ExpandingDotsEffect(
+                                    activeDotColor: Theme.of(context)
+                                        .colorScheme
+                                        .primary,
+                                    dotColor: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer),
                               )
                             ],
                           ),
