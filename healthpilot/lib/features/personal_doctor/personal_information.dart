@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
+import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
 
 import 'package:healthpilot/theme/app_theme.dart';
@@ -409,6 +411,34 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     SizedBox(
                       height: size.height * 0.05,
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Food and Nutrition Tracking',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 16),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (context) =>
+                                    const FoodNutritionHistoryScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.arrow_forward,
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                          ),
+                        ),
+                      ],
+                    ),
+                    ..._foodHistoryPreviewRows(context, size),
+                    SizedBox(
+                      height: size.height * 0.03,
+                    ),
                     Container(
                       decoration: BoxDecoration(
                           borderRadius:
@@ -463,7 +493,14 @@ class _PersonalInformationState extends State<PersonalInformation> {
                             height: size.height * 0.045,
                             width: size.width * 0.35,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (context) =>
+                                        const FoodNutritionTrackingScreen(),
+                                  ),
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       const Color.fromRGBO(110, 182, 255, 1),
@@ -512,5 +549,75 @@ class _PersonalInformationState extends State<PersonalInformation> {
         ),
       ),
     );
+  }
+
+  List<Widget> _foodHistoryPreviewRows(BuildContext context, Size size) {
+    void openHistory() {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => const FoodNutritionHistoryScreen(),
+        ),
+      );
+    }
+
+    Widget row(String label) {
+      return InkWell(
+        onTap: openHistory,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: size.height * 0.012),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: size.width * 0.003,
+                    height: size.height * 0.055,
+                    color: const Color.fromRGBO(110, 182, 255, 1),
+                  ),
+                  Container(
+                    width: size.width * 0.03,
+                    height: size.width * 0.03,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(size.width * 0.015),
+                      color: const Color.fromRGBO(110, 182, 255, 1),
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: size.width * 0.02),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward,
+                        color: Color.fromRGBO(110, 182, 255, 1),
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return [
+      row('11:30 AM, May 13, 2023'),
+      row('2:15 PM, May 12, 2023'),
+    ];
   }
 }

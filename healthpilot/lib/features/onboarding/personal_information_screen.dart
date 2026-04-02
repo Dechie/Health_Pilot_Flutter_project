@@ -20,6 +20,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
 import 'package:healthpilot/features/onboarding/subscription_and_payment_screen.dart';
 import 'package:healthpilot/features/emergency_contact/personal_information.dart';
 import 'package:healthpilot/features/personal_doctor/personal_information.dart'
@@ -337,13 +338,20 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                         ? "Start setup"
                         : "Subscribe",
                     subscription: () {
-                      setState(() {
-                        _isNutritionTrackingSubscribed =
-                            !_isNutritionTrackingSubscribed;
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const PaymentMethodScreen(),
-                        ));
-                      });
+                      if (_isNutritionTrackingSubscribed) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                const FoodNutritionTrackingScreen(),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => const PaymentMethodScreen(),
+                          ),
+                        );
+                      }
                     },
                   ),
                   InkWell(
