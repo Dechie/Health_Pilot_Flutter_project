@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/data/constants.dart';
-import 'package:healthpilot/screens/on_boarding_screens/physical_therapy_screen.dart';
-
-import 'package:healthpilot/screens/health_section/health_profile_screen.dart';
-import 'package:healthpilot/screens/home_page_screen/home_page_screen.dart';
-
-import 'screens/on_boarding_screens/physical_therapy_screen.dart';
+import 'package:healthpilot/features/onboarding/physical_therapy_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const HealthPilotApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppState>(create: (_) => AppState()),
+      ],
+      child: const HealthPilotApp(),
+    ),
+  );
 }
 
 class HealthPilotApp extends StatelessWidget {
