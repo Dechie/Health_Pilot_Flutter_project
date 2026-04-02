@@ -21,6 +21,10 @@ const String gynecologyConsultation =
     'assets/images/gynecology_consultation.svg';
 const String womanReading = 'assets/images/woman_reading.svg';
 const String dicoverHelthBotSvg = 'assets/images/Mobile_inbox.svg';
+const String forgotPasswordIllustration = 'assets/images/Forgot password.svg';
+/// Inbox / “check your email” style illustration (also used on discover).
+const String forgotPasswordCheckEmailIllustration =
+    'assets/images/Mobile_inbox.svg';
 const String githubLogo = 'assets/icons/github_logo.svg';
 const String chatBot = 'assets/icons/bot.svg';
 const String barIndicatorUp = 'assets/icons/bar_indicator.svg';

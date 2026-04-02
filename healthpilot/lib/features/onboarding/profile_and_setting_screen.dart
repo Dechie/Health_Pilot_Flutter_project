@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:healthpilot/features/health/health_profile_screen.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:healthpilot/features/meet_the_devs/meet_the_devs.dart';
 import 'package:healthpilot/features/onboarding/language_translation.dart';
@@ -13,7 +12,7 @@ import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
 import 'package:healthpilot/features/personal_info/initial_info_3.dart';
 import 'medications._screen.dart';
 import 'personal_information_screen.dart';
-import 'signup_and_login_screen.dart';
+import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
 import 'subscription_and_payment_screen.dart';
 
 class ProfileAndSettingScreen extends StatefulWidget {
@@ -233,7 +232,7 @@ class _ProfileAndSettingScreenState extends State<ProfileAndSettingScreen> {
                     iconData: Icons.arrow_forward,
                     onpressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ForgotPasswordScreen()));
+                          builder: (context) => const ForgotPasswordScreen()));
                     },
                   ),
                   HealthInformationSettings(
