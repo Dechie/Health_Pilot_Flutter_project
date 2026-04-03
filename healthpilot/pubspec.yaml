@@ -28,7 +28,7 @@ dependencies:
   provider: ^6.1.5+1
 
   bubble: ^1.2.1
-  google_fonts: ^6.1.0
+  google_fonts: ^6.3.0
 
   flutter_screenutil: ^5.9.0
   feather_icons: ^1.2.0
@@ -40,6 +40,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+
+# Transitive (path_provider_windows / shared_preferences_windows); 5.1.0 breaks on Dart 3.11+.
+dependency_overrides:
+  win32: ^5.8.0
 
 flutter:
   uses-material-design: true
