@@ -32,11 +32,58 @@ class _HealthAssessmentFlowScreenState extends State<HealthAssessmentFlowScreen>
   String? _symptomsTrend; // worse/better/no_change
 
   @override
+  void initState() {
+    super.initState();
+    _allergiesController.addListener(_onAllergiesChanged);
+  }
+
+  void _onAllergiesChanged() {
+    // Only affects CTA label/enabled state on the allergies step.
+    if (!mounted) return;
+    if (_page == 2) setState(() {});
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
+    _allergiesController.removeListener(_onAllergiesChanged);
     _allergiesController.dispose();
     _symptomController.dispose();
     super.dispose();
+  }
+
+  bool get _canProceed {
+    switch (_page) {
+      case 0:
+        return _subject != null;
+      case 1:
+        return _bloodType != null;
+      case 2:
+        // Allergies can be skipped.
+        return true;
+      case 3:
+        return _selectedSymptoms.isNotEmpty;
+      case 4:
+        return _symptomDuration != null;
+      case _otherSymptomsPageIndex:
+        return _hasOtherSymptoms != null;
+      case _addMoreSymptomsPageIndex:
+        // User already had some symptoms; but if they deleted all, block.
+        return _selectedSymptoms.isNotEmpty;
+      case _trendPageIndex:
+        return _symptomsTrend != null;
+      default:
+        return true;
+    }
+  }
+
+  String get _ctaLabel {
+    if (_page == _trendPageIndex) return 'Finish';
+    // Allergies step: show Skip only when empty.
+    if (_page == 2) {
+      return _allergiesController.text.trim().isEmpty ? 'Skip' : 'Next';
+    }
+    return 'Next';
   }
 
   void _goNext() {
@@ -164,8 +211,8 @@ class _HealthAssessmentFlowScreenState extends State<HealthAssessmentFlowScreen>
                 width: double.infinity,
                 height: 44,
                 child: FilledButton(
-                  onPressed: _goNext,
-                  child: Text(_page == _trendPageIndex ? 'Finish' : 'Next'),
+                  onPressed: _canProceed ? _goNext : null,
+                  child: Text(_ctaLabel),
                 ),
               ),
             ),
@@ -567,27 +614,30 @@ class _TrendPage extends StatelessWidget {
             style: t.bodyLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 18),
-          Center(
-            child: Column(
-              children: [
-                _OutlinedChoice(
-                  label: 'They’re getting worse',
-                  selected: value == 'worse',
-                  onTap: () => onChanged('worse'),
-                ),
-                const SizedBox(height: 10),
-                _OutlinedChoice(
-                  label: 'They’re getting better',
-                  selected: value == 'better',
-                  onTap: () => onChanged('better'),
-                ),
-                const SizedBox(height: 10),
-                _OutlinedChoice(
-                  label: 'There is no change',
-                  selected: value == 'no_change',
-                  onTap: () => onChanged('no_change'),
-                ),
-              ],
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _OutlinedChoice(
+                    label: 'They’re getting worse',
+                    selected: value == 'worse',
+                    onTap: () => onChanged('worse'),
+                  ),
+                  const SizedBox(height: 10),
+                  _OutlinedChoice(
+                    label: 'They’re getting better',
+                    selected: value == 'better',
+                    onTap: () => onChanged('better'),
+                  ),
+                  const SizedBox(height: 10),
+                  _OutlinedChoice(
+                    label: 'There is no change',
+                    selected: value == 'no_change',
+                    onTap: () => onChanged('no_change'),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
