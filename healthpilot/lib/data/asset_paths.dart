@@ -27,6 +27,10 @@ abstract final class AssetPaths {
   static const forgotPasswordCheckEmailIllustration =
       'assets/images/Mobile_inbox.svg';
 
+  // Assessment flow illustrations
+  static const assessmentSummaryIllustration = 'assets/images/assessment_summary.svg';
+  static const backToHomeIllustration = 'assets/images/back_to_home.svg';
+
   static const githubLogo = 'assets/icons/github_logo.svg';
   static const chatBot = 'assets/icons/bot.svg';
   static const barIndicatorUp = 'assets/icons/bar_indicator.svg';

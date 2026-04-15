@@ -13,6 +13,7 @@ import 'package:healthpilot/features/home/discover_healthpilot.dart';
 
 import 'package:healthpilot/features/health/health_profile_screen.dart';
 
+import 'package:healthpilot/features/health_assessment/assessment_history_screen.dart';
 import 'package:healthpilot/features/onboarding/language_translation.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -28,7 +29,7 @@ import 'blog_reccomendation._card.dart';
 
 class HomePageScreen extends StatefulWidget {
   final bool isHelpPressed;
-  HomePageScreen({super.key, required this.isHelpPressed});
+  const HomePageScreen({super.key, required this.isHelpPressed});
 
   @override
   State<HomePageScreen> createState() => _HomePageScreenState();
@@ -226,185 +227,184 @@ class _HomePageScreenState extends State<HomePageScreen> {
     final size = MediaQuery.of(context).size;
 
     final List<Widget> pages = [
-      Column(
-        children: [
-          SizedBox(
-            height: size.height * 0.03,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                margin: EdgeInsets.only(left: size.width * 0.06),
-                width: size.width * 0.5,
-                child: Text(
-                  'Hello, $userName',
-                  style: AppTheme.userGreeting(context),
+      SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: size.height * 0.03,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: size.width * 0.06),
+                  width: size.width * 0.5,
+                  child: Text(
+                    'Hello, $userName',
+                    style: AppTheme.userGreeting(context),
+                  ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.only(right: size.width * 0.08),
-                width: size.width * 0.2,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
+                Container(
+                  margin: EdgeInsets.only(right: size.width * 0.08),
+                  width: size.width * 0.2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                          splashColor: const Color.fromARGB(100, 0, 0, 0),
+                          onTap: () =>
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    const LanguageTranslation(),
+                              )),
+                          child: SafeSvgAsset(
+                            translateIcon,
+                            width: size.width * 0.06,
+                            height: size.width * 0.06,
+                          )),
+                      InkWell(
                         splashColor: const Color.fromARGB(100, 0, 0, 0),
-                        onTap: () =>
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const LanguageTranslation(),
-                            )),
+                        onTap: () => cancelEmergencyCall(),
                         child: SafeSvgAsset(
-                          translateIcon,
+                          triangleExclamationIcon,
                           width: size.width * 0.06,
                           height: size.width * 0.06,
-                        )),
-                    InkWell(
-                      splashColor: const Color.fromARGB(100, 0, 0, 0),
-                      onTap: () => cancelEmergencyCall(),
-                      child: SafeSvgAsset(
-                        triangleExclamationIcon,
+                        ),
+                      ),
+                      SafeSvgAsset(
+                        bellReminder,
                         width: size.width * 0.06,
                         height: size.width * 0.06,
                       ),
-                    ),
-                    SafeSvgAsset(
-                      bellReminder,
-                      width: size.width * 0.06,
-                      height: size.width * 0.06,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Container(
-            margin: EdgeInsets.only(
-                left: size.width * 0.06, top: size.width * 0.06),
-            width: double.infinity,
-            child: Text(
-              'Overview',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ),
-          SizedBox(
-            height: size.height * 0.01,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-            child: const Row(
-                // mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  OverviewCard(
-                      icon: LineIcons.heart,
-                      overviewResult: '120',
-                      overviewUnit: 'BPM'),
-                  OverviewCard(
-                      icon: LineIcons.weight,
-                      overviewResult: '21.6',
-                      overviewUnit: 'BMI'),
-                  OverviewCard(
-                      icon: LineIcons.bed,
-                      overviewResult: '6.5',
-                      overviewUnit: 'hours'),
-                ]),
-          ),
-          Container(
-            margin: EdgeInsets.only(
-                left: size.width * 0.06, top: size.height * 0.04),
-            width: double.infinity,
-            child: Text(
-              'Feeling unwell? Let us help you get better',
-              textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ),
-          Container(
-              margin: EdgeInsets.only(
-                left: size.width * 0.06,
-              ),
-              width: double.infinity,
-              child: Row(
-                children: [
-                  Text(
-                    'Tell us your symptoms',
-                    style: AppTheme.bodyMuted(context),
+                    ],
                   ),
-                  Icon(
-                    LineIcons.arrowRight,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  )
-                ],
-              )),
-          Container(
-            margin: EdgeInsets.only(
-                left: size.width * 0.06, top: size.height * 0.03),
-            width: double.infinity,
-            child: Text(
-              'Discover HealthPilot',
-              style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ],
             ),
-          ),
-          const DiscoverHealthpilot(),
-          SizedBox(
-            height: size.height * 0.02,
-          ),
-          const AdWidget(),
-          SizedBox(
-            height: size.height * 0.01,
-          ),
-          Container(
-            margin: EdgeInsets.only(
-                left: size.width * 0.06, top: size.height * 0.03),
-            width: double.infinity,
-            child: Text(
-              'Maintain a healthy lifestyle',
-              style: Theme.of(context).textTheme.titleSmall,
+            Container(
+              margin: EdgeInsets.only(
+                  left: size.width * 0.06, top: size.width * 0.06),
+              width: double.infinity,
+              child: Text(
+                'Overview',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
             ),
-          ),
-          SizedBox(
-            height: size.height * 0.01,
-          ),
-          SizedBox(
-            width: double.infinity,
-            height: size.height * 0.35,
-            child: ListView.builder(
-              itemCount: _blogs.length,
-              itemBuilder: (context, index) {
-                return BlogRecomendationCard(
-                  img: _blogs[index][0],
-                  title: _blogs[index][1],
-                  description: _blogs[index][2],
-                  blogType: _blogs[index][3],
-                );
-              },
-              scrollDirection: Axis.horizontal,
+            SizedBox(
+              height: size.height * 0.01,
             ),
-          )
-        ],
-      ),
-      SingleChildScrollView(
-        child: SizedBox(
-          height: size.height * 0.9,
-          child: const HealthProfile(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
+              child: const Row(
+                  // mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    OverviewCard(
+                        icon: LineIcons.heart,
+                        overviewResult: '120',
+                        overviewUnit: 'BPM'),
+                    OverviewCard(
+                        icon: LineIcons.weight,
+                        overviewResult: '21.6',
+                        overviewUnit: 'BMI'),
+                    OverviewCard(
+                        icon: LineIcons.bed,
+                        overviewResult: '6.5',
+                        overviewUnit: 'hours'),
+                  ]),
+            ),
+            Container(
+              margin: EdgeInsets.only(
+                  left: size.width * 0.06, top: size.height * 0.04),
+              width: double.infinity,
+              child: Text(
+                'Feeling unwell? Let us help you get better',
+                textAlign: TextAlign.left,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            Container(
+                margin: EdgeInsets.only(
+                  left: size.width * 0.06,
+                ),
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    Text(
+                      'Tell us your symptoms',
+                      style: AppTheme.bodyMuted(context),
+                    ),
+                    Icon(
+                      LineIcons.arrowRight,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )
+                  ],
+                )),
+            Container(
+              margin: EdgeInsets.only(
+                  left: size.width * 0.06, top: size.height * 0.03),
+              width: double.infinity,
+              child: Text(
+                'Discover HealthPilot',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            const DiscoverHealthpilot(),
+            SizedBox(
+              height: size.height * 0.02,
+            ),
+            const AdWidget(),
+            SizedBox(
+              height: size.height * 0.01,
+            ),
+            Container(
+              margin: EdgeInsets.only(
+                  left: size.width * 0.06, top: size.height * 0.03),
+              width: double.infinity,
+              child: Text(
+                'Maintain a healthy lifestyle',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            SizedBox(
+              height: size.height * 0.01,
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: size.height * 0.35,
+              child: ListView.builder(
+                itemCount: _blogs.length,
+                itemBuilder: (context, index) {
+                  return BlogRecomendationCard(
+                    img: _blogs[index][0],
+                    title: _blogs[index][1],
+                    description: _blogs[index][2],
+                    blogType: _blogs[index][3],
+                  );
+                },
+                scrollDirection: Axis.horizontal,
+              ),
+            )
+          ],
         ),
       ),
-      const Center(
-        child: Text('Assesment'),
+      const HealthProfile(),
+      AssessmentHistoryScreen(
+        latestSummary: AssessmentSummary(
+          subject: null,
+          bloodType: null,
+          allergies: '',
+          symptoms: const [],
+          symptomDuration: null,
+          hasOtherSymptoms: null,
+          symptomsTrend: null,
+        ),
       ),
-      SingleChildScrollView(
-          child: SizedBox(
-              height: size.height * 0.9, child: const GeneralChatScreen())),
+      const GeneralChatScreen(),
       // const Center(
       //   child: Text('chat'),
       // ),
-      SingleChildScrollView(
-        child: SizedBox(
-          height: size.height * 0.9,
-          child: const ProfileAndSettingScreen(),
-        ),
-      ),
+      const ProfileAndSettingScreen(),
     ];
 
     return FutureBuilder(
@@ -484,10 +484,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 ),
               ],
             ),
-            body: SingleChildScrollView(
-                child: SafeArea(
-              child: pages[_currentIndex],
-            )),
+            body: SafeArea(child: pages[_currentIndex]),
             floatingActionButton: _currentIndex == 0
                 ? FloatingActionButton(
                     shape: RoundedRectangleBorder(
@@ -771,12 +768,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                       borderRadius: BorderRadius.circular(
                                           size.width * 0.02)),
                                   onPressed: () {
-                                    setState(() async {
-                                      final prefs =
-                                          await SharedPreferences.getInstance();
-
+                                    SharedPreferences.getInstance().then((prefs) {
+                                      prefs.setBool('isTutorGiven', true);
+                                      if (!mounted) return;
                                       setState(() {
-                                        prefs.setBool('isTutorGiven', true);
                                         isTutorGiven = true;
                                         isOnHelp = false;
                                       });

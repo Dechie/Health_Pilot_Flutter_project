@@ -37,25 +37,28 @@ class ChatScreen extends StatelessWidget {
             more: () {},
             senderId: user.userId,
           )),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          children: [
-            user.chatHistory.isEmpty
-                ? const EmptyChat()
-                : ChatList(
-                    senderId: senderId,
-                    userId: userId,
-                    chatList: user.chatHistory),
-            SendMessage(
-              attach: () {
-                print('add file');
-              },
-              sendMessage: (message) {
-                print('send $message');
-              },
-            ),
-          ],
+      body: SafeArea(
+        bottom: true,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            children: [
+              user.chatHistory.isEmpty
+                  ? const EmptyChat()
+                  : ChatList(
+                      senderId: senderId,
+                      userId: userId,
+                      chatList: user.chatHistory),
+              SendMessage(
+                attach: () {
+                  print('add file');
+                },
+                sendMessage: (message) {
+                  print('send $message');
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
