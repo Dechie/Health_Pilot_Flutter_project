@@ -9,7 +9,6 @@ class ResultBackToHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final c = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Back To Home')),

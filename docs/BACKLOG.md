@@ -152,4 +152,19 @@ This section records **what we changed in code** (files + intent). It’s meant 
 - **Implementation**: “Check another symptom” pops to the first route, then pushes `HealthAssessmentFlowScreen`.
   - File: `healthpilot/lib/features/health_assessment/result_back_to_home_screen.dart`
 
+### 2026-04-15 — Branch A: extract feature boundaries (medication/subscription)
+
+- **Goal**: Move misplaced features out of onboarding into dedicated feature modules.
+- **Moved files**:
+  - `healthpilot/lib/features/onboarding/medications._screen.dart` → `healthpilot/lib/features/medication/medications_screen.dart`
+  - `healthpilot/lib/features/onboarding/subscription_and_payment_screen.dart` → `healthpilot/lib/features/subscription/subscription_and_payment_screen.dart`
+- **New feature directories created**:
+  - `healthpilot/lib/features/medication/`
+  - `healthpilot/lib/features/subscription/`
+  - `healthpilot/lib/features/profile/`
+  - `healthpilot/lib/features/tutorials/`
+- **Imports updated**:
+  - `healthpilot/lib/features/onboarding/profile_and_setting_screen.dart`
+  - `healthpilot/lib/features/onboarding/personal_information_screen.dart`
+
 
