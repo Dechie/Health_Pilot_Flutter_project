@@ -180,19 +180,36 @@ This section records **what we changed in code** (files + intent). It’s meant 
 - **Integration**:
   - `healthpilot/lib/features/home/home_page_screen.dart` — Profile tab uses `ProfileScreen()` directly.
 
-### 2026-04-18 — Pending: mobile QA before Branch C / worktree
+### 2026-04-18 — Mobile QA gate: Branch C / worktree (**PASS** — device screenshots)
 
-- **Decision**: Do **not** start `refactor/onboarding-flow` or add the **`../wt-onboarding`** worktree until **real-device** (or emulator) smoke testing is done on **`refactor/profile-feature`**.
-- **Why**: Catch layout/navigation regressions on mobile before stacking the next refactor.
-- **Branch to test**: `refactor/profile-feature` (implementation landed in commit `ebb2d79`; use branch tip if newer commits exist).
-- **Smoke checklist** (non-exhaustive):
-  - **Profile tab**: opens without errors; header, **Edit** → `PersonalInformationScreen`.
-  - **Settings** (AppBar gear): back returns to profile; **Subscription**, **Change password**, **Language**, **Terms** dialog, **FAQ** row.
-  - **Dark Mode** row: toggle still updates theme via `AppState`.
-  - **Help**: still replaces route with `HomePageScreen(isHelpPressed: true)` (tutorial/help flow).
-  - **Health Information** rows: **Medications** → `MedicationScreen`; **Allergies** → `InitialInfoThird`.
-  - **Gadgets** (premium): dialog still shows and dismisses.
-- **After QA passes**: push `refactor/profile-feature` if needed, then follow **Branch C worktree** steps in `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §8 (also summarized below).
+- **Status**: Smoke testing on **physical device** completed using screenshots from the mobile build on **`refactor/profile-feature`**. Branch C (`refactor/onboarding-flow`) + **git worktree** are **unblocked** whenever you choose to start them (commands unchanged below).
+- **Original gate** (kept for history): Do not start Branch C / worktree until device QA on profile branch — **done**.
+- **Branch tested**: `refactor/profile-feature` (see also commit `ebb2d79` + backlog commit `7f20eff` for docs gate).
+- **Smoke checklist** (executed on device):
+  - **Profile tab**: layout OK (title, settings gear, name, Free badge, Edit, Health Information, active Profile tab).
+  - **Settings**: full list visible; **Gadgets** → premium modal; **Subscription** → paywall / tiers screen; toggles and chevrons present.
+  - **Medications** (from profile): list + search UI OK.
+  - **Allergies** path: “One Last Step” / search / empty state / **Finish** — matches `InitialInfoThird` flow.
+  - **Language**: picker screen OK (see follow-up typo below).
+
+### 2026-04-18 — Mobile QA notes & follow-ups (from screenshots)
+
+- **Screenshot assets** (workspace, for design/reference):  
+  `assets/image-aabd84ee-7f24-4432-ac2d-de0f8866cc49.png` (Profile),  
+  `assets/image-e6c6fb4a-4d84-4e28-a97f-068742110bc2.png` (Medications),  
+  `assets/image-2506665f-ff6d-401b-bd75-0947f091fae2.png` (Allergies / one last step),  
+  `assets/image-6ee7969d-b294-491b-bdca-d0c2bbde9cb3.png` (Premium dialog),  
+  `assets/image-bc515e8e-5ec7-42bc-bc6e-f6c26e9e53d9.png` (Settings),  
+  `assets/image-050d680a-3a6c-44cf-8f82-d44e50b4d011.png` (Subscription),  
+  `assets/image-242aa25d-b863-4047-aaf4-10c7b328e0b7.png` (Language).  
+  Paths are under the Cursor project `assets/` folder (not committed to the Flutter app unless copied into `healthpilot/assets/`).
+- **Follow-up — medications placeholder (non-blocking for Branch C)**  
+  - List shows seed row text **`medicationName`** (from `MedicationListProvider` default entry in `medications_screen.dart`).  
+  - **Plan**: address under **Branch E** (`refactor/medication-feature`) — empty state vs realistic seed / backend.
+- **Follow-up — language copy (non-blocking)**  
+  - UI lists **“Urudu”**; correct spelling **“Urdu”**.  
+  - **File**: `healthpilot/lib/features/onboarding/language_translation.dart` (line ~16).  
+  - **Plan**: fix anytime; formally owned by **Branch F** (`refactor/language-settings`) when language moves under profile/settings.
 
 ### Follow-up: Branch C — git worktree (run only after mobile QA)
 
