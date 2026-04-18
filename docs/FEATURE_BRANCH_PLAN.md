@@ -9,6 +9,14 @@ The intent is to keep work **mergeable in small increments** by doing **one feat
 
 **Primary success metric:** as these branches merge, they should produce **minimal-to-zero merge conflicts** and **no feature overlap**. Every branch should have a clearly owned slice of the tree (files, routes, and responsibilities) so that parallel work can merge cleanly.
 
+### Stacked PRs & git worktrees (recommended workflow)
+
+For **how** to run branches in parallel (optional `git worktree`), **which GitHub PR base** to use when stacking PRs A→I, and **rebase rules** after parents merge, see:
+
+- **`docs/FEATURE_BRANCH_WORKTREE_PLAN.md`**
+
+Use that doc together with this file: **roadmap + acceptance criteria here**; **operational git workflow there**.
+
 ---
 
 ## 0) Current baseline (already done)
@@ -26,7 +34,7 @@ These changes are already implemented and tracked in `docs/BACKLOG.md` (do not r
 
 For each branch below:
 
-- Create branch from latest `health-assessment`
+- Create branch from the **correct parent in your stack** (see `docs/FEATURE_BRANCH_WORKTREE_PLAN.md`): e.g. Branch B from Branch A’s branch tip, or from `main` once earlier PRs are merged. The historical note “from latest `health-assessment`” applies when that branch is still the integration tip; **prefer stacked bases** when multiple PRs are open.
 - Make the scoped changes only (avoid drive-by refactors)
 - Actively design for **conflict-free merges**:
   - Prefer **moving/owning** code under a single feature directory in the current branch instead of editing shared files across multiple branches.
@@ -73,6 +81,7 @@ Branch naming convention (recommended):
 
 ### Branch B — Profile feature: consolidate “profile system”
 - **Branch**: `refactor/profile-feature`
+- **Status (2026-04-18)**: Profile tab uses `features/profile/profile_screen.dart` + `settings_screen.dart`; legacy onboarding path is a thin export shim (see `docs/BACKLOG.md`).
 - **Goal**: Centralize user/profile UI and prepare for a real profile model.
 - **Scope**:
   - Create:

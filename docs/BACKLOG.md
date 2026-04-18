@@ -167,4 +167,30 @@ This section records **what we changed in code** (files + intent). It’s meant 
   - `healthpilot/lib/features/onboarding/profile_and_setting_screen.dart`
   - `healthpilot/lib/features/onboarding/personal_information_screen.dart`
 
+### 2026-04-18 — Branch B: profile feature entry (`refactor/profile-feature`)
+
+- **Goal**: Own profile UI under `features/profile/`; Profile tab uses new entry; settings split out.
+- **Added**:
+  - `healthpilot/lib/features/profile/profile_screen.dart` — header + health information; AppBar opens `SettingsScreen`.
+  - `healthpilot/lib/features/profile/settings_screen.dart` — gadgets, subscription, theme, language, legal, help, FAQ.
+  - `healthpilot/lib/features/profile/widgets/profile_settings_shared.dart` — shared list/toggle widgets (moved from old monolith).
+  - `healthpilot/lib/features/profile/widgets/premium_feature_dialog.dart` — shared premium upsell dialog.
+- **Shim**:
+  - `healthpilot/lib/features/onboarding/profile_and_setting_screen.dart` — barrel + `typedef ProfileAndSettingScreen = ProfileScreen` for legacy imports.
+- **Integration**:
+  - `healthpilot/lib/features/home/home_page_screen.dart` — Profile tab uses `ProfileScreen()` directly.
+
+### Next branch (C): use a git worktree
+
+From repo root, after `refactor/profile-feature` is checked out and pushed (or from its tip):
+
+```bash
+git fetch origin
+git checkout refactor/profile-feature   # or: stay on merged main + pull, then checkout parent tip
+git worktree add -b refactor/onboarding-flow ../wt-onboarding
+cd ../wt-onboarding
+```
+
+Open PR **Branch C** with base **`refactor/profile-feature`** (or `main` if the stack below is already merged). Details: `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3–4.
+
 
