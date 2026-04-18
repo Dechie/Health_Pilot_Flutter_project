@@ -180,17 +180,32 @@ This section records **what we changed in code** (files + intent). It’s meant 
 - **Integration**:
   - `healthpilot/lib/features/home/home_page_screen.dart` — Profile tab uses `ProfileScreen()` directly.
 
-### Next branch (C): use a git worktree
+### 2026-04-18 — Pending: mobile QA before Branch C / worktree
 
-From repo root, after `refactor/profile-feature` is checked out and pushed (or from its tip):
+- **Decision**: Do **not** start `refactor/onboarding-flow` or add the **`../wt-onboarding`** worktree until **real-device** (or emulator) smoke testing is done on **`refactor/profile-feature`**.
+- **Why**: Catch layout/navigation regressions on mobile before stacking the next refactor.
+- **Branch to test**: `refactor/profile-feature` (implementation landed in commit `ebb2d79`; use branch tip if newer commits exist).
+- **Smoke checklist** (non-exhaustive):
+  - **Profile tab**: opens without errors; header, **Edit** → `PersonalInformationScreen`.
+  - **Settings** (AppBar gear): back returns to profile; **Subscription**, **Change password**, **Language**, **Terms** dialog, **FAQ** row.
+  - **Dark Mode** row: toggle still updates theme via `AppState`.
+  - **Help**: still replaces route with `HomePageScreen(isHelpPressed: true)` (tutorial/help flow).
+  - **Health Information** rows: **Medications** → `MedicationScreen`; **Allergies** → `InitialInfoThird`.
+  - **Gadgets** (premium): dialog still shows and dismisses.
+- **After QA passes**: push `refactor/profile-feature` if needed, then follow **Branch C worktree** steps in `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §8 (also summarized below).
+
+### Follow-up: Branch C — git worktree (run only after mobile QA)
+
+From repo root, with `refactor/profile-feature` at the commit you want to extend:
 
 ```bash
 git fetch origin
-git checkout refactor/profile-feature   # or: stay on merged main + pull, then checkout parent tip
+git checkout refactor/profile-feature
+git pull
 git worktree add -b refactor/onboarding-flow ../wt-onboarding
 cd ../wt-onboarding
 ```
 
-Open PR **Branch C** with base **`refactor/profile-feature`** (or `main` if the stack below is already merged). Details: `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3–4.
+Open PR **Branch C** with base **`refactor/profile-feature`** (stacked), unless the stack below is already merged to `main`. Full workflow: `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3–4 and §8.
 
 
