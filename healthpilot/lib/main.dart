@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
+import 'package:healthpilot/features/health_assessment/in_memory_assessment_history.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
-import 'package:healthpilot/features/onboarding/physical_therapy_screen.dart';
+import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +14,9 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AppState>(create: (_) => AppState()),
+        ChangeNotifierProvider<InMemoryAssessmentHistory>(
+          create: (_) => InMemoryAssessmentHistory(),
+        ),
       ],
       child: const HealthPilotApp(),
     ),
@@ -55,10 +59,11 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   void goToNextScreen() {
     Future.delayed(const Duration(seconds: 2), () {
-      // Navigate to the next screen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const PhysicalTherapyScreen()),
+        MaterialPageRoute(
+          builder: (context) => const HomePageScreen(isHelpPressed: false),
+        ),
       );
     });
   }

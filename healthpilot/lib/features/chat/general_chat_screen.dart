@@ -8,7 +8,11 @@ import 'package:healthpilot/features/chat/similar_people_screen.dart';
 import 'package:healthpilot/features/chat/widgets/custom_profile_tile.dart';
 
 class GeneralChatScreen extends StatefulWidget {
-  const GeneralChatScreen({super.key});
+  const GeneralChatScreen({super.key, this.showBackButton = false});
+
+  /// When true (e.g. pushed from assessment flow), show an app bar back control.
+  /// When false, used inside [HomePageScreen] bottom navigation without a back affordance.
+  final bool showBackButton;
 
   @override
   State<GeneralChatScreen> createState() => _GeneralChatScreenState();
@@ -93,7 +97,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen>
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false,
+            automaticallyImplyLeading: widget.showBackButton,
             toolbarHeight: 70,
             elevation: 0,
             backgroundColor: Colors.white,

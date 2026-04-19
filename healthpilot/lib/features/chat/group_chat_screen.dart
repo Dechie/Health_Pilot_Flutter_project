@@ -28,25 +28,28 @@ class GroupChatScreen extends StatelessWidget {
             isMuted: group.isMuted,
             more: () {},
           )),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          children: [
-            group.groupChatHistory.isEmpty
-                ? const EmptyChat()
-                : ChatList(
-                    senderId: groupId,
-                    userId: userId,
-                    chatList: group.groupChatHistory),
-            SendMessage(
-              attach: () {
-                print('add file');
-              },
-              sendMessage: (message) {
-                print('send $message');
-              },
-            ),
-          ],
+      body: SafeArea(
+        bottom: true,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            children: [
+              group.groupChatHistory.isEmpty
+                  ? const EmptyChat()
+                  : ChatList(
+                      senderId: groupId,
+                      userId: userId,
+                      chatList: group.groupChatHistory),
+              SendMessage(
+                attach: () {
+                  print('add file');
+                },
+                sendMessage: (message) {
+                  print('send $message');
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
