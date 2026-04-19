@@ -389,17 +389,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         ),
       ),
       const HealthProfile(),
-      AssessmentHistoryScreen(
-        latestSummary: AssessmentSummary(
-          subject: null,
-          bloodType: null,
-          allergies: '',
-          symptoms: const [],
-          symptomDuration: null,
-          hasOtherSymptoms: null,
-          symptomsTrend: null,
-        ),
-      ),
+      const AssessmentHistoryScreen(),
       const GeneralChatScreen(),
       // const Center(
       //   child: Text('chat'),

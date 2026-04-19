@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/features/health_assessment/allergy_suggestion_catalog.dart';
+import 'package:healthpilot/features/health_assessment/health_assessment_models.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_subject.dart';
 import 'package:healthpilot/features/health_assessment/summary_screen.dart';
 import 'package:healthpilot/theme/app_theme.dart';
-
-enum BloodType { a, b, ab, o }
 
 class HealthAssessmentFlowScreen extends StatefulWidget {
   const HealthAssessmentFlowScreen({super.key});
@@ -143,7 +143,13 @@ class _HealthAssessmentFlowScreenState extends State<HealthAssessmentFlowScreen>
           children: [
             _TopBar(
               title: 'Health Assessment',
-              onBack: _page == 0 ? null : _goBack,
+              onBack: () {
+                if (_page == 0) {
+                  Navigator.maybePop(context);
+                } else {
+                  _goBack();
+                }
+              },
             ),
             Expanded(
               child: PageView(
@@ -153,7 +159,14 @@ class _HealthAssessmentFlowScreenState extends State<HealthAssessmentFlowScreen>
                 children: [
                   _WhoForPage(
                     value: _subject,
-                    onChanged: (v) => setState(() => _subject = v),
+                    onChanged: (v) {
+                      setState(() {
+                        if (_subject != v) {
+                          _bloodType = null;
+                        }
+                        _subject = v;
+                      });
+                    },
                   ),
                   _BloodTypePage(
                     value: _bloodType,
@@ -231,7 +244,7 @@ class _TopBar extends StatelessWidget {
   });
 
   final String title;
-  final VoidCallback? onBack;
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -374,14 +387,56 @@ class _BloodTypePage extends StatelessWidget {
   }
 }
 
-class _AllergiesPage extends StatelessWidget {
+class _AllergiesPage extends StatefulWidget {
   const _AllergiesPage({required this.controller});
 
   final TextEditingController controller;
 
   @override
+  State<_AllergiesPage> createState() => _AllergiesPageState();
+}
+
+class _AllergiesPageState extends State<_AllergiesPage> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onTextChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _AllergiesPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onTextChanged);
+      widget.controller.addListener(_onTextChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onTextChanged);
+    super.dispose();
+  }
+
+  void _onTextChanged() => setState(() {});
+
+  void _appendSuggestion(String name) {
+    final c = widget.controller;
+    final t = c.text.trim();
+    if (t.isEmpty) {
+      c.text = name;
+    } else if (!t.toLowerCase().contains(name.toLowerCase())) {
+      c.text = '$t, $name';
+    }
+    c.selection = TextSelection.collapsed(offset: c.text.length);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final suggestions =
+        AllergySuggestionCatalog.matching(widget.controller.text);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -395,12 +450,44 @@ class _AllergiesPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: controller,
+            controller: widget.controller,
             decoration: const InputDecoration(
               hintText: 'Type here...',
               filled: true,
             ),
           ),
+          if (suggestions.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Suggestions',
+              style: t.labelMedium?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 6),
+            Expanded(
+              child: ListView.separated(
+                itemCount: suggestions.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 6),
+                itemBuilder: (ctx, i) {
+                  final s = suggestions[i];
+                  return Material(
+                    color: scheme.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    child: ListTile(
+                      dense: true,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: scheme.outline),
+                      ),
+                      title: Text(s, style: t.bodyMedium?.copyWith(fontSize: 13)),
+                      trailing: Icon(Icons.add, color: scheme.primary, size: 20),
+                      onTap: () => _appendSuggestion(s),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ] else
+            const Spacer(),
         ],
       ),
     );
@@ -427,8 +514,6 @@ class _SymptomsPage extends StatelessWidget {
 
     final suggestions = const [
       ('Dry Cough', 'Dry cough with no mucus'),
-      ('Dry Cough', 'Dry cough after running'),
-      ('Dry Cough', 'Very dry cough with sore throat'),
       ('Headache', 'Persistent headache'),
       ('Fever', 'High temperature'),
     ];
