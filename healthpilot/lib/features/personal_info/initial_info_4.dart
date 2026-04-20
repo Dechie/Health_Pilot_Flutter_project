@@ -73,12 +73,12 @@ class _InitialInfoFinal extends State<InitialInfoFinal> {
         ),
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomePageScreen(
-                        isHelpPressed: false,
-                      )), // Navigate to the DestinationPage
+            Navigator.of(context, rootNavigator: true).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (context) => HomePageScreen(
+                  isHelpPressed: false,
+                ),
+              ),
             );
           },
           child: Container(

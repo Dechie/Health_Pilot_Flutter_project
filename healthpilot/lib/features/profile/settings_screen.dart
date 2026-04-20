@@ -92,11 +92,14 @@ class SettingsScreen extends StatelessWidget {
                       settingAdress: 'Help',
                       iconData: Icons.arrow_forward,
                       onpressed: () {
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (context) => HomePageScreen(
-                                      isHelpPressed: true,
-                                    )));
+                        Navigator.of(context, rootNavigator: true)
+                            .pushReplacement(
+                          MaterialPageRoute<void>(
+                            builder: (context) => HomePageScreen(
+                              isHelpPressed: true,
+                            ),
+                          ),
+                        );
                       },
                     ),
                     HealthInformationSettings(

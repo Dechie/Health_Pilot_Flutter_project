@@ -5,8 +5,9 @@ import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 /// Default stays `false` until backend-driven gating replaces this switch.
 const bool kEnableOnboardingFlow = false;
 
-/// Nested [Navigator] for onboarding-only screens (auth → …).
-/// Exits to the main app must use `Navigator.of(context, rootNavigator: true)` when pushing home.
+/// Nested [Navigator] for onboarding-only screens (auth → initial info → done).
+/// Routes that leave onboarding for the main app must use
+/// `Navigator.of(context, rootNavigator: true)` when pushing [HomePageScreen].
 class OnboardingFlowScreen extends StatelessWidget {
   const OnboardingFlowScreen({super.key});
 
