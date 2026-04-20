@@ -18,13 +18,13 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 ### 2026-04-15 — Temporarily skip onboarding and land on Home
 
-- **Decision**: Bypass the onboarding flow and navigate directly to **Home** on app start.
+- **Decision**: Bypass the full onboarding stack and navigate directly to **Home** on app start **by default**.
 - **Why**: Until backend integration is in place, onboarding flows may be blocked or misleading; this keeps dev/test iterations fast.
 - **Scope**: App startup only. This is a temporary UX change, not a removal of onboarding screens.
-- **Implementation**: `healthpilot/lib/main.dart` welcome/splash now routes to `HomePageScreen` instead of onboarding.
+- **Implementation**: `healthpilot/lib/main.dart` `WelcomeScreen` uses compile-time flag **`kEnableOnboardingFlow`** (`healthpilot/lib/features/onboarding/onboarding_flow_screen.dart`). When `false`, splash → `HomePageScreen`; when `true`, splash → nested **`OnboardingFlowScreen`** (intro carousel → auth → existing post-auth screens).
 - **Rollback plan (after backend integration)**:
-  - Restore the initial navigation target to the intended onboarding entry screen/flow.
-  - If backend-gated, route based on real auth/subscription/profile completion state rather than a hardcoded screen.
+  - Replace the boolean with real gating (auth / subscription / profile completion).
+  - Keep **`OnboardingFlowScreen`** as the single nested navigator for onboarding-only routes; exits to the shell app continue to use **`rootNavigator: true`** where already applied.
 
 ---
 
@@ -262,6 +262,15 @@ Use this as the **single checklist** for what landed on **`health-assessment`** 
   - **File**: `healthpilot/lib/features/onboarding/language_translation.dart` (line ~16).  
   - **Plan**: fix anytime; formally owned by **Branch F** (`refactor/language-settings`) when language moves under profile/settings.
 
+### 2026-04-21 — Branch C follow-through: nested onboarding shell + intro carousel
+
+- **Goal**: One nested navigator for onboarding; marketing carousel before auth; no duplicate pushes into auth/get-started.
+- **Changes**:
+  - **`OnboardingFlowScreen`**: `initialRoute` intro (`PhysicalTherapyScreen`) then `pushReplacement` into **`SignupAndLoginScreen`**; auth remains on the same nested stack.
+  - **`PhysicalTherapyScreen`**: last-page CTA uses a single **`pushReplacement`** to auth (removed erroneous double `push` that included **`GetStartedScreen`**); fixed “Next” on non-final pages so the carousel does not advance and navigate in one tap.
+- **Files**: `healthpilot/lib/features/onboarding/onboarding_flow_screen.dart`, `healthpilot/lib/features/onboarding/physical_therapy_screen.dart`.
+- **Note**: Medication / subscription / language entry points belong to **profile** and later branches (D–F); they are not part of this nested onboarding route table.
+
 ### 2026-04-21 — Branch B follow-up: profile owns emergency + doctor setup UIs
 
 - **Moved** setup flows into **`healthpilot/lib/features/profile/`**:
@@ -272,9 +281,9 @@ Use this as the **single checklist** for what landed on **`health-assessment`** 
 - **`UserProfile`**: `profile/user_profile.dart` plus `kDemoUserProfile`; **`ProfileScreen`** display name reads from the model until persistence lands.
 - **Optional later**: co-locate `setup_emergency_contact.dart` / `setup_personal_doctor.dart` under profile if we want zero cross-feature imports from profile into `emergency_contact/` / `personal_doctor/`.
 
-### Follow-up: Branch C — git worktree (run only after mobile QA)
+### Follow-up: Branch C — git worktree (optional)
 
-From repo root, with `refactor/profile-feature` at the commit you want to extend:
+From repo root, with the parent branch at the commit you want to extend:
 
 ```bash
 git fetch origin
@@ -284,6 +293,6 @@ git worktree add -b refactor/onboarding-flow ../wt-onboarding
 cd ../wt-onboarding
 ```
 
-Open PR **Branch C** with base **`refactor/profile-feature`** (stacked), unless the stack below is already merged to `main`. Full workflow: `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3–4 and §8.
+Open PR **Branch C** with the correct **stacked base** (see `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3–4 and §8). When starting a **new slice after merges**, refresh **`main`** first (`docs/FEATURE_BRANCH_PLAN.md` §1).
 
 

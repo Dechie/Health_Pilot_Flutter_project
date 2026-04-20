@@ -47,6 +47,17 @@ Naming is arbitrary; stay consistent.
 git fetch origin
 ```
 
+When you are **starting the next plan slice from `main`** (after earlier PRs merged), also sync the remote that owns integrated `main` (often `upstream` for a fork workflow), update `main`, then branch:
+
+```bash
+git fetch upstream
+git checkout main
+git pull upstream main
+git checkout -b refactor/<slice-name>
+```
+
+Use `origin` instead of `upstream` if that is where you pull merged `main` from. Details and when to use parent-branch bases instead are in `docs/FEATURE_BRANCH_PLAN.md` §1 (“Starting the next slice from updated `main`”).
+
 ### List worktrees
 
 ```bash
