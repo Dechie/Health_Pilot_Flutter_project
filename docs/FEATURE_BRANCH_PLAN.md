@@ -51,6 +51,24 @@ For each branch below:
   - implementation notes (files changed, rationale)
 - Merge back when green
 
+### Starting the next slice from updated `main`
+
+Whenever you pick up the next slice from this plan (for example Branch C follow-through, or D/E/F onward), **refresh local `main` from the canonical remote**, then **branch from that tip**, so the stack matches what is already merged and stays easy to rebase.
+
+```bash
+git fetch upstream
+git checkout main
+git pull upstream main
+```
+
+If your day-to-day `main` tracks your fork instead of the org remote, use `origin` (or whichever remote owns integrated `main`) in place of `upstream` for fetch/pull. Then create the feature branch from current `main`:
+
+```bash
+git checkout -b refactor/<slice-name>
+```
+
+If a **parent PR in the stack is still open** and you are not switching to a clean `main` tip yet, keep branching from the **correct parent branch** as described in `docs/FEATURE_BRANCH_WORKTREE_PLAN.md`; use the commands above when the parent has landed and you are starting a new slice from `main`.
+
 Branch naming convention (recommended):
 
 - `refactor/<area>-<short-scope>`
