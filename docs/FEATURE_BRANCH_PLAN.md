@@ -179,6 +179,7 @@ Branch naming convention (recommended):
 - Keep `docs/BACKLOG.md` as the primary decision + implementation record.
 - Prefer moving code with minimal functional changes per branch; do “behavior improvements” on follow-up feature branches.
 - Backend integration is a known future dependency; avoid baking fake state into UI that will fight real auth/subscription state later.
+- **Assessment history data layer**: Completed assessments are stored in **`InMemoryAssessmentHistory`** (see `docs/BACKLOG.md`, **Decision log 2026-04-18**). When APIs exist, introduce a **repository** (or evolve that type) to **fetch and persist via backend**, and treat the current in-memory notifier as a **client-side cache** of server data rather than deleting it outright. UI should keep depending on a small surface (e.g. “list entries + record completion”) so the swap is localized.
 - **Conflict avoidance rule of thumb**: if a planned branch requires touching the same “shared seams” as another planned branch (navigation entry points, `AssetPaths`, global providers), either:
   - merge one branch first before starting the other, or
   - extract the shared change into a tiny prerequisite branch so the remaining feature branches can proceed independently.

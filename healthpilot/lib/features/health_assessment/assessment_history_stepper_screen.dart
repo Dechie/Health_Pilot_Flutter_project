@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/features/health_assessment/assessment_detail_screen.dart';
-import 'package:healthpilot/features/health_assessment/assessment_history_screen.dart';
+import 'package:healthpilot/features/health_assessment/health_assessment_models.dart';
 
 class AssessmentHistoryStepperScreen extends StatefulWidget {
   const AssessmentHistoryStepperScreen({

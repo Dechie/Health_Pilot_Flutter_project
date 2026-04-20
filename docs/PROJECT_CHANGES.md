@@ -48,7 +48,7 @@ Imports across the app were updated to the new paths.
 
 ## 4. App entry & global state (`lib/main.dart`)
 
-- Wraps the app in **`MultiProvider`** with **`ChangeNotifierProvider<AppState>`**.
+- Wraps the app in **`MultiProvider`** with **`ChangeNotifierProvider<AppState>`** and **`ChangeNotifierProvider<InMemoryAssessmentHistory>`** (completed health assessments, in-process memory only for now).
 - **`MaterialApp`** uses:
   - `theme: AppTheme.light`
   - `darkTheme: AppTheme.dark`
@@ -75,6 +75,12 @@ Imports across the app were updated to the new paths.
 ---
 
 ## 7. New or substantially new features
+
+### Health assessment — history data (in-memory; API-ready plan)
+
+- **`InMemoryAssessmentHistory`** (`lib/features/health_assessment/in_memory_assessment_history.dart`) stores completed runs after **Finish** on the summary screen; the Assessment tab history UI consumes it via **Provider**.
+- **`AssessmentSummary`** / **`BloodType`** live in **`health_assessment_models.dart`** for a single shared shape across flow, summary, stepper, and store.
+- **Planned evolution** (not implemented yet): add an API-backed repository and use the same in-memory layer as a **cache** of backend data. Source of truth for intent: **`docs/BACKLOG.md`** (2026-04-18 decision + implementation notes) and **`docs/FEATURE_BRANCH_PLAN.md`** §3.
 
 ### Forgot password (`lib/features/forgot_password/`)
 

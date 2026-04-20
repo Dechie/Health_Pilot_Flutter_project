@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
-import 'package:healthpilot/features/health_assessment/assessment_history_screen.dart';
-import 'package:healthpilot/features/health_assessment/health_assessment_flow_screen.dart';
+import 'package:healthpilot/features/health_assessment/assessment_history_stepper_screen.dart';
+import 'package:healthpilot/features/health_assessment/health_assessment_models.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_subject.dart';
+import 'package:healthpilot/features/health_assessment/in_memory_assessment_history.dart';
 import 'package:healthpilot/features/health_assessment/result_back_to_home_screen.dart';
+import 'package:provider/provider.dart';
 
 class SummaryScreen extends StatelessWidget {
   const SummaryScreen({
@@ -76,8 +78,20 @@ class SummaryScreen extends StatelessWidget {
                 height: 44,
                 child: FilledButton(
                   onPressed: () {
+                    final summary = AssessmentSummary(
+                      subject: subject,
+                      bloodType: bloodType,
+                      allergies: allergies,
+                      symptoms: symptoms,
+                      symptomDuration: symptomDuration,
+                      hasOtherSymptoms: hasOtherSymptoms,
+                      symptomsTrend: symptomsTrend,
+                    );
+                    context.read<InMemoryAssessmentHistory>().recordCompleted(
+                          summary,
+                        );
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
+                      MaterialPageRoute<void>(
                         builder: (_) => const ResultBackToHomeScreen(),
                       ),
                     );
@@ -92,9 +106,9 @@ class SummaryScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => AssessmentHistoryScreen(
-                          latestSummary: AssessmentSummary(
+                      MaterialPageRoute<void>(
+                        builder: (_) => AssessmentHistoryStepperScreen(
+                          summary: AssessmentSummary(
                             subject: subject,
                             bloodType: bloodType,
                             allergies: allergies,
@@ -107,7 +121,7 @@ class SummaryScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('View Assessment History'),
+                  child: const Text('Review this assessment'),
                 ),
               ),
             ],
