@@ -18,7 +18,7 @@ import 'package:healthpilot/features/onboarding/language_translation.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
-import 'package:healthpilot/features/onboarding/profile_and_setting_screen.dart';
+import 'package:healthpilot/features/profile/profile_screen.dart';
 import 'package:healthpilot/features/home/overview_card.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -394,7 +394,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       // const Center(
       //   child: Text('chat'),
       // ),
-      const ProfileAndSettingScreen(),
+      const ProfileScreen(),
     ];
 
     return FutureBuilder(

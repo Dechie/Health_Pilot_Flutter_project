@@ -6,6 +6,16 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 ## Decision log
 
+### 2026-04-18 — Assessment history: in-memory today, API + in-memory cache tomorrow
+
+- **Decision**: Treat **`InMemoryAssessmentHistory`** (`ChangeNotifier`) as the canonical place the Assessment tab reads/writes completed runs for now. **`recordCompleted(AssessmentSummary)`** is the single write path when the user taps **Finish** on the summary screen.
+- **Future (API integration)**:
+  - Introduce a **repository** (or evolve the notifier into one) that **loads assessment history from the backend** and persists new completions via **POST** (or equivalent).
+  - **Keep an in-memory layer** as a **client-side cache** of server-backed data: same UX when offline or slow network; refresh on tab focus / pull-to-refresh / after mutations as product requires (exact strategy TBD).
+  - Reuse **`AssessmentSummary`** / **`CompletedAssessmentEntry`** (or map DTOs ↔ these models) so UI changes stay minimal.
+- **Why**: Ship history UI and flow without a backend; avoid throwing away this structure when wiring APIs later.
+- **Primary files**: `healthpilot/lib/features/health_assessment/in_memory_assessment_history.dart`, `health_assessment_models.dart`, `main.dart` (provider), `assessment_history_screen.dart`, `summary_screen.dart`.
+
 ### 2026-04-15 — Temporarily skip onboarding and land on Home
 
 - **Decision**: Bypass the onboarding flow and navigate directly to **Home** on app start.
@@ -40,7 +50,7 @@ This section records **what we changed in code** (files + intent). It’s meant 
 
 - **Goal**: Make the Assessment tab start with the “history + timeline” screen (like the provided screenshot), and have “Add New Assessment” launch the multi-step pageview flow as a separate route (outside the bottom-nav tab framework).
 - **Changes**:
-  - **Assessment tab root**: `HomePageScreen` now renders `AssessmentHistoryScreen(...)` for the Assessment tab index.
+  - **Assessment tab root**: `HomePageScreen` now renders **`AssessmentHistoryScreen()`** (no constructor args; data comes from app state / provider) for the Assessment tab index.
     - File: `healthpilot/lib/features/home/home_page_screen.dart`
   - **Add New Assessment → flow**: tapping the plus icon now `Navigator.push(...)`es `HealthAssessmentFlowScreen`.
     - File: `healthpilot/lib/features/health_assessment/assessment_history_screen.dart`
@@ -92,6 +102,7 @@ This section records **what we changed in code** (files + intent). It’s meant 
 
 ### 2026-04-15 — Assessment history UI: timeline rows + “show more/less”
 
+- **Note (2026-04-18)**: Inline **Show more / Show less** was **removed** in favor of **two fixed panes**, each with its own **`ListView`** + **`Scrollbar`** + light border and a short “Scroll this list” hint; **Add New Assessment** stays in a **non-scrolling footer**. Timeline row styling is unchanged.
 - **Timeline/stepper-style rows**:
   - **Change**: Use timeline-style list rows (dot + vertical line) rather than embedding Material `Stepper` widgets in the list.
   - **Why**: Matches the desired UI (provided screenshot) and keeps the history page visually clean.
@@ -149,8 +160,41 @@ This section records **what we changed in code** (files + intent). It’s meant 
 ### 2026-04-15 — Navigation: “Check another symptom”
 
 - **Desired behavior**: Keep Assessment History as the stable entry point, but let the user start the flow again from the result screen.
-- **Implementation**: “Check another symptom” pops to the first route, then pushes `HealthAssessmentFlowScreen`.
+- **Implementation (original)**: Pop to first route, then push `HealthAssessmentFlowScreen`.
+- **Update (2026-04-18)**: Use **`pushAndRemoveUntil(..., (route) => route.isFirst)`** then push **`HealthAssessmentFlowScreen(key: ValueKey(sessionKey))`** so the old flow under **`SummaryScreen`’s `pushReplacement`** is removed and each run starts with **fresh state**. Same **`ValueKey(Object())`** pattern when starting the flow from the history tab **+** FAB.
   - File: `healthpilot/lib/features/health_assessment/result_back_to_home_screen.dart`
+  - File: `healthpilot/lib/features/health_assessment/assessment_history_screen.dart`
+
+### 2026-04-18 — In-memory assessment history drives the Assessment tab lists
+
+- **What**: On **Finish**, **`SummaryScreen`** calls **`context.read<InMemoryAssessmentHistory>().recordCompleted(AssessmentSummary)`** then **`pushReplacement`** to **`ResultBackToHomeScreen`**. **`AssessmentHistoryScreen`** uses **`Consumer<InMemoryAssessmentHistory>`** to show:
+  - **Assessment History** — one row per completed run (tap → **`AssessmentHistoryStepperScreen`**).
+  - **Symptom History** — one row per symptom per completed run, newest-first (tap → stepper for that run’s summary).
+- **Layout (current)**: Two **`Expanded`** halves (no heavy divider); each has title, **“Scroll this list”** hint, **`Scrollbar` + `ListView`** inside a light rounded border; **Add New Assessment** row is **fixed below** the halves (not inside either scroll view). **`ScrollController`**s are **`final`** field initializers (avoids **`LateInitializationError`** after hot reload vs. `late` + `initState` only).
+- **Models**: **`BloodType`** and **`AssessmentSummary`** in **`health_assessment_models.dart`** (shared by flow, summary, stepper, store).
+- **Files**: `in_memory_assessment_history.dart`, `health_assessment_models.dart`, `allergy_suggestion_catalog.dart`, `main.dart`, `assessment_history_screen.dart`, `summary_screen.dart`, `health_assessment_flow_screen.dart`, `assessment_history_stepper_screen.dart`, `home_page_screen.dart` (`const AssessmentHistoryScreen()`).
+- **Summary secondary CTA**: **Review this assessment** → **`AssessmentHistoryStepperScreen`** for the **current** run only (history list still updates only on **Finish**).
+- **Follow-up**: Decision log **2026-04-18** (API + retain in-memory **cache**).
+
+### 2026-04-18 — health-assessment branch roll-up (workflow + PR review + navigation)
+
+Use this as the **single checklist** for what landed on **`health-assessment`** after merging **`origin/main`** and iterating on review + product feedback.
+
+- **Documentation**
+  - **`docs/PR_STACK_WORKFLOW.md`**: merging **`main`** on feature branches, merging **stacked parents**, small diffs under feature dirs, worktrees pointer, **`--force-with-lease`**, **§6 import cycle** (assessment result / summary chain must not import **`HomePageScreen`**), **§7** pointer to backlog for assessment → API.
+  - **`docs/FEATURE_BRANCH_PLAN.md`** §3: assessment **in-memory → repository → API**, keep in-memory as **cache**.
+  - **`docs/PROJECT_CHANGES.md`**: **`InMemoryAssessmentHistory`** in **`MultiProvider`**, assessment data subsection.
+- **Health assessment flow** (`health_assessment_flow_screen.dart`, `allergy_suggestion_catalog.dart`)
+  - **Who-for** change clears **blood type** when the subject value actually changes.
+  - **Back** on first step: **`Navigator.maybePop`**, non-null top-bar back handler.
+  - **Allergies**: suggestions filtered from shared catalog (onboarding-aligned); tap appends to field.
+  - **Symptoms** suggestions list: **one** “Dry Cough” row (was three duplicates).
+  - **`BloodType`** moved to **`health_assessment_models.dart`**.
+- **Result & community** (`result_back_to_home_screen.dart`, `general_chat_screen.dart`)
+  - **Go to Community**: root **`popUntil(isFirst)`**, then **`push`** **`GeneralChatScreen(showBackButton: true)`** — **no** **`HomePageScreen`** import (avoids **circular imports** with home → history → flow → summary → result).
+  - **`GeneralChatScreen`**: optional **`showBackButton`** toggles **`automaticallyImplyLeading`** so pushed chat shows a back control; tab instance stays default **false**.
+  - **Check another symptom**: **`pushAndRemoveUntil`** + **`HealthAssessmentFlowScreen(key: ValueKey(sessionKey))`** (see Navigation entry above).
+- **Regression / tooling**: **`flutter analyze`** clean on touched paths; hot-reload-safe scroll controllers (field init).
 
 ### 2026-04-15 — Branch A: extract feature boundaries (medication/subscription)
 
@@ -166,5 +210,70 @@ This section records **what we changed in code** (files + intent). It’s meant 
 - **Imports updated**:
   - `healthpilot/lib/features/onboarding/profile_and_setting_screen.dart`
   - `healthpilot/lib/features/onboarding/personal_information_screen.dart`
+
+### 2026-04-18 — Branch B: profile feature entry (`refactor/profile-feature`)
+
+- **Goal**: Own profile UI under `features/profile/`; Profile tab uses new entry; settings split out.
+- **Added**:
+  - `healthpilot/lib/features/profile/profile_screen.dart` — header + health information; AppBar opens `SettingsScreen`.
+  - `healthpilot/lib/features/profile/settings_screen.dart` — gadgets, subscription, theme, language, legal, help, FAQ.
+  - `healthpilot/lib/features/profile/widgets/profile_settings_shared.dart` — shared list/toggle widgets (moved from old monolith).
+  - `healthpilot/lib/features/profile/widgets/premium_feature_dialog.dart` — shared premium upsell dialog.
+- **Shim**:
+  - `healthpilot/lib/features/onboarding/profile_and_setting_screen.dart` — barrel + `typedef ProfileAndSettingScreen = ProfileScreen` for legacy imports.
+- **Integration**:
+  - `healthpilot/lib/features/home/home_page_screen.dart` — Profile tab uses `ProfileScreen()` directly.
+
+### 2026-04-20 — Branch B (`refactor/profile-feature`): own `PersonalInformationScreen` under profile
+
+- **What**: Moved **`PersonalInformationScreen`** implementation from **`features/onboarding/`** to **`features/profile/personal_information_screen.dart`** (canonical location for profile edit / personal info).
+- **Compatibility**: **`features/onboarding/personal_information_screen.dart`** is now a **deprecated re-export** so stale imports keep compiling until cleaned up.
+- **Callers**: **`SubscriptionAndPaymentScreen`** now imports **`features/profile/personal_information_screen.dart`**.
+- **Cleanup**: Removed a duplicate unused import in the moved screen after the move.
+
+### 2026-04-18 — Mobile QA gate: Branch C / worktree (**PASS** — device screenshots)
+
+- **Status**: Smoke testing on **physical device** completed using screenshots from the mobile build on **`refactor/profile-feature`**. Branch C (`refactor/onboarding-flow`) + **git worktree** are **unblocked** whenever you choose to start them (commands unchanged below).
+- **Original gate** (kept for history): Do not start Branch C / worktree until device QA on profile branch — **done**.
+- **Branch tested**: `refactor/profile-feature` (see also commit `ebb2d79` + backlog commit `7f20eff` for docs gate).
+- **Smoke checklist** (executed on device):
+  - **Profile tab**: layout OK (title, settings gear, name, Free badge, Edit, Health Information, active Profile tab).
+  - **Settings**: full list visible; **Gadgets** → premium modal; **Subscription** → paywall / tiers screen; toggles and chevrons present.
+  - **Medications** (from profile): list + search UI OK.
+  - **Allergies** path: “One Last Step” / search / empty state / **Finish** — matches `InitialInfoThird` flow.
+  - **Language**: picker screen OK (see follow-up typo below).
+
+### 2026-04-18 — Mobile QA notes & follow-ups (from screenshots)
+
+- **Screenshot assets** (workspace, for design/reference):  
+  `assets/image-aabd84ee-7f24-4432-ac2d-de0f8866cc49.png` (Profile),  
+  `assets/image-e6c6fb4a-4d84-4e28-a97f-068742110bc2.png` (Medications),  
+  `assets/image-2506665f-ff6d-401b-bd75-0947f091fae2.png` (Allergies / one last step),  
+  `assets/image-6ee7969d-b294-491b-bdca-d0c2bbde9cb3.png` (Premium dialog),  
+  `assets/image-bc515e8e-5ec7-42bc-bc6e-f6c26e9e53d9.png` (Settings),  
+  `assets/image-050d680a-3a6c-44cf-8f82-d44e50b4d011.png` (Subscription),  
+  `assets/image-242aa25d-b863-4047-aaf4-10c7b328e0b7.png` (Language).  
+  Paths are under the Cursor project `assets/` folder (not committed to the Flutter app unless copied into `healthpilot/assets/`).
+- **Follow-up — medications placeholder (non-blocking for Branch C)**  
+  - List shows seed row text **`medicationName`** (from `MedicationListProvider` default entry in `medications_screen.dart`).  
+  - **Plan**: address under **Branch E** (`refactor/medication-feature`) — empty state vs realistic seed / backend.
+- **Follow-up — language copy (non-blocking)**  
+  - UI lists **“Urudu”**; correct spelling **“Urdu”**.  
+  - **File**: `healthpilot/lib/features/onboarding/language_translation.dart` (line ~16).  
+  - **Plan**: fix anytime; formally owned by **Branch F** (`refactor/language-settings`) when language moves under profile/settings.
+
+### Follow-up: Branch C — git worktree (run only after mobile QA)
+
+From repo root, with `refactor/profile-feature` at the commit you want to extend:
+
+```bash
+git fetch origin
+git checkout refactor/profile-feature
+git pull
+git worktree add -b refactor/onboarding-flow ../wt-onboarding
+cd ../wt-onboarding
+```
+
+Open PR **Branch C** with base **`refactor/profile-feature`** (stacked), unless the stack below is already merged to `main`. Full workflow: `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3–4 and §8.
 
 
