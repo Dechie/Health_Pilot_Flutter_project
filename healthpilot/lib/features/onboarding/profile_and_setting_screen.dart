@@ -11,10 +11,10 @@ import 'package:healthpilot/features/onboarding/language_translation.dart';
 import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
 
 import 'package:healthpilot/features/personal_info/initial_info_3.dart';
-import 'medications._screen.dart';
+import 'package:healthpilot/features/medication/medications_screen.dart';
 import 'personal_information_screen.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
-import 'subscription_and_payment_screen.dart';
+import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
 
 class ProfileAndSettingScreen extends StatefulWidget {
   const ProfileAndSettingScreen({super.key});

@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
-import 'package:healthpilot/features/onboarding/subscription_and_payment_screen.dart';
+import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
 import 'package:healthpilot/features/emergency_contact/personal_information.dart';
 import 'package:healthpilot/features/personal_doctor/personal_information.dart'
     as doctor;
