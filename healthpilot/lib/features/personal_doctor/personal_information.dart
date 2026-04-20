@@ -526,9 +526,14 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (context) =>
-                                HomePageScreen(isHelpPressed: false)));
+                        Navigator.of(context, rootNavigator: true)
+                            .pushReplacement(
+                          MaterialPageRoute<void>(
+                            builder: (context) => HomePageScreen(
+                              isHelpPressed: false,
+                            ),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor:

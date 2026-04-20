@@ -284,9 +284,12 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                   normalTexts: "Wanna give it a try? ",
                   commandTexts: "Skip",
                   login: () {
-                    Navigator.of(context).push(MaterialPageRoute(
+                    Navigator.of(context, rootNavigator: true).pushReplacement(
+                      MaterialPageRoute<void>(
                         builder: (context) =>
-                            HomePageScreen(isHelpPressed: false)));
+                            HomePageScreen(isHelpPressed: false),
+                      ),
+                    );
                   },
                   fontSize: 15,
                 ),

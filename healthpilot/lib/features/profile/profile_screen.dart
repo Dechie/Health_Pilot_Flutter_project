@@ -39,8 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final size = constraints.biggest;
-            final screenWidth = size.width;
+            final screenWidth = constraints.biggest.width;
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const Padding(
                         padding: EdgeInsets.only(top: 42, left: 55, right: 0),
                         child: ProfileEditButton(),
-                      )
+                      ),
                     ],
                   ),
                   const SettingsTitle(title: 'Health Information'),
@@ -109,8 +108,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           settingAdress: 'Medications',
                           iconData: Icons.arrow_forward,
                           onpressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const MedicationScreen()));
+                            Navigator.of(context).push(MaterialPageRoute<void>(
+                                builder: (context) =>
+                                    const MedicationScreen()));
                           },
                         ),
                         HealthInformationSettings(
@@ -118,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           settingAdress: 'Allergies',
                           iconData: Icons.arrow_forward,
                           onpressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
+                            Navigator.of(context).push(MaterialPageRoute<void>(
                                 builder: (context) => InitialInfoThird()));
                           },
                         ),

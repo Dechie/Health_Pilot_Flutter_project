@@ -4,5 +4,7 @@ import 'package:healthpilot/features/profile/profile_screen.dart';
 
 export 'package:healthpilot/features/profile/profile_screen.dart' show ProfileScreen;
 
-@Deprecated('Use `package:healthpilot/features/profile/profile_screen.dart` instead.')
+@Deprecated(
+  'Use `package:healthpilot/features/profile/profile_screen.dart` instead.',
+)
 typedef ProfileAndSettingScreen = ProfileScreen;
