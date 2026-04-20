@@ -44,3 +44,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android Gradle / CMake outputs (nested; top-level /build/ is not enough)
+/android/app/build/
+/android/build/
+/android/app/.cxx/
