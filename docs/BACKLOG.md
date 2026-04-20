@@ -224,6 +224,13 @@ Use this as the **single checklist** for what landed on **`health-assessment`** 
 - **Integration**:
   - `healthpilot/lib/features/home/home_page_screen.dart` — Profile tab uses `ProfileScreen()` directly.
 
+### 2026-04-20 — Branch B (`refactor/profile-feature`): own `PersonalInformationScreen` under profile
+
+- **What**: Moved **`PersonalInformationScreen`** implementation from **`features/onboarding/`** to **`features/profile/personal_information_screen.dart`** (canonical location for profile edit / personal info).
+- **Compatibility**: **`features/onboarding/personal_information_screen.dart`** is now a **deprecated re-export** so stale imports keep compiling until cleaned up.
+- **Callers**: **`SubscriptionAndPaymentScreen`** now imports **`features/profile/personal_information_screen.dart`**.
+- **Cleanup**: Removed a duplicate unused import in the moved screen after the move.
+
 ### 2026-04-18 — Mobile QA gate: Branch C / worktree (**PASS** — device screenshots)
 
 - **Status**: Smoke testing on **physical device** completed using screenshots from the mobile build on **`refactor/profile-feature`**. Branch C (`refactor/onboarding-flow`) + **git worktree** are **unblocked** whenever you choose to start them (commands unchanged below).

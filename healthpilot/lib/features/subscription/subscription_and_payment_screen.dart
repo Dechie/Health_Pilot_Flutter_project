@@ -24,7 +24,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:healthpilot/features/onboarding/personal_information_screen.dart';
+import 'package:healthpilot/features/profile/personal_information_screen.dart';
 
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/personal_doctor/personal_information.dart'
