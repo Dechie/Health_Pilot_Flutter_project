@@ -262,6 +262,16 @@ Use this as the **single checklist** for what landed on **`health-assessment`** 
   - **File**: `healthpilot/lib/features/onboarding/language_translation.dart` (line ~16).  
   - **Plan**: fix anytime; formally owned by **Branch F** (`refactor/language-settings`) when language moves under profile/settings.
 
+### 2026-04-21 — Branch B follow-up: profile owns emergency + doctor setup UIs
+
+- **Moved** setup flows into **`healthpilot/lib/features/profile/`**:
+  - `emergency_contact/personal_information.dart` → `profile/emergency_contact_personal_information.dart`
+  - `personal_doctor/personal_information.dart` → `profile/personal_doctor_personal_information.dart`
+- **Deprecated shims** at old paths re-export the profile modules so legacy imports keep compiling.
+- **Imports**: `profile/personal_information_screen.dart`, `subscription/subscription_and_payment_screen.dart` point at profile paths; emergency screen uses `package:healthpilot/theme/app_theme.dart`; doctor screen imports `personal_doctor/setup_personal_doctor.dart` by package URI.
+- **`UserProfile`**: `profile/user_profile.dart` plus `kDemoUserProfile`; **`ProfileScreen`** display name reads from the model until persistence lands.
+- **Optional later**: co-locate `setup_emergency_contact.dart` / `setup_personal_doctor.dart` under profile if we want zero cross-feature imports from profile into `emergency_contact/` / `personal_doctor/`.
+
 ### Follow-up: Branch C — git worktree (run only after mobile QA)
 
 From repo root, with `refactor/profile-feature` at the commit you want to extend:
