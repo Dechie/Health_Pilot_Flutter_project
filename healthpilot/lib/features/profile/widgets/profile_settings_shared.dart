@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
-import 'package:healthpilot/features/onboarding/personal_information_screen.dart';
+import 'package:healthpilot/features/profile/personal_information_screen.dart';
 import 'package:provider/provider.dart';
 
 class GradientButton extends StatelessWidget {
