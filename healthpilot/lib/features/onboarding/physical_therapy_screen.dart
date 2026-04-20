@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
-import 'package:healthpilot/features/get_started/get_started_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
@@ -202,31 +201,18 @@ class _PhysicalTherapyScreenState extends State<PhysicalTherapyScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    if (_currentPage < pages.length) {
-                      setState(() {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut,
-                        );
-                      });
+                    if (_currentPage < pages.length - 1) {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                      return;
                     }
-                    if (_currentPage == pages.length - 1) {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const GetStartedScreen(),
-                          ));
-                      // setState(() {
-                      //   _pageController.previousPage(
-                      //     duration: const Duration(milliseconds: 300),
-                      //     curve: Curves.easeOut,
-                      //   );
-                      // });
-
-                      Navigator.of(context).push(MaterialPageRoute(
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute<void>(
                         builder: (context) => const SignupAndLoginScreen(),
-                      ));
-                    }
+                      ),
+                    );
                   },
                   child: Container(
                     alignment: Alignment.center,
