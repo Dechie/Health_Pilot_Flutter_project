@@ -271,6 +271,16 @@ Use this as the **single checklist** for what landed on **`health-assessment`** 
 - **Files**: `healthpilot/lib/features/onboarding/onboarding_flow_screen.dart`, `healthpilot/lib/features/onboarding/physical_therapy_screen.dart`.
 - **Note**: Medication / subscription / language entry points belong to **profile** and later branches (D–F); they are not part of this nested onboarding route table.
 
+### 2026-04-21 — Branch B follow-up: profile owns emergency + doctor setup UIs
+
+- **Moved** setup flows into **`healthpilot/lib/features/profile/`**:
+  - `emergency_contact/personal_information.dart` → `profile/emergency_contact_personal_information.dart`
+  - `personal_doctor/personal_information.dart` → `profile/personal_doctor_personal_information.dart`
+- **Deprecated shims** at old paths re-export the profile modules so legacy imports keep compiling.
+- **Imports**: `profile/personal_information_screen.dart`, `subscription/subscription_and_payment_screen.dart` point at profile paths; emergency screen uses `package:healthpilot/theme/app_theme.dart`; doctor screen imports `personal_doctor/setup_personal_doctor.dart` by package URI.
+- **`UserProfile`**: `profile/user_profile.dart` plus `kDemoUserProfile`; **`ProfileScreen`** display name reads from the model until persistence lands.
+- **Optional later**: co-locate `setup_emergency_contact.dart` / `setup_personal_doctor.dart` under profile if we want zero cross-feature imports from profile into `emergency_contact/` / `personal_doctor/`.
+
 ### Follow-up: Branch C — git worktree (optional)
 
 From repo root, with the parent branch at the commit you want to extend:

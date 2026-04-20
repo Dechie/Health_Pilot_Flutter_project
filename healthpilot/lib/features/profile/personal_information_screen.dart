@@ -22,9 +22,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
-import 'package:healthpilot/features/personal_doctor/personal_information.dart'
+import 'package:healthpilot/features/profile/personal_doctor_personal_information.dart'
     as doctor;
-import 'package:healthpilot/features/emergency_contact/personal_information.dart'
+import 'package:healthpilot/features/profile/emergency_contact_personal_information.dart'
     as contact;
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';

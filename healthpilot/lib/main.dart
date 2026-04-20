@@ -66,7 +66,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         MaterialPageRoute<void>(
           builder: (context) => kEnableOnboardingFlow
               ? const OnboardingFlowScreen()
-              : HomePageScreen(isHelpPressed: false),
+              : const HomePageScreen(isHelpPressed: false),
         ),
       );
     });

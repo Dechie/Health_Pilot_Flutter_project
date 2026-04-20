@@ -287,7 +287,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                     Navigator.of(context, rootNavigator: true).pushReplacement(
                       MaterialPageRoute<void>(
                         builder: (context) =>
-                            HomePageScreen(isHelpPressed: false),
+                            const HomePageScreen(isHelpPressed: false),
                       ),
                     );
                   },

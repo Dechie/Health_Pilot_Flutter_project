@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
 import 'package:healthpilot/features/profile/allergies_screen.dart';
 import 'package:healthpilot/features/profile/settings_screen.dart';
+import 'package:healthpilot/features/profile/user_profile.dart';
 import 'package:healthpilot/features/profile/widgets/profile_settings_shared.dart';
 
 /// Profile tab entry: identity + health information. Settings live in [SettingsScreen].
@@ -63,14 +64,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(
+                          Padding(
+                            padding: const EdgeInsets.only(
                               top: 58,
                               left: 0,
                             ),
                             child: Text(
-                              'Mohammed Ibrahim',
-                              style: TextStyle(
+                              kDemoUserProfile.displayName ?? 'Profile',
+                              style: const TextStyle(
                                 fontFamily: 'PlusJakartaSans',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
