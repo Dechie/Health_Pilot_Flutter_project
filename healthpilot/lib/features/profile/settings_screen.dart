@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
-import 'package:healthpilot/features/onboarding/language_translation.dart';
-import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
+import 'package:healthpilot/features/profile/terms_and_policy_dialog.dart';
 import 'package:healthpilot/features/profile/widgets/premium_feature_dialog.dart';
 import 'package:healthpilot/features/profile/widgets/profile_settings_shared.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
