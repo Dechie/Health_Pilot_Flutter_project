@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
-import 'package:healthpilot/features/personal_info/initial_info_3.dart';
+import 'package:healthpilot/features/profile/allergies_screen.dart';
 import 'package:healthpilot/features/profile/settings_screen.dart';
 import 'package:healthpilot/features/profile/widgets/profile_settings_shared.dart';
 
