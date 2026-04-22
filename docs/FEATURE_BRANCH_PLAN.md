@@ -51,6 +51,16 @@ For each branch below:
   - implementation notes (files changed, rationale)
 - Merge back when green
 
+### Branch types (how we’ll run each slice)
+
+Each planned branch is tagged as one of:
+
+- **Type A — refactor**: restructure/moves/ownership boundaries with minimal UI changes.
+- **Type B — UI feature**: new UI or significant UI changes. **Before starting**, capture design inputs (Figma link or screenshots) and confirm intended UX.
+- **Type C — exploratory/decision**: unclear scope or requires a product decision. We’ll pause to decide scope before coding.
+
+For **Type B** branches, the workflow is: **ask for Figma screenshots (or link)** → confirm acceptance criteria → implement.
+
 ### Starting the next slice from updated `main`
 
 Whenever you pick up the next slice from this plan (for example Branch C follow-through, or D/E/F onward), **refresh local `main` from the canonical remote**, then **branch from that tip**, so the stack matches what is already merged and stays easy to rebase.
@@ -80,6 +90,7 @@ Branch naming convention (recommended):
 
 ### Branch A — Extract misplaced feature boundaries (foundational)
 - **Branch**: `refactor/features-boundaries`
+- **Type**: A (refactor)
 - **Goal**: Move misplaced features into correct feature modules to align with Figma boundaries.
 - **Scope (from fromdld)**:
   - Create folders:
@@ -99,6 +110,7 @@ Branch naming convention (recommended):
 
 ### Branch B — Profile feature: consolidate “profile system”
 - **Branch**: `refactor/profile-feature`
+- **Type**: A (refactor)
 - **Status (2026-04-18)**: Profile tab uses `features/profile/profile_screen.dart` + `settings_screen.dart`; legacy onboarding path is a thin export shim (see `docs/BACKLOG.md`).
 - **Goal**: Centralize user/profile UI and prepare for a real profile model.
 - **Scope**:
@@ -115,6 +127,7 @@ Branch naming convention (recommended):
 
 ### Branch C — Onboarding as a real flow controller
 - **Branch**: `refactor/onboarding-flow`
+- **Type**: A (refactor)
 - **Goal**: Replace scattered onboarding navigation with a guided flow (auth → initial info → done).
 - **Scope**:
   - Create an onboarding flow controller/screen (`onboarding_flow.dart`).
@@ -128,6 +141,7 @@ Branch naming convention (recommended):
 
 ### Branch D — Subscription feature: make reusable + independent
 - **Branch**: `refactor/subscription-feature`
+- **Type**: A (refactor)
 - **Goal**: Subscription/payment UI becomes reusable and not tied to onboarding.
 - **Scope**:
   - Ensure the subscription module owns the payment screen and routing.
@@ -140,6 +154,7 @@ Branch naming convention (recommended):
 
 ### Branch E — Medication feature: standalone health feature
 - **Branch**: `refactor/medication-feature`
+- **Type**: A (refactor)
 - **Goal**: Medication is accessible from appropriate places (health/home) and ready for reminders/history.
 - **Scope**:
   - Move/rename medication screen(s) into `features/medication/`.
@@ -150,6 +165,7 @@ Branch naming convention (recommended):
 
 ### Branch F — Language settings: move into profile/settings
 - **Branch**: `refactor/language-settings`
+- **Type**: A (refactor)
 - **Goal**: Language becomes a profile/settings concern and can later integrate with `AppState`.
 - **Scope**:
   - Move `language_translation.dart` into profile/settings area.
@@ -161,6 +177,8 @@ Branch naming convention (recommended):
 
 ### Branch G — Tutorials feature (missing feature)
 - **Branch**: `feat/tutorials`
+- **Type**: B (UI feature)
+- **Design inputs**: Before starting, capture Figma screenshots (or link) for tutorials list/cards and tutorial detail (if any).
 - **Goal**: Implement the missing tutorials feature noted in the analysis.
 - **Scope**:
   - Create `features/tutorials/` with a simple tutorial list/card UI.
@@ -172,6 +190,7 @@ Branch naming convention (recommended):
 
 ### Branch H — Navigation cleanup (standardization)
 - **Branch**: `refactor/navigation-cleanup`
+- **Type**: A (refactor)
 - **Goal**: Standardize navigation patterns; reduce nested push chains; define feature entry screens.
 - **Scope**:
   - Ensure each feature has a clear “entry screen”.
@@ -182,6 +201,7 @@ Branch naming convention (recommended):
 
 ### Branch I — Final cleanup & validation
 - **Branch**: `chore/final-cleanup`
+- **Type**: A (refactor)
 - **Goal**: Stabilize after refactors.
 - **Scope**:
   - Smoke-test major flows: auth/onboarding/profile/health/assessment/chat.

@@ -26,6 +26,24 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
   - Restore the initial navigation target to the intended onboarding entry screen/flow.
   - If backend-gated, route based on real auth/subscription/profile completion state rather than a hardcoded screen.
 
+### 2026-04-22 — Branch taxonomy + design-input gate for UI-heavy work
+
+- **Decision**: Tag each plan slice as one of:
+  - **Type A — refactor** (structure/ownership moves; minimal UX changes)
+  - **Type B — UI feature** (new UI or significant UI changes)
+  - **Type C — exploratory/decision** (scope unclear; decide first)
+- **Workflow rule**:
+  - For **Type B** branches, gather **Figma link/screenshots** before implementation.
+  - For **Type C** branches, pause and decide scope/acceptance criteria before coding.
+- **Plan doc**: `docs/FEATURE_BRANCH_PLAN.md` now includes **Type** fields and a **Design inputs** reminder where applicable.
+
+### 2026-04-22 — What to do with completed branches after merges (A/B/C…)
+
+- **Decision**: Once a branch is merged into `main`, we generally **do not keep “syncing” the completed branch**.
+- **Default**: switch back to updated `main` and start the next slice from there (or from the correct stacked parent branch if the stack is still open).
+- **Only sync a completed branch if** you must keep it open for review/follow-up changes; then rebase/merge it onto latest `main` to reduce drift.
+- **Cleanup**: after merge + after verifying the final state is in `main`, it’s safe to delete the remote branch and your local branch.
+
 ---
 
 ## Implementation log (detailed)

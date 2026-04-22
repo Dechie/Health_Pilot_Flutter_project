@@ -58,6 +58,16 @@ git checkout -b refactor/<slice-name>
 
 Use `origin` instead of `upstream` if that is where you pull merged `main` from. Details and when to use parent-branch bases instead are in `docs/FEATURE_BRANCH_PLAN.md` §1 (“Starting the next slice from updated `main`”).
 
+### After a branch is merged: what to do with completed branches (A/B/C…)
+
+Once a PR is merged into `main` (either via stacked bases landing, or directly), **you do not need to “sync” the completed branch** unless you plan to keep working on it.
+
+- **Recommended**: stop using the old branch as a base; start the next slice from updated `main` (or the correct stacked parent).
+- **If you need to keep the branch mergeable for a while** (e.g. PR open, reviewer requested changes):
+  - merge or rebase the branch on top of the latest `origin/main` (or `upstream/main`) to reduce drift.
+  - prefer `git rebase origin/main` for a clean history when it’s your branch; use merge if you want to preserve history.
+- **Cleanup**: after merge + after you’ve pushed the final state, it’s safe to delete the remote branch and your local branch.
+
 ### List worktrees
 
 ```bash
