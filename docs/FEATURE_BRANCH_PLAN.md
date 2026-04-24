@@ -162,6 +162,7 @@ Branch naming convention (recommended):
 ### Branch E — Medication feature: standalone health feature
 - **Branch**: `refactor/medication-feature`
 - **Type**: A (refactor)
+- **Status (2026-04-24)**: Health tab lists medication entry points; reminders/history are stub routes pending backend/notifications.
 - **While Branch D is deferred**: Branch **from `main`**, PR base **`main`** (not stacked on `refactor/subscription-feature`).
 - **Goal**: Medication is accessible from appropriate places (health/home) and ready for reminders/history.
 - **Scope**:

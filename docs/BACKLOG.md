@@ -56,6 +56,15 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 This section records **what we changed in code** (files + intent). It’s meant for future you (or another dev) to quickly understand “what moved” and “why”, and to spot temporary hacks that should be revisited.
 
+### 2026-04-24 — Branch E: Health tab entry points for medication + stubs
+
+- **Goal**: Make medication discoverable from the **Health** tab (not only Profile), and reserve routes for reminders/history per `docs/FEATURE_BRANCH_PLAN.md` Branch E.
+- **Changes**:
+  - **`HealthProfile`** (Health tab): new **Medication** card with list rows for **My medications** → existing **`MedicationScreen`**, plus **Reminders** and **History** → placeholder screens.
+  - **Stubs**: `medication_reminders_screen.dart`, `medication_history_screen.dart` under `lib/features/medication/`.
+- **Files**: `healthpilot/lib/features/health/health_profile_screen.dart`, `healthpilot/lib/features/medication/medication_reminders_screen.dart`, `healthpilot/lib/features/medication/medication_history_screen.dart`.
+- **Note**: Profile → Medications entry unchanged. Subscription work remains deferred (Branch D).
+
 ### 2026-04-15 — Refactor plan created (feature-by-feature branches)
 
 - **Decision**: Adopt a “one feature (or one refactor theme) per branch” workflow for upcoming restructuring work from the fromdld analysis.
