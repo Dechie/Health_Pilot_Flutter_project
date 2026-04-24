@@ -65,6 +65,15 @@ This section records **what we changed in code** (files + intent). It’s meant 
 - **Files**: `healthpilot/lib/features/health/health_profile_screen.dart`, `healthpilot/lib/features/medication/medication_reminders_screen.dart`, `healthpilot/lib/features/medication/medication_history_screen.dart`.
 - **Note**: Profile → Medications entry unchanged. Subscription work remains deferred (Branch D).
 
+### 2026-04-24 — Branch G: tutorials list, detail, and Home entry
+
+- **Goal**: Per plan Branch G — tutorials module with list/cards and a stable entry from **Home**; Figma can refine later (Type B).
+- **Changes**:
+  - **`tutorials_entry_screen.dart`**: card list over seed **`_kTutorials`**; opens **`TutorialDetailScreen`** with placeholder body copy.
+  - **`tutorial_detail_screen.dart`**: simple scrollable detail scaffold.
+  - **`home_page_screen.dart`**: **Guides & tutorials** `ListTile` card under Discover HealthPilot → **`TutorialsEntryScreen`**.
+- **Deferred**: Onboarding completion → tutorials link while **`kEnableOnboardingFlow`** stays `false`; wire when product re-enables onboarding.
+
 ### 2026-04-24 — Branch F: language UI in profile + AppState locale
 
 - **Goal**: Per plan Branch F — language screen owned by profile; Settings entry unchanged; implementation does not live under onboarding.

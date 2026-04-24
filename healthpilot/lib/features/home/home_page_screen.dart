@@ -19,6 +19,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
 import 'package:healthpilot/features/profile/profile_screen.dart';
+import 'package:healthpilot/features/tutorials/tutorials_entry_screen.dart';
 import 'package:healthpilot/features/home/overview_card.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -350,6 +351,31 @@ class _HomePageScreenState extends State<HomePageScreen> {
               ),
             ),
             const DiscoverHealthpilot(),
+            SizedBox(
+              height: size.height * 0.02,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.menu_book_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: const Text('Guides & tutorials'),
+                  subtitle: const Text('Learn how to use Health Pilot'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const TutorialsEntryScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
             SizedBox(
               height: size.height * 0.02,
             ),
