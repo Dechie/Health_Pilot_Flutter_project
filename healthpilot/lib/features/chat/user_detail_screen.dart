@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
-import 'package:healthpilot/features/health/health_profile_screen.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/constants.dart';
@@ -46,7 +45,7 @@ class UserDetailScreen extends StatelessWidget {
               },
               videoCall: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => videoCallScreen(
+                    builder: (context) => VideoCallScreen(
                           id: id,
                         )));
               },
@@ -279,7 +278,7 @@ class UserProfileInfo extends StatelessWidget {
               CustomeSwitch(
                 status: true,
                 onChange: (value) {
-                  print(value);
+                  debugPrint('$value');
                 },
               ),
             ],
@@ -333,8 +332,8 @@ class InfoBuilder extends StatelessWidget {
 
 class CustomeSwitch extends StatefulWidget {
   const CustomeSwitch({super.key, required this.onChange, this.status});
-  final Function onChange;
-  final status;
+  final void Function(bool) onChange;
+  final bool? status;
 
   @override
   State<CustomeSwitch> createState() => _CustomeSwitchState();
@@ -344,7 +343,7 @@ class _CustomeSwitchState extends State<CustomeSwitch> {
   bool value = false;
   @override
   void initState() {
-    value = widget.status;
+    value = widget.status ?? false;
     super.initState();
   }
 

@@ -14,6 +14,7 @@
 /// This screen is typically used as part of user onboarding or profile setup
 /// process. It collects various personal details and allows users to set up
 /// additional premium features.
+library;
 
 import 'dart:ui';
 
@@ -32,7 +33,7 @@ import 'package:line_icons/line_icons.dart';
 // import 'package:healthpilot/features/emergency_contact/personal_information.dart' as emergency;
 
 class PersonalInformationScreen extends StatefulWidget {
-  const PersonalInformationScreen({Key? key}) : super(key: key);
+  const PersonalInformationScreen({super.key});
 
   @override
   State<PersonalInformationScreen> createState() =>
@@ -42,7 +43,7 @@ class PersonalInformationScreen extends StatefulWidget {
 class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   final bool _isPersonalDoctorSubscribed = false;
 
-  bool _isNutritionTrackingSubscribed = false;
+  final bool _isNutritionTrackingSubscribed = false;
 
   void showAlertDialogue() {
     showDialog(
@@ -85,10 +86,10 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                       Navigator.of(context).pop();
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
+                      backgroundColor: WidgetStateProperty.all(
                         const Color.fromRGBO(110, 182, 255, 1),
                       ),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
@@ -570,14 +571,13 @@ class SubscriptionCard extends StatefulWidget {
   final VoidCallback subscription;
 
   const SubscriptionCard(
-      {Key? key,
+      {super.key,
       required this.screenWidth,
       required this.title,
       required this.description,
       required this.icon,
       required this.buttontxt,
-      required this.subscription})
-      : super(key: key);
+      required this.subscription});
 
   @override
   State<SubscriptionCard> createState() => _SubscriptionCardState();
@@ -1111,13 +1111,12 @@ class PaymentButton extends StatelessWidget {
   final double screenHeight;
   final VoidCallback? buttonAction;
   const PaymentButton(
-      {Key? key,
+      {super.key,
       required this.screenWidth,
       required this.screenHeight,
       // ignore: non_constant_identifier_names
       required this.buttonText,
-      this.buttonAction})
-      : super(key: key);
+      this.buttonAction});
 
   @override
   Widget build(BuildContext context) {
@@ -1319,7 +1318,7 @@ class CustomCheckBox extends StatefulWidget {
   double screenWidth;
 
   CustomCheckBox({
-    Key? key,
+    super.key,
     this.size,
     this.iconSize,
     required this.onChange,
@@ -1329,7 +1328,7 @@ class CustomCheckBox extends StatefulWidget {
     this.borderColor,
     required this.isChecked,
     required this.screenWidth,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomCheckBox> createState() => _CustomCheckBoxState();

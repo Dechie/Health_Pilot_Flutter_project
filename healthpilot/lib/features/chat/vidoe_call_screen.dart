@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
-import 'package:healthpilot/features/chat/similar_people_screen.dart';
 
 import '../../data/constants.dart';
 import 'chat_screen.dart';
 
-class videoCallScreen extends StatefulWidget {
+class VideoCallScreen extends StatefulWidget {
   final String id;
-  const videoCallScreen({super.key, required this.id});
+  const VideoCallScreen({super.key, required this.id});
 
   @override
-  State<videoCallScreen> createState() => _videoCallScreenState();
+  State<VideoCallScreen> createState() => _VideoCallScreenState();
 }
 
-class _videoCallScreenState extends State<videoCallScreen> {
+class _VideoCallScreenState extends State<VideoCallScreen> {
   bool isCameraOpened = false;
   bool isFullScreen = false;
   void openCamera() {
@@ -36,7 +35,7 @@ class _videoCallScreenState extends State<videoCallScreen> {
         ),
         child: SvgPicture.asset(
           svgPicture,
-          color: Colors.white,
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
       ),
     );

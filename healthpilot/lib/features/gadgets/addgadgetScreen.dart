@@ -87,13 +87,13 @@ class Gadgets extends StatelessWidget {
   final VoidCallback onTap;
 
   const Gadgets({
-    Key? key,
+    super.key,
     required this.onpressed,
     required this.gadgetName,
     required this.screenHeight,
     required this.screenWidth,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -139,12 +139,12 @@ class ButtonAdd extends StatelessWidget {
   final double screenHeight;
   final VoidCallback? buttonAction;
   const ButtonAdd({
-    Key? key,
+    super.key,
     required this.screenWidth,
     required this.screenHeight,
     required this.buttonText,
     this.buttonAction,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

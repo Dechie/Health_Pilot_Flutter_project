@@ -690,7 +690,7 @@ class Button extends StatelessWidget {
   final Color textColor;
   final double fontsize;
   const Button(
-      {Key? key,
+      {super.key,
       required this.screenWidth,
       required this.screenHeight,
       // ignore: non_constant_identifier_names
@@ -698,8 +698,7 @@ class Button extends StatelessWidget {
       this.buttonAction,
       required this.buttoncolor,
       required this.textColor,
-      required this.fontsize})
-      : super(key: key);
+      required this.fontsize});
 
   @override
   Widget build(BuildContext context) {
@@ -823,7 +822,7 @@ class CustomCheckBox extends StatefulWidget {
   double screenWidth;
 
   CustomCheckBox({
-    Key? key,
+    super.key,
     this.size,
     this.iconSize,
     required this.onChange,
@@ -833,7 +832,7 @@ class CustomCheckBox extends StatefulWidget {
     this.borderColor,
     required this.isChecked,
     required this.screenWidth,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomCheckBox> createState() => _CustomCheckBoxState();

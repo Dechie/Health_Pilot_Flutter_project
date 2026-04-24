@@ -12,7 +12,7 @@ class GroupChatScreen extends StatelessWidget {
   final String groupId;
   final String userId;
 
-  GroupChatScreen({super.key, required this.groupId, required this.userId});
+  const GroupChatScreen({super.key, required this.groupId, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +42,10 @@ class GroupChatScreen extends StatelessWidget {
                       chatList: group.groupChatHistory),
               SendMessage(
                 attach: () {
-                  print('add file');
+                  debugPrint('add file');
                 },
                 sendMessage: (message) {
-                  print('send $message');
+                  debugPrint('send $message');
                 },
               ),
             ],
@@ -180,7 +180,7 @@ class EmptyChat extends StatelessWidget {
 
     return Expanded(
       child: Center(
-        child: Container(
+        child: SizedBox(
           height: size.height * 0.4,
           child: Column(
             children: [
@@ -498,9 +498,9 @@ class _SendMessageState extends State<SendMessage> {
           height: size.height * 0.06,
           width: size.width * 0.72,
           child: TextField(
-            onChanged: (Value) {
+            onChanged: (value) {
               setState(() {
-                message = Value;
+                message = value;
               });
             },
             maxLines: 1,

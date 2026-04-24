@@ -1,6 +1,4 @@
-import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:healthpilot/features/chatbot/widgets/chat_bubble.dart';
 import 'package:healthpilot/features/chatbot/widgets/question_bubble.dart';
 import 'package:line_icons/line_icons.dart';

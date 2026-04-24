@@ -3,10 +3,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_4.dart';
 
-import '../../theme/app_theme.dart';
 
 class InitialInfoThird extends StatefulWidget {
-  const InitialInfoThird({Key? key}) : super(key: key);
+  const InitialInfoThird({super.key});
 
   @override
   State<InitialInfoThird> createState() => _InitialInfoThird();

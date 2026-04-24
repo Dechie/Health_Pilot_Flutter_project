@@ -268,7 +268,7 @@ class ArticleCommentScreen extends StatelessWidget {
 //  a  button that used for posting the comment
 
 class Button extends StatelessWidget {
-  const Button({Key? key}) : super(key: key);
+  const Button({super.key});
 
   @override
   Widget build(BuildContext context) {

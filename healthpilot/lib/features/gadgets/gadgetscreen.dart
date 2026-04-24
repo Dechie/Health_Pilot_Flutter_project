@@ -165,13 +165,12 @@ class Button extends StatelessWidget {
   final double screenHeight;
   final VoidCallback? buttonAction;
   const Button(
-      {Key? key,
+      {super.key,
       required this.screenWidth,
       required this.screenHeight,
       // ignore: non_constant_identifier_names
       required this.buttonText,
-      this.buttonAction})
-      : super(key: key);
+      this.buttonAction});
 
   @override
   Widget build(BuildContext context) {

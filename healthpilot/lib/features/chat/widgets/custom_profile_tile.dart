@@ -9,7 +9,7 @@ class CustomChatProfileTile extends StatelessWidget {
   final int? unreadMessage;
   final VoidCallback? onPressed;
 
-  CustomChatProfileTile(
+  const CustomChatProfileTile(
       {super.key,
       required this.name,
       required this.profilePic,

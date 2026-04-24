@@ -1,11 +1,9 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:healthpilot/data/constants.dart';
-import 'package:flutter_chat_bubble/chat_bubble.dart' as chatBuble;
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
 import 'package:healthpilot/features/chat/user_detail_screen.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +12,7 @@ class ChatScreen extends StatelessWidget {
   final String senderId;
   final String userId;
 
-  ChatScreen({super.key, required this.senderId, required this.userId});
+  const ChatScreen({super.key, required this.senderId, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +49,10 @@ class ChatScreen extends StatelessWidget {
                       chatList: user.chatHistory),
               SendMessage(
                 attach: () {
-                  print('add file');
+                  debugPrint('add file');
                 },
                 sendMessage: (message) {
-                  print('send $message');
+                  debugPrint('send $message');
                 },
               ),
             ],
@@ -196,7 +194,7 @@ class EmptyChat extends StatelessWidget {
 
     return Expanded(
       child: Center(
-        child: Container(
+        child: SizedBox(
           height: size.height * 0.4,
           child: Column(
             children: [
@@ -486,9 +484,9 @@ class _SendMessageState extends State<SendMessage> {
           height: size.height * 0.06,
           width: size.width * 0.72,
           child: TextField(
-            onChanged: (Value) {
+            onChanged: (value) {
               setState(() {
-                message = Value;
+                message = value;
               });
             },
             maxLines: 1,
