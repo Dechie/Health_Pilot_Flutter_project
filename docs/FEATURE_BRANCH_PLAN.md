@@ -79,6 +79,22 @@ git checkout -b refactor/<slice-name>
 
 If a **parent PR in the stack is still open** and you are not switching to a clean `main` tip yet, keep branching from the **correct parent branch** as described in `docs/FEATURE_BRANCH_WORKTREE_PLAN.md`; use the commands above when the parent has landed and you are starting a new slice from `main`.
 
+### Keeping merged feature branches for mobile QA (merge Option A)
+
+We **keep** merged feature branches (no requirement to delete them) so work can be **re-tested on device** and small fixes can land on the **same branch name**.
+
+To bring a retained branch up to date with integrated `main`, use **Option A — merge** (simple, avoids force-push):
+
+```bash
+git checkout refactor/onboarding-flow   # example: any merged feature branch
+git fetch origin
+git merge origin/main
+# resolve conflicts if needed, then commit the merge
+git push origin refactor/onboarding-flow
+```
+
+Use **`origin/main`** or **`upstream/main`** depending on which remote tracks the `main` line you trust. Rebase-based refresh is optional; see `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3.
+
 Branch naming convention (recommended):
 
 - `refactor/<area>-<short-scope>`
@@ -90,7 +106,7 @@ Branch naming convention (recommended):
 
 ### Execution order (stack adjustment — 2026-04-24)
 
-- **Branch D** (`refactor/subscription-feature`) is **deferred to last** in the current sequence. Until it is explicitly started, treat **subscription-specific refactors and new subscribe/paywall flows as out of scope** (leave existing entry points such as profile/settings as they are unless fixing breakage).
+- **Branch D** (`refactor/subscription-feature`) is **deferred to the end of the execution list** (last among A–I for this pass). Until it is explicitly started, treat **subscription-specific refactors and new subscribe/paywall flows as out of scope** (leave existing entry points such as profile/settings as they are unless fixing breakage).
 - **Next slice from `main`:** **Branch E** (`refactor/medication-feature`). Open the PR with **base = `main`** while D is deferred (see `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4).
 - When **Branch D** is eventually picked up, do it **after** the branches you chose to run ahead of it (at minimum after **E**, and typically after **F** as well if you keep the original F→G dependency), then reconcile any subscription entry-point duplication called for by the plan.
 
@@ -148,7 +164,7 @@ Branch naming convention (recommended):
 ### Branch D — Subscription feature: make reusable + independent
 - **Branch**: `refactor/subscription-feature`
 - **Type**: A (refactor)
-- **Status (2026-04-24)**: **Deferred — run last.** No subscription-focused refactors or new subscription UX until this branch is started; see **Execution order** above.
+- **Status (2026-04-24)**: **Deferred — pushed to the end of the branch list** (final slice in this pass, not cancelled). No subscription-focused refactors or new subscription UX until this branch is started; see **Execution order** above.
 - **Goal**: Subscription/payment UI becomes reusable and not tied to onboarding.
 - **Scope**:
   - Ensure the subscription module owns the payment screen and routing.

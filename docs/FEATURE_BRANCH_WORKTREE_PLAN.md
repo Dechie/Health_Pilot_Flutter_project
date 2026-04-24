@@ -60,13 +60,22 @@ Use `origin` instead of `upstream` if that is where you pull merged `main` from.
 
 ### After a branch is merged: what to do with completed branches (A/B/C…)
 
-Once a PR is merged into `main` (either via stacked bases landing, or directly), **you do not need to “sync” the completed branch** unless you plan to keep working on it.
+Once a PR is merged into `main` (either via stacked bases landing, or directly), **new work** should usually start from updated **`main`** (or the correct stacked parent).
 
-- **Recommended**: stop using the old branch as a base; start the next slice from updated `main` (or the correct stacked parent).
-- **If you need to keep the branch mergeable for a while** (e.g. PR open, reviewer requested changes):
-  - merge or rebase the branch on top of the latest `origin/main` (or `upstream/main`) to reduce drift.
-  - prefer `git rebase origin/main` for a clean history when it’s your branch; use merge if you want to preserve history.
-- **Cleanup**: after merge + after you’ve pushed the final state, it’s safe to delete the remote branch and your local branch.
+**Keeping branches for mobile QA (preferred here):** we **retain** merged feature branch names on the remote/local clone for **device testing** and **small follow-up fixes**. Deleting them is **optional**, not required.
+
+**Option A — merge `main` into a retained branch** (no force-push):
+
+```bash
+git checkout refactor/profile-feature    # example merged branch
+git fetch origin
+git merge origin/main
+git push origin refactor/profile-feature
+```
+
+**If a PR is still open** (pre-merge): same idea—merge or rebase onto latest `origin/main` / parent to reduce conflicts; rebase is optional and needs **force-with-lease** only if you already pushed that branch and rewrote commits.
+
+**Cleanup (optional):** delete local/remote branch names only when you are sure you will not QA or patch on that branch again.
 
 ### List worktrees
 
