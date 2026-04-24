@@ -26,7 +26,7 @@ class BlogRecomendationCard extends StatelessWidget {
         if (blogType == 'articles') {
           ScaffoldMessenger.of(context).removeCurrentSnackBar();
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => ArticleScreen()));
+              .push(MaterialPageRoute(builder: (context) => const ArticleScreen()));
         }
 
         if (blogType == 'consult') {}
