@@ -4,7 +4,7 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_controller.dart';
 import 'package:healthpilot/features/forgot_password/widgets/forgot_password_header.dart';
 import 'package:healthpilot/features/forgot_password/widgets/forgot_password_primary_button.dart';
-import 'package:healthpilot/features/onboarding/language_translation.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 

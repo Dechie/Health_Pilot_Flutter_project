@@ -175,6 +175,7 @@ Branch naming convention (recommended):
 ### Branch F — Language settings: move into profile/settings
 - **Branch**: `refactor/language-settings`
 - **Type**: A (refactor)
+- **Status (2026-04-24)**: Implementation lives in `features/profile/language_translation.dart`; onboarding path is a **deprecated re-export**; `AppState` exposes `locale` and `MaterialApp` sets `supportedLocales` + `locale`.
 - **Goal**: Language becomes a profile/settings concern and can later integrate with `AppState`.
 - **Scope**:
   - Move `language_translation.dart` into profile/settings area.
