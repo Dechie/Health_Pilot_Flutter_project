@@ -79,6 +79,16 @@ This section records **what we changed in code** (files + intent). It’s meant 
   - **`pubspec.yaml`**: **`share_plus`** dependency.
 - **Verify**: `flutter analyze` clean; `flutter test` passes.
 
+### 2026-04-25 — Branch K: chat inbox, empty chat, discovery, profile tabs shell
+
+- **Goal**: Per plan Branch K — chat/community parity without premium gates (`docs/FEATURE_BRANCH_PLAN.md`).
+- **Changes**:
+  - **`general_chat_screen.dart`**: Inbox **tab** selected/unselected colors; search **hint** and **filter** by last message / group message text as well as names.
+  - **`chat_screen.dart`**: **`EmptyChat`** layout — illustration size, headline weight, supporting line pointing to composer.
+  - **`similar_people_screen.dart`**: Shared **`_showCommunityFloatingSnackBar`**; **translate** affordance shows stub **error** snackbar; card **Vote to connect** chip + **pass** (grey) / **connect** (green) actions; message button unchanged (opens chat).
+  - **`user_detail_screen.dart`**: **`DefaultTabController`** + **`Column` + `Expanded` `TabBarView`** (fixes unbounded height in scroll); **five** placeholder panes (**Media / Files / Audio / Links / Groups**); app bar tag **Premium** → **Community** (neutral, not a paywall).
+- **Verify**: `flutter analyze` clean; `flutter test` passes.
+
 ### 2026-04-24 — Branch E: Health tab entry points for medication + stubs
 
 - **Goal**: Make medication discoverable from the **Health** tab (not only Profile), and reserve routes for reminders/history per `docs/FEATURE_BRANCH_PLAN.md` Branch E.

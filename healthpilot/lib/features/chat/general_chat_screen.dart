@@ -265,30 +265,35 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         height: 44,
         child: TextFormField(
           onChanged: (value) {
+            final q = value.toLowerCase();
             setState(() {
               userList = Users.users
-                  .where((element) => element.displayName
-                      .toLowerCase()
-                      .contains(value.toLowerCase()))
+                  .where((element) =>
+                      element.displayName.toLowerCase().contains(q) ||
+                      element.chatHistory.any(
+                        (m) => m.content.toLowerCase().contains(q),
+                      ))
                   .toList();
               allChatData = chatData
                   .where((element) =>
-                      element.name.toLowerCase().contains(value.toLowerCase()))
+                      element.name.toLowerCase().contains(q) ||
+                      element.lastMessage.toLowerCase().contains(q))
                   .toList();
               groupChat = GroupChats.groupChats
-                  .where((element) => element.groupName
-                      .toLowerCase()
-                      .contains(value.toLowerCase()))
+                  .where((element) =>
+                      element.groupName.toLowerCase().contains(q) ||
+                      element.groupChatHistory.any(
+                        (m) => m.content.toLowerCase().contains(q),
+                      ))
                   .toList();
             });
-            // search logic
           },
           decoration: InputDecoration(
               prefixIcon: const Icon(
                 Icons.search,
                 size: 20,
               ),
-              hintText: 'Search Chats',
+              hintText: 'Search people, groups, or messages',
               hintStyle: const TextStyle(
                 color: Color.fromRGBO(193, 193, 193, 1),
                 fontFamily: 'Plus Jakarta Sans',
@@ -323,9 +328,10 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     return TabBar(
         tabAlignment: TabAlignment.center,
         indicatorSize: TabBarIndicatorSize.label,
-        labelColor: Colors.black,
+        labelColor: const Color.fromRGBO(110, 182, 255, 1),
+        unselectedLabelColor: const Color.fromRGBO(42, 42, 42, 0.45),
         unselectedLabelStyle: TextStyle(
-          color: const Color.fromRGBO(42, 42, 42, 1),
+          color: const Color.fromRGBO(42, 42, 42, 0.45),
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 16.sp,
           fontStyle: FontStyle.normal,
@@ -333,11 +339,11 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           letterSpacing: -0.165.sp,
         ),
         labelStyle: TextStyle(
-          color: const Color.fromRGBO(42, 42, 42, 1),
+          color: const Color.fromRGBO(110, 182, 255, 1),
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 16.sp,
           fontStyle: FontStyle.normal,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           letterSpacing: -0.165.sp,
         ),
         indicatorColor: Theme.of(context).colorScheme.primary,

@@ -197,13 +197,34 @@ class EmptyChat extends StatelessWidget {
         child: SizedBox(
           height: size.height * 0.4,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset(voiceChatIcon),
+              SvgPicture.asset(
+                voiceChatIcon,
+                height: size.height * 0.1,
+              ),
+              const SizedBox(height: 20),
               const Text(
                 'Be the first to say hello',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color.fromRGBO(42, 42, 42, 1),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.12),
+                child: const Text(
+                  'Send a message below to start this conversation.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: Color.fromRGBO(42, 42, 42, 0.55),
+                  ),
                 ),
               ),
             ],
