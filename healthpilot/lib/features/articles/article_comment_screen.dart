@@ -3,17 +3,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'article_screen.dart';
+import 'package:healthpilot/features/articles/article_feed_item.dart';
 
 import 'article_detail_screen.dart';
+import 'article_screen.dart';
 
-// ignore: must_be_immutable
-class ArticleCommentScreen extends StatelessWidget {
-  ArticleCommentScreen({super.key});
+class CommentModel {
+  CommentModel({
+    required this.reply,
+    required this.poster,
+    required this.postedDate,
+    required this.post,
+    required this.imageUrl,
+  });
 
-  TextEditingController controller = TextEditingController();
-  List<CommentModel> comments = [
-    CommentModel(
+  final String poster;
+  final String postedDate;
+  final String post;
+  final String imageUrl;
+  final List<Reply> reply;
+}
+
+class Reply {
+  Reply({
+    required this.isUSer,
+    required this.replier,
+    required this.reply,
+    required this.replyDate,
+    required this.replierImage,
+  });
+
+  final String replier;
+  final String reply;
+  final String replyDate;
+  final String replierImage;
+  final bool isUSer;
+}
+
+/// Sample threaded comments for previews or tests (optional).
+List<CommentModel> sampleThreadedArticleComments() => [
+      CommentModel(
         reply: [
           Reply(
             replier: 'Ashkay Mauray',
@@ -23,21 +52,81 @@ class ArticleCommentScreen extends StatelessWidget {
             isUSer: false,
           ),
           Reply(
-              replier: 'Mohamed Ibrahim',
-              reply: 'I agree, growing up sucks. Age is coming for us.',
-              replyDate: '7 months',
-              isUSer: true,
-              replierImage: 'assets/images/mohamed.png')
+            replier: 'Mohamed Ibrahim',
+            reply: 'I agree, growing up sucks. Age is coming for us.',
+            replyDate: '7 months',
+            isUSer: true,
+            replierImage: 'assets/images/mohamed.png',
+          ),
         ],
         poster: 'Amanda Richarlson',
         postedDate: '9 months ago',
         post:
             'It is sad we’re getting old so quick wish we could stay at this age fot more years to come. It is sad we’re getting old so quick wish we could stay at this age fot more years to come ... ',
-        imageUrl: 'assets/images/amanda.png')
-  ];
-// The Widget tree starts here
+        imageUrl: 'assets/images/amanda.png',
+      ),
+    ];
+
+/// Threaded comments for one article. Pass [comments] empty for the empty state.
+class ArticleCommentScreen extends StatefulWidget {
+  const ArticleCommentScreen({
+    super.key,
+    required this.article,
+    required this.comments,
+  });
+
+  final ArticleFeedItem article;
+  final List<CommentModel> comments;
+
+  @override
+  State<ArticleCommentScreen> createState() => _ArticleCommentScreenState();
+}
+
+class _ArticleCommentScreenState extends State<ArticleCommentScreen> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _showCommentFilterShell(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Newest'),
+              onTap: () => Navigator.pop(ctx),
+            ),
+            ListTile(
+              title: const Text('Oldest'),
+              onTap: () => Navigator.pop(ctx),
+            ),
+            ListTile(
+              title: const Text('Most replies'),
+              onTap: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final comments = widget.comments;
+    final article = widget.article;
     return Scaffold(
       body: LayoutBuilder(builder: (context, constraints) {
         final size = constraints.biggest;
@@ -49,13 +138,13 @@ class ArticleCommentScreen extends StatelessWidget {
             child: Stack(
               children: [
                 Hero(
-                  tag: 'hyh',
+                  tag: 'article-hero-${article.id}',
                   child: Container(
                     width: double.infinity,
                     height: screenHeight * 0.4,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: AssetImage('assets/images/old_woman.png'),
+                            image: AssetImage(article.imageUrl),
                             fit: BoxFit.cover)),
                     child: SafeArea(
                       child: Column(
@@ -69,12 +158,12 @@ class ArticleCommentScreen extends StatelessWidget {
                             padding: EdgeInsets.symmetric(
                                 horizontal: screenHeight * 0.04,
                                 vertical: screenHeight * 0.04),
-                            child: const Column(
+                            child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'jfhshfuish',
-                                    style: TextStyle(
+                                    article.title,
+                                    style: const TextStyle(
                                       fontFamily: 'Plus Jakarta Sans',
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.w600,
@@ -127,29 +216,32 @@ class ArticleCommentScreen extends StatelessWidget {
                                     letterSpacing: -0.16,
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Filter',
-                                      style: TextStyle(
-                                        color: Color.fromARGB(76, 0, 0, 0),
-                                        fontFamily: "PlusJakartaSans",
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: -0.16,
+                                InkWell(
+                                  onTap: () => _showCommentFilterShell(context),
+                                  child: Row(
+                                    children: [
+                                      const Text(
+                                        'Filter',
+                                        style: TextStyle(
+                                          color: Color.fromARGB(76, 0, 0, 0),
+                                          fontFamily: "PlusJakartaSans",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: -0.16,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth * 0.02,
-                                    ),
-                                    ColorFiltered(
-                                      colorFilter: const ColorFilter.mode(
-                                          Color.fromRGBO(42, 42, 42, 0.5),
-                                          BlendMode.srcIn),
-                                      child: SvgPicture.asset(
-                                          'assets/Icons/setting.svg'),
-                                    )
-                                  ],
+                                      SizedBox(
+                                        width: screenWidth * 0.02,
+                                      ),
+                                      ColorFiltered(
+                                        colorFilter: const ColorFilter.mode(
+                                            Color.fromRGBO(42, 42, 42, 0.5),
+                                            BlendMode.srcIn),
+                                        child: SvgPicture.asset(
+                                            'assets/Icons/setting.svg'),
+                                      )
+                                    ],
+                                  ),
                                 )
                               ],
                             ),
@@ -177,7 +269,7 @@ class ArticleCommentScreen extends StatelessWidget {
                                     screenWidth: screenWidth,
                                     screenHeight: screenHeight,
                                     icon: null,
-                                    controller: controller,
+                                    controller: _controller,
                                     inputAction: TextInputAction.done,
                                     hintText: 'What is on your mind?',
                                     onChanged: (st) {},
@@ -208,7 +300,7 @@ class ArticleCommentScreen extends StatelessWidget {
                                     child: Image.asset(
                                         'assets/images/Notebook.png')),
                                 const Text(
-                                  'There are no comments',
+                                  'There are no comments.',
                                   style: TextStyle(
                                     fontFamily: 'PlusJakartaSans',
                                     fontSize: 20.0,
@@ -218,7 +310,7 @@ class ArticleCommentScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const Text(
-                                  'Be the first to comment',
+                                  'Be the first to comment.',
                                   style: TextStyle(
                                     fontFamily: 'PlusJakartaSans',
                                     fontSize: 16.0,
@@ -330,7 +422,6 @@ class _CommentCardState extends State<CommentCard> {
   bool showReplies = false;
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -374,27 +465,18 @@ class _CommentCardState extends State<CommentCard> {
               Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: widget.screenWidth * 0.029),
-
-                // This readmore widget is used to render the detal of the  comment and have a feature to extend whe the show more button is pressed
-                // child: ReadMoreText(
-                //   widget.post,
-                //   trimLines: 2,
-                //   colorClickableText: Colors.blue,
-                //   trimMode: TrimMode.Line,
-                //   trimCollapsedText: 'Show more',
-                //   trimExpandedText: 'Show less',
-                //   moreStyle: const TextStyle(fontSize: 10, color: Colors.blue),
-                //   lessStyle: const TextStyle(fontSize: 10, color: Colors.blue),
-                //   textAlign: TextAlign.justify,
-                //   style: const TextStyle(
-                //     fontSize: 10,
-                //     color: Colors.black,
-                //     fontFamily: 'Plus Jakarta Sans',
-                //     fontWeight: FontWeight.w400,
-                //     height: 13 / 10,
-                //     letterSpacing: 0,
-                //   ),
-                // ),
+                child: Text(
+                  widget.post,
+                  textAlign: TextAlign.justify,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black,
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w400,
+                    height: 13 / 10,
+                    letterSpacing: 0,
+                  ),
+                ),
               ),
               SizedBox(
                 height: widget.screenHeight * 0.01,
@@ -440,41 +522,6 @@ class _CommentCardState extends State<CommentCard> {
   }
 }
 
-//  A comment model used to deecribe what a a cmment looks like
-//  A commennt can have list of replies
-
-class CommentModel {
-  final String poster;
-  final String postedDate;
-  final String post;
-  final String imageUrl;
-  final List<Reply> reply;
-
-  CommentModel(
-      {required this.reply,
-      required this.poster,
-      required this.postedDate,
-      required this.post,
-      required this.imageUrl});
-}
-
-// A data model for replies used to express what a reply looks like
-class Reply {
-  final String replier;
-  final String reply;
-  final String replyDate;
-  final String replierImage;
-  final bool isUSer;
-
-  Reply({
-    required this.isUSer,
-    required this.replier,
-    required this.reply,
-    required this.replyDate,
-    required this.replierImage,
-  });
-}
-
 // Mostly the same to comment card but for the current user it will prvide a remove option on the reaction secton of this ReplyCard
 class ReplyCard extends StatefulWidget {
   final double screenWidth;
@@ -505,7 +552,6 @@ class ReplyCard extends StatefulWidget {
 class _ReplyCardState extends State<ReplyCard> {
   bool showReplies = false;
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -549,25 +595,18 @@ class _ReplyCardState extends State<ReplyCard> {
               Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: widget.screenWidth * 0.029),
-                // child: ReadMoreText(
-                //   widget.reply,
-                //   trimLines: 1,
-                //   colorClickableText: Colors.blue,
-                //   trimMode: TrimMode.Line,
-                //   trimCollapsedText: 'Show more',
-                //   trimExpandedText: 'Show less',
-                //   moreStyle: const TextStyle(fontSize: 10, color: Colors.blue),
-                //   lessStyle: const TextStyle(fontSize: 10, color: Colors.blue),
-                //   textAlign: TextAlign.justify,
-                //   style: const TextStyle(
-                //     fontSize: 10,
-                //     color: Colors.black,
-                //     fontFamily: 'Plus Jakarta Sans',
-                //     fontWeight: FontWeight.w400,
-                //     height: 13 / 10,
-                //     letterSpacing: 0,
-                //   ),
-                // ),
+                child: Text(
+                  widget.reply,
+                  textAlign: TextAlign.justify,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black,
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w400,
+                    height: 13 / 10,
+                    letterSpacing: 0,
+                  ),
+                ),
               ),
               SizedBox(
                 height: widget.screenHeight * 0.01,

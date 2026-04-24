@@ -2,17 +2,43 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
-import 'article_comment_screen.dart';
+import 'package:healthpilot/features/articles/article_comment_screen.dart';
+import 'package:healthpilot/features/articles/article_feed_item.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ArticleDetail extends StatelessWidget {
   const ArticleDetail({super.key});
 
+  ArticleFeedItem _itemFromRoute(BuildContext context) {
+    final raw = ModalRoute.of(context)?.settings.arguments;
+    if (raw is ArticleFeedItem) return raw;
+    if (raw is List<Map<String, dynamic>>) {
+      return ArticleFeedItem.fromLegacyArguments(raw);
+    }
+    return ArticleFeedItem(
+      id: 'fallback',
+      title: 'Article',
+      body: '',
+      imageUrl: 'assets/images/old_woman.png',
+      author: 'HealthPilot Team',
+      publishedAt: DateTime(2022, 10, 23),
+      readMinutes: 5,
+      likes: 23,
+      commentsCount: 12,
+    );
+  }
+
+  void _share(ArticleFeedItem item) {
+    Share.share(
+      '${item.title}\n\n${item.body}',
+      subject: item.title,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> detail = ModalRoute.of(context)!
-        .settings
-        .arguments as List<Map<String, dynamic>>;
+    final item = _itemFromRoute(context);
+
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -23,196 +49,196 @@ class ArticleDetail extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-           
-                  Container(
-                      width: double.infinity,
-                      height: screenHeight * 0.42,
-                      decoration: const BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage('assets/images/old_woman.png'),
-                              fit: BoxFit.cover)),
-                      child: SafeArea(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomAppBar(
-                            screenHeight: screenHeight,
-                            screenWidth: screenWidth,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenHeight * 0.04,
-                                vertical: screenHeight * 0.03),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  detail[0]['title'],
-                                  style: TextStyle(
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontSize: screenWidth * 0.047,
-                                    fontWeight: FontWeight.w600,
-                               
-                                    letterSpacing:
-                                        -0.165, 
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: screenHeight * 0.02,
-                                ),
-                                Row(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: ColorFiltered(
-                                            colorFilter: const ColorFilter.mode(
-                                                Colors.white, BlendMode.srcIn),
-                                            child: Image.asset(
-                                                'assets/Icons/stopwatch .png'),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: screenWidth * 0.02,
-                                        ),
-                                        const Text(
-                                          '5 min',
-                                          style: TextStyle(
-                                            fontFamily: 'PlusJakartaSans',
-                                            fontSize: 10,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            height: 1.0,
-                                            letterSpacing: -0.165,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth * 0.1,
-                                    ),
-                                    Row(
-                                      children: [
-                                        ColorFiltered(
-                                          colorFilter: const ColorFilter.mode(
-                                              Colors.white, BlendMode.srcIn),
-                                          child: Image.asset(
-                                              'assets/Icons/like.png'),
-                                        ),
-                                        SizedBox(
-                                          width: screenWidth * 0.02,
-                                        ),
-                                        const Text(
-                                          '25',
-                                          style: TextStyle(
-                                            fontFamily: 'PlusJakartaSans',
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                            height: 1.0,
-                                            letterSpacing: -0.165,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth * 0.1,
-                                    ),
-                                    Row(
-                                      children: [
-                                        ColorFiltered(
-                                          colorFilter: const ColorFilter.mode(
-                                              Colors.white, BlendMode.srcIn),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              Navigator.of(context)
-                                                  .push(MaterialPageRoute(
-                                                builder: (context) {
-                                                  return ArticleCommentScreen();
-                                                },
-                                              ));
-                                            },
-                                            child: Image.asset(
-                                                'assets/Icons/comment.png'),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: screenWidth * 0.02,
-                                        ),
-                                        const Text(
-                                          '12',
-                                          style: TextStyle(
-                                            fontFamily: 'PlusJakartaSans',
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                            height: 1.0,
-                                            letterSpacing: -0.165,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ))),
-                
-                SizedBox(
-                  height: screenHeight * 0.6,
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                Container(
+                  width: double.infinity,
+                  height: screenHeight * 0.42,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(item.imageUrl),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: SafeArea(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          height: screenHeight * 0.02,
+                        CustomAppBar(
+                          screenHeight: screenHeight,
+                          screenWidth: screenWidth,
+                          onShare: () => _share(item),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              DateTime.now().toString(),
-                              style: const TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 10.0,
-                                fontWeight: FontWeight.w500,
-                                height: 13.0 /
-                                    10.0, 
-                                letterSpacing:
-                                    -0.165,
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenHeight * 0.04,
+                            vertical: screenHeight * 0.03,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.title,
+                                style: TextStyle(
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontSize: screenWidth * 0.047,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.165,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            const Text(
-                              'TeamHealthPilot',
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 10.0,
-                                fontWeight: FontWeight.w500,
-                                height: 13.0 /
-                                    10.0, 
-                                letterSpacing:
-                                    -0.165,
+                              SizedBox(height: screenHeight * 0.02),
+                              Row(
+                                children: [
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: ColorFiltered(
+                                          colorFilter: const ColorFilter.mode(
+                                            Colors.white,
+                                            BlendMode.srcIn,
+                                          ),
+                                          child: Image.asset(
+                                            'assets/Icons/stopwatch .png',
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: screenWidth * 0.02),
+                                      Text(
+                                        '${item.readMinutes} min',
+                                        style: const TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.0,
+                                          letterSpacing: -0.165,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(width: screenWidth * 0.1),
+                                  Row(
+                                    children: [
+                                      ColorFiltered(
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.white,
+                                          BlendMode.srcIn,
+                                        ),
+                                        child: Image.asset('assets/Icons/like.png'),
+                                      ),
+                                      SizedBox(width: screenWidth * 0.02),
+                                      Text(
+                                        '${item.likes}',
+                                        style: const TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.0,
+                                          letterSpacing: -0.165,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(width: screenWidth * 0.1),
+                                  Row(
+                                    children: [
+                                      ColorFiltered(
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.white,
+                                          BlendMode.srcIn,
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute<void>(
+                                                builder: (context) =>
+                                                    ArticleCommentScreen(
+                                                  article: item,
+                                                  comments: const [],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Image.asset(
+                                            'assets/Icons/comment.png',
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: screenWidth * 0.02),
+                                      Text(
+                                        '${item.commentsCount}',
+                                        style: const TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.0,
+                                          letterSpacing: -0.165,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: screenHeight * 0.02,
-                        ),
-                        Text(
-                          detail[1]['detail'],
-                          textAlign: TextAlign.justify,
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                )
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: screenHeight * 0.02),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            item.formattedPublishedDate,
+                            style: const TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              height: 13.0 / 10.0,
+                              letterSpacing: -0.165,
+                            ),
+                          ),
+                          Text(
+                            item.author,
+                            style: const TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              height: 13.0 / 10.0,
+                              letterSpacing: -0.165,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: screenHeight * 0.02),
+                      IconButton(
+                        onPressed: () => _share(item),
+                        icon: const Icon(Icons.share_outlined),
+                        tooltip: 'Share',
+                      ),
+                      Text(
+                        item.body,
+                        textAlign: TextAlign.justify,
+                        style: const TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 14,
+                          height: 1.35,
+                        ),
+                      ),
+                      SizedBox(height: screenHeight * 0.04),
+                    ],
+                  ),
+                ),
               ],
             ),
           );
@@ -222,13 +248,17 @@ class ArticleDetail extends StatelessWidget {
   }
 }
 
-//  thsis is custom appbar used in the above widget tree ..................fully customizable in terms of color,sizeee
-
 class CustomAppBar extends StatelessWidget {
+  const CustomAppBar({
+    super.key,
+    required this.screenWidth,
+    required this.screenHeight,
+    this.onShare,
+  });
+
   final double screenWidth;
   final double screenHeight;
-  const CustomAppBar(
-      {super.key, required this.screenWidth, required this.screenHeight});
+  final VoidCallback? onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -251,9 +281,7 @@ class CustomAppBar extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => Navigator.of(context).pop(),
                 icon: Icon(
                   Icons.arrow_back,
                   size: screenWidth * 0.06,
@@ -272,24 +300,25 @@ class CustomAppBar extends StatelessWidget {
             0,
           ),
           child: Text(
-            "Articles",
+            'Articles',
             style: TextStyle(
               color: Colors.white,
               fontSize: screenWidth * 0.05,
               fontWeight: FontWeight.w600,
-              fontFamily: "PlusJakartaSans",
+              fontFamily: 'PlusJakartaSans',
             ),
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(
-            top: screenHeight * 0.04,
-            // left: screenWidth * 0.39,
+        const Spacer(),
+        if (onShare != null)
+          IconButton(
+            onPressed: onShare,
+            icon: const Icon(Icons.share_outlined, color: Colors.white),
+            tooltip: 'Share',
           ),
-          child: Container(
-            margin: EdgeInsets.only(
-              left: screenWidth * 0.48,
-            ),
+        Padding(
+          padding: EdgeInsets.only(top: screenHeight * 0.04, right: 8),
+          child: SizedBox(
             width: screenWidth * 0.04,
             height: screenWidth * 0.04,
             child: ColorFiltered(
@@ -302,40 +331,6 @@ class CustomAppBar extends StatelessWidget {
             ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-class CustomIconsStyle extends StatelessWidget {
-  final IconData icondata;
-  final String text;
-  const CustomIconsStyle(
-      {super.key, required this.icondata, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          icondata,
-          color: Colors.white,
-          size: 20,
-        ),
-        const SizedBox(
-          width: 5,
-        ),
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontFamily: 'PlusJakartaSans',
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            height: 1.0,
-            letterSpacing: -0.165,
-          ),
-        )
       ],
     );
   }

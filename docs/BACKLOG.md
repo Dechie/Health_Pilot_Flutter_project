@@ -68,6 +68,17 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 This section records **what we changed in code** (files + intent). It’s meant for future you (or another dev) to quickly understand “what moved” and “why”, and to spot temporary hacks that should be revisited.
 
+### 2026-04-25 — Branch J: articles list → detail, share, comments shell
+
+- **Goal**: Per plan Branch J — Figma-aligned articles experience without subscription UI (`docs/FEATURE_BRANCH_PLAN.md`).
+- **Changes**:
+  - **`article_feed_item.dart`**: `ArticleFeedItem` model + formatted date + `fromLegacyArguments` for old `List<Map>` routes.
+  - **`article_screen.dart`**: Stateful list with **search filter**; **card tap** and **Read more** open detail; **share** via `share_plus`; metadata from model; **filter** bottom sheet shell; fixed **`assets/Icons/setting.svg`** suffix path; **`const ArticleScreen()`** from blog card.
+  - **`article_detail_screen.dart`**: Reads **`ArticleFeedItem`** (or legacy list); **hero image** from item; **author + date** row; **share** in app bar and body; comments route passes **`ArticleCommentScreen(article, comments: [])`** for **empty state**.
+  - **`article_comment_screen.dart`**: Stateful with **`TextEditingController` dispose**; header uses article title/image; **Filter** opens bottom sheet; **empty** copy punctuation; **`CommentModel`/`Reply`** moved above screen; **`sampleThreadedArticleComments()`** helper for threaded demo; **comment/reply body** `Text` restored; duplicate **`@override`** removed.
+  - **`pubspec.yaml`**: **`share_plus`** dependency.
+- **Verify**: `flutter analyze` clean; `flutter test` passes.
+
 ### 2026-04-24 — Branch E: Health tab entry points for medication + stubs
 
 - **Goal**: Make medication discoverable from the **Health** tab (not only Profile), and reserve routes for reminders/history per `docs/FEATURE_BRANCH_PLAN.md` Branch E.
