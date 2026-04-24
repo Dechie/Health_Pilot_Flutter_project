@@ -6,6 +6,12 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 ## Decision log
 
+### 2026-04-25 — Figma parity branches J–Q before subscription Branch D
+
+- **Decision**: Add **Branches J–Q** to `docs/FEATURE_BRANCH_PLAN.md` (and table in `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4) for design-board gaps documented from `docs/design-mockups/`. Execute **J → Q** on current `main`, **then** **Branch D** (`refactor/subscription-feature`).
+- **Excluded from J–Q** (same hold as Branch D): **free/premium UI**, **paywalls**, **Subscribe CTAs**, **gadgets lock by tier**, **premium-gated statistics**, and other **subscription-dependent** behavior; neutral placeholders or hide until D.
+- **Why**: Team deferred subscription work; parity work should not be blocked, but must not bake new premium rules ahead of product/backend.
+
 ### 2026-04-18 — Assessment history: in-memory today, API + in-memory cache tomorrow
 
 - **Decision**: Treat **`InMemoryAssessmentHistory`** (`ChangeNotifier`) as the canonical place the Assessment tab reads/writes completed runs for now. **`recordCompleted(AssessmentSummary)`** is the single write path when the user taps **Finish** on the summary screen.
