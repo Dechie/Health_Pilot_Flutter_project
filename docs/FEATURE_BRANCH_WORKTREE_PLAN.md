@@ -133,25 +133,44 @@ Only rebase branches **you** own unless the team agrees.
 
 ---
 
-## 4) A→I plan mapped to branches + suggested PR bases
+## 4) Plan mapped to branches + suggested PR bases (A–I historical, J–Q then D)
 
 Aligned with `docs/FEATURE_BRANCH_PLAN.md` §2. **Base column** = GitHub PR target when stacking (adjust if your team merges to `main` earlier).
+
+### Original pass (A–I)
 
 | Step | Branch | Suggested PR base (stacked) | One-line intent |
 |------|--------|-----------------------------|-----------------|
 | A | `refactor/features-boundaries` | `health-assessment` (or `main` if already merged) | Medication/subscription folders + imports |
 | B | `refactor/profile-feature` | `refactor/features-boundaries` | Profile module + tab entry |
 | C | `refactor/onboarding-flow` | `refactor/profile-feature` | Single onboarding controller |
-| D | `refactor/subscription-feature` | **Deferred — run last** (see `FEATURE_BRANCH_PLAN.md` §2) | Subscription owns routing + entrypoints |
+| D | `refactor/subscription-feature` | **Deferred — run after J–Q** (see below) | Subscription owns routing + entrypoints |
 | E | `refactor/medication-feature` | **`main`** while D is deferred | Medication discoverable from health/home |
 | F | `refactor/language-settings` | `refactor/medication-feature` | Language under profile/settings |
 | G | `feat/tutorials` | `refactor/language-settings` | Tutorials module + Home entry |
 | H | `refactor/navigation-cleanup` | `feat/tutorials` | Entry screens + fewer ad-hoc pushes |
 | I | `chore/final-cleanup` | `refactor/navigation-cleanup` | Smoke + analyzer + dead code |
 
+### Figma parity pass (J–Q) — **no premium/subscription** scope; then **D**
+
+Design boards: `docs/design-mockups/`. Prefer **linear merges to `main`**: each row’s PR base = **`main`** once the previous row is merged (or stack J→…→Q if the team prefers one open chain).
+
+| Step | Branch | Suggested PR base | One-line intent |
+|------|--------|-------------------|-----------------|
+| J | `feat/articles-experience` | `main` (or prior tip) | List→detail, metadata, comments shell |
+| K | `feat/chat-community-parity` | `main` (or prior tip) | Inbox, empty chat, similar people, profile tabs shell, calls polish |
+| L | `refactor/personal-info-forms` | `main` (or prior tip) | Validation, delete, relationship, doctor UX |
+| M | `feat/food-nutrition-parity` | `main` (or prior tip) | Frequency, diets, toggles, history/empty states |
+| N | `feat/healthbot-ux` | `main` (or prior tip) | Prompt chips, clear chat, typing indicator |
+| O | `feat/home-modals-tutorials` | `main` (or prior tip) | Emergency modal, tutorial copy (non-subscription slides) |
+| P | `feat/health-tab-parity` | `main` (or prior tip) | Symptoms, severity, tracking, profiles; hide premium stats |
+| Q | `feat/medications-depth` | `main` (or prior tip) | Units, scheduling UI, reminders/history beyond stubs |
+
+| Final | `refactor/subscription-feature` | **`main`** after **Q** | Subscription + deferred premium-tier UX |
+
 If a step is **skipped or merged to `main` early**, rebase the next branch onto **`origin/main`** and set PR base to `main`.
 
-**2026-04-24:** Row **D** is intentionally **out of sequence**; complete **E** (and follow-on rows) first, then return to **D** when subscription work is in scope again.
+**2026-04-24 / 2026-04-25:** Row **D** stays **last** (after **J–Q**). Original **E–I** order applied while D was deferred; new work uses **J–Q** on current `main`, then **D**.
 
 ---
 

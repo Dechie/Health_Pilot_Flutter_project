@@ -104,11 +104,13 @@ Branch naming convention (recommended):
 
 ## 2) Planned branches (in recommended order)
 
-### Execution order (stack adjustment — 2026-04-24)
+### Execution order (stack adjustment — 2026-04-24, updated 2026-04-25)
 
-- **Branch D** (`refactor/subscription-feature`) is **deferred to the end of the execution list** (last among A–I for this pass). Until it is explicitly started, treat **subscription-specific refactors and new subscribe/paywall flows as out of scope** (leave existing entry points such as profile/settings as they are unless fixing breakage).
-- **Next slice from `main`:** **Branch E** (`refactor/medication-feature`). Open the PR with **base = `main`** while D is deferred (see `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4).
-- When **Branch D** is eventually picked up, do it **after** the branches you chose to run ahead of it (at minimum after **E**, and typically after **F** as well if you keep the original F→G dependency), then reconcile any subscription entry-point duplication called for by the plan.
+- **Branches A–I** are the **original roadmap pass** (many are already merged to `main`; see `docs/BACKLOG.md`).
+- **Branches J–Q** are a **second pass**: **Figma / design-board parity** from `docs/design-mockups/` (chat, articles, personal-info flows, food & nutrition, HealthBot, home modals & tutorials, health tab, medications). Run them **in order J → Q** on top of current `main`, **then** pick up **Branch D**.
+- **Explicitly out of scope for J–Q** (same deferral as **Branch D**): **free vs premium UI**, **paywalls**, **“Subscribe” / upgrade CTAs**, **gadgets lock by tier**, **premium-gated statistics cards**, and any **subscription-backed gating**. Use **neutral placeholders** or **hide** those surfaces until Branch D; do not implement new premium rules on these branches.
+- **Branch D** (`refactor/subscription-feature`) remains **last**: subscription module unification, reusable paywall, and **re-enabling** premium-tier UX that was deferred above.
+- **PR bases:** Prefer **`main`** for each of **J–Q** after the prior branch merges (linear sequence keeps review small). See `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4 for the updated table.
 
 ### Branch A — Extract misplaced feature boundaries (foundational)
 - **Branch**: `refactor/features-boundaries`
@@ -164,7 +166,7 @@ Branch naming convention (recommended):
 ### Branch D — Subscription feature: make reusable + independent
 - **Branch**: `refactor/subscription-feature`
 - **Type**: A (refactor)
-- **Status (2026-04-24)**: **Deferred — pushed to the end of the branch list** (final slice in this pass, not cancelled). No subscription-focused refactors or new subscription UX until this branch is started; see **Execution order** above.
+- **Status (2026-04-24, updated 2026-04-25)**: **Deferred — remains the final slice after J–Q.** No subscription-focused refactors or new subscription UX until this branch is started; see **Execution order** above. Completing **J–Q** first clears Figma parity that was intentionally held back from premium work.
 - **Goal**: Subscription/payment UI becomes reusable and not tied to onboarding.
 - **Scope**:
   - Ensure the subscription module owns the payment screen and routing.
@@ -237,11 +239,121 @@ Branch naming convention (recommended):
 - **Acceptance criteria**:
   - `flutter analyze` clean, app runs without runtime exceptions during standard navigation.
 
+### Branch J — Articles: list → detail and engagement shell
+- **Branch**: `feat/articles-experience`
+- **Type**: B (UI feature)
+- **Design inputs**: `docs/design-mockups/03-articles-and-comments.png`
+- **Goal**: Match the articles list, detail hero, and comments area to the design board **without** adding paywalls or premium-only article access.
+- **Scope**:
+  - Wire **article list cards → detail** (today `ArticleCard` tap is not connected).
+  - List card **metadata row** (likes, comments count, read time, share) as static or local state until an API exists.
+  - Detail: **date + author** row, body layout; **share** on detail if present on list.
+  - Comments: **empty state** illustration/copy; **filter** control shell; threaded list polish (reply/report/delete for own comments) as non-breaking incremental work.
+- **Out of scope**: Premium-only articles, paid content gates.
+- **Acceptance criteria**:
+  - Tapping a list item opens detail with correct arguments; analyzer clean; no new subscription UI.
+
+### Branch K — Chat & community: inbox, empty states, discovery, calls polish
+- **Branch**: `feat/chat-community-parity`
+- **Type**: B (UI feature)
+- **Design inputs**: `docs/design-mockups/01-chat-community-profiles.png`
+- **Goal**: Bring chat list, DM, group chat, **empty chat**, **similar people / discovery**, and **user profile detail** (tab shell) closer to Figma; improve **voice/video** presentation where screens already exist.
+- **Scope**:
+  - **Inbox**: tab styling, search bar behavior (can be client-side filter first).
+  - **Empty chat** state with illustration + CTA copy.
+  - **Similar people**: card layout, vote/connect/message actions, **success/error snackbars** (can use optimistic or stub service until backend).
+  - **User profile detail**: **Media / Files / Audio / Links / Groups** tabs with **placeholder** panes (no fake paywalled media APIs).
+  - **Public profile** edit flow layout parity where screens exist.
+- **Out of scope**: Premium badge as a **gate**, subscription CTAs on doctor cards, payment flows.
+- **Acceptance criteria**:
+  - Primary chat flows still run; new surfaces either functional with local/stub data or clearly placeholder without crashes.
+
+### Branch L — Personal info, emergency contact, personal doctor forms
+- **Branch**: `refactor/personal-info-forms`
+- **Type**: A (refactor) + small B where validation UX ships
+- **Design inputs**: `docs/design-mockups/04-setup-personal-doctor-personal-info.png`, `05-emergency-contact-personal-info.png`
+- **Goal**: Form parity and safer editing: validation, delete, and clearer models **without** subscription fields.
+- **Scope**:
+  - **Emergency contact**: optional **relationship** field; **delete/remove** contact; inline **validation** errors (email/phone).
+  - **Personal doctor**: **delete** doctor; profession dropdown UX (search optional); confirm after save/finish.
+  - **Personal information hub**: list sections match design spacing; **photo** picker hookup from “upload” affordance.
+- **Out of scope**: Premium-only doctor lists or paywalled add-doctor flows.
+- **Acceptance criteria**:
+  - Add/edit/delete paths work on device; no regressions on Finish/navigation already covered by `AppNavigation`.
+
+### Branch M — Food & nutrition tracking parity
+- **Branch**: `feat/food-nutrition-parity`
+- **Type**: B (UI feature)
+- **Design inputs**: `docs/design-mockups/06-food-nutrition-tracking.png`
+- **Goal**: Align food & nutrition setup, settings, and history with the board **excluding** subscribe/premium upsell tied to nutrition.
+- **Scope**:
+  - **Report frequency** (daily/weekly/bi-weekly/monthly) UI.
+  - **Diet chips** with **deduplicated** options (fix mock duplicate pattern in code).
+  - **Push notifications** toggle + explanatory copy (local preference only until push infra).
+  - **History** rows, **empty state**, navigation from personal-information preview.
+- **Out of scope**: “Subscribe to unlock nutrition” or any premium-gated nutrition analytics.
+- **Acceptance criteria**:
+  - Screens match structure of mockups; state persists locally where already used (e.g. `SharedPreferences`) or is clearly stubbed in `BACKLOG.md`.
+
+### Branch N — HealthBot (chatbot) UX
+- **Branch**: `feat/healthbot-ux`
+- **Type**: B (UI feature)
+- **Design inputs**: `docs/design-mockups/07-healthbot-chatbot.png`
+- **Goal**: Match starter experience and overflow actions from the design board.
+- **Scope**:
+  - **Suggested prompt chips** on first open.
+  - **Overflow / menu**: “Clear chat” (with confirm) and any other non-destructive items.
+  - Optional: **typing** indicator, `debugPrint` → structured logging only if needed (no behavior change to medical content).
+- **Out of scope**: Premium bot tier, paid HealthBot features.
+- **Acceptance criteria**:
+  - Chatbot screen usable with chips + clear; analyzer clean.
+
+### Branch O — Home first-run: emergency modal + tutorial copy (non-subscription)
+- **Branch**: `feat/home-modals-tutorials`
+- **Type**: B (UI feature)
+- **Design inputs**: `docs/design-mockups/08-home-modals-emergency-tutorial-premium.png`, `09-home-tutorial-account-setup.png`
+- **Goal**: Emergency countdown modal and **first-run / carousel tutorial** copy and steps aligned with design **except** slides that exist only to upsell **premium subscription** (defer those slides’ copy and CTAs to **Branch D**).
+- **Scope**:
+  - **Emergency call** modal: countdown + cancel affordance per mock.
+  - Replace **placeholder** tutorial strings on Home (e.g. generic “add stuff here”) with **final or near-final** non-subscription product copy; align pagination (e.g. three dots / steps) with real step count.
+  - **Account setup** modal: “Finish setup” / “Setup later” behavior without tying to payment.
+- **Out of scope**: Premium upsell tutorial slide, “subscribe for personal doctor” messaging, any new paywall.
+- **Acceptance criteria**:
+  - Modals match intended UX; no new subscription routes.
+
+### Branch P — Health tab: tracking, symptoms, profiles (no premium stats wall)
+- **Branch**: `feat/health-tab-parity`
+- **Type**: B (UI feature)
+- **Design inputs**: `docs/design-mockups/10-health-tab-tracking-symptoms.png`
+- **Goal**: Symptom and health-tracking flows closer to Figma: search/add symptoms, **severity 1–10** control, history, clear actions, profile edit entry points.
+- **Scope**:
+  - **Health tracking** list + history screen UX (timestamps, clear history affordance).
+  - **Symptom tracking**: add flow, **search**, severity UI, confirmation after add.
+  - **Health profiles** section: add/edit profile navigation (screens can start minimal).
+  - **Empty states** for lists.
+- **Out of scope**: **Premium “My statistics”** blurred cards, **Subscribe** buttons on statistics, any paywalled charting.
+- **Acceptance criteria**:
+  - Flows usable with existing/local data; statistics area either unchanged or **hidden** until Branch D (document choice in `BACKLOG.md`).
+
+### Branch Q — Medications: depth beyond stubs (scheduling, units, UI parity)
+- **Branch**: `feat/medications-depth`
+- **Type**: B (UI feature) (+ thin A if only structure moves)
+- **Design inputs**: `docs/design-mockups/11-medications-flow.png`
+- **Goal**: Move medication UX toward the board: search empty state, add form, list with edit/delete/save, **without** subscription checks.
+- **Scope**:
+  - **Dose units** (not only mg), optional **time-of-day** or interval fields (can be UI-only first).
+  - **Delete confirmation**; **save changes** batching if missing.
+  - Expand **reminders** / **history** routes beyond stubs (local-only scheduling or UI shell until backend—**not** tied to premium).
+  - Medication **search** against local seed or API contract stub (document in `BACKLOG.md`).
+- **Out of scope**: “Subscribe for medication insights” or premium-only medication features.
+- **Acceptance criteria**:
+  - Matches core mock screens; reminders/history at least **non-crashing** with defined placeholder behavior.
+
 ---
 
 ## 3) Notes / constraints
 
-- While **Branch D** is deferred, **do not** expand subscription/paywall scope; keep existing paths stable unless fixing correctness or merge fallout.
+- While **Branch D** is deferred, **do not** expand subscription/paywall scope; keep existing entry points such as profile/settings as they are unless fixing breakage. **Branches J–Q** inherit the same rule for **premium/subscription** (see **Execution order** above).
 - Keep `docs/BACKLOG.md` as the primary decision + implementation record.
 - Prefer moving code with minimal functional changes per branch; do “behavior improvements” on follow-up feature branches.
 - Backend integration is a known future dependency; avoid baking fake state into UI that will fight real auth/subscription state later.
