@@ -22,6 +22,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
 import 'package:healthpilot/features/profile/personal_doctor_personal_information.dart'
@@ -45,7 +46,6 @@ class PersonalInformationScreen extends StatefulWidget {
 class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   final bool _isPersonalDoctorSubscribed = false;
 
-  final bool _isNutritionTrackingSubscribed = false;
   String? _profileImagePath;
 
   Future<void> _pickProfilePhoto() async {
@@ -349,31 +349,41 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                   SubscriptionCard(
                     screenWidth: screenWidth,
                     title: "Set up food and nutrition tracking",
-                    description: _isNutritionTrackingSubscribed
-                        ? "Start setting up your food and nutrition tracking to keep hold of your data on what u eat and drink."
-                        : "This feature is only available to premium subscribers. Subscribe to HealthPilot Premium to gain access.",
-                    icon: _isNutritionTrackingSubscribed
-                        ? null
-                        : Icons.lock_outlined,
-                    buttontxt: _isNutritionTrackingSubscribed
-                        ? "Start setup"
-                        : "Subscribe",
+                    description:
+                        "Choose how often you get reports, optional meal-time reminders on this device, and diets you follow. "
+                        "This screen does not require a subscription.",
+                    icon: null,
+                    buttontxt: "Start setup",
                     subscription: () {
-                      if (_isNutritionTrackingSubscribed) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (context) =>
+                              const FoodNutritionTrackingScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                    child: TextButton(
+                      onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (context) =>
-                                const FoodNutritionTrackingScreen(),
+                                const FoodNutritionHistoryScreen(),
                           ),
                         );
-                      } else {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (context) => const PaymentMethodScreen(),
-                          ),
-                        );
-                      }
-                    },
+                      },
+                      child: const Text(
+                        'View nutrition history',
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          color: Color.fromRGBO(110, 182, 255, 1),
+                        ),
+                      ),
+                    ),
                   ),
                   InkWell(
                     onTap: () {
