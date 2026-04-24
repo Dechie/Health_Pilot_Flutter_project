@@ -39,16 +39,22 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 ### 2026-04-24 — Branch D (subscription) deferred; Branch E next from `main`
 
-- **Decision**: **Pause plan Branch D** (`refactor/subscription-feature`) until **last** in the current sequence. **Subscription-focused refactors and new subscription UX are out of scope** until that branch is explicitly started.
-- **Next work**: **Branch E** — `refactor/medication-feature`, branched from **`main`**, PR base **`main`** (stack adjustment documented in `docs/FEATURE_BRANCH_PLAN.md` §2 and `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4).
-- **Rationale**: Product wants to ignore subscription work for now while continuing the refactor roadmap.
+- **Decision**: **Pause plan Branch D** (`refactor/subscription-feature`) and **push it to the end of the branch list** for this roadmap pass: it is the **last** slice to execute (not skipped)—run **after** the other planned slices ahead of it (through **E**, **F**, **G**, **H**, **I** as applicable), then return to subscription unification when product is ready.
+- **Scope while deferred**: **Subscription-focused refactors and new subscribe/paywall UX are out of scope** until Branch D is explicitly started.
+- **Next work (when decided)**: **Branch E** onward used **`main`** as PR base while D was deferred (see `docs/FEATURE_BRANCH_PLAN.md` §2 and `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4).
+- **Rationale**: Product wanted to ignore subscription work for now while continuing the refactor roadmap.
+
+### 2026-04-24 — Retain merged feature branches; refresh with merge (Option A)
+
+- **Decision**: **Keep** merged feature branches (local + remote) for **mobile QA** and **follow-up fixes** on the same branch name; **deletion is optional**, not part of the default workflow.
+- **Sync method**: **Option A** — merge **`origin/main`** (or **`upstream/main`**, whichever tracks integrated `main`) into the retained branch, resolve conflicts, push. Documented in `docs/FEATURE_BRANCH_PLAN.md` §1 and `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §3.
 
 ### 2026-04-22 — What to do with completed branches after merges (A/B/C…)
 
-- **Decision**: Once a branch is merged into `main`, we generally **do not keep “syncing” the completed branch**.
-- **Default**: switch back to updated `main` and start the next slice from there (or from the correct stacked parent branch if the stack is still open).
-- **Only sync a completed branch if** you must keep it open for review/follow-up changes; then rebase/merge it onto latest `main` to reduce drift.
-- **Cleanup**: after merge + after verifying the final state is in `main`, it’s safe to delete the remote branch and your local branch.
+- **Decision**: Once a branch is merged into `main`, **new slices** normally start from updated **`main`** (or the correct stacked parent).
+- **Update (2026-04-24)**: For **mobile QA and fixes**, we **retain** merged branch names and refresh them by **merging `main` in (Option A)** — see **Decision log — 2026-04-24 — Retain merged feature branches** above. The bullets below about “not syncing” apply to **day-to-day new feature work**, not to branches you intentionally keep for QA.
+- **Only sync a completed branch if** you must keep it open for review/follow-up changes; then merge or rebase onto latest `main` to reduce drift.
+- **Cleanup**: deleting merged branches remains **optional** when you no longer need that branch name for QA or patches.
 
 ---
 
