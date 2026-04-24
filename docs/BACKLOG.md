@@ -79,6 +79,19 @@ This section records **what we changed in code** (files + intent). It’s meant 
   - **`pubspec.yaml`**: **`share_plus`** dependency.
 - **Verify**: `flutter analyze` clean; `flutter test` passes.
 
+### 2026-04-25 — Branch L: personal info hubs, emergency & doctor forms
+
+- **Goal**: Per plan Branch L — form parity, validation, delete, photo pick, no new subscription gates (`docs/FEATURE_BRANCH_PLAN.md`).
+- **Changes**:
+  - **`personal_info_contact_models.dart`**: Shared **`EmergencyContactEntry`**, **`PersonalDoctorEntry`**, **`DoctorSetupResult`**, and validators (**name / email / phone**).
+  - **`setup_emergency_contact.dart`**: Stateful form with **relationship (optional)**, **inline validation**, confirm-before-save dialog, returns entry to hub.
+  - **`setup_personal_doctor.dart`**: **`SetupPersonalDoctor(initial: …)`** (no `add` callback); **searchable** profession dialog; **confirm** save; **remove doctor** when editing; **`DoctorSetupResult`** on pop; phone validation; **`Cardiologists` / GP`** options added.
+  - **`emergency_contact_personal_information.dart`**: In-memory **lists** (max 3 each), **edit/delete**, fixed **Personal Doctor** add route (was wrongly opening emergency setup); **gallery** profile photo.
+  - **`personal_doctor_personal_information.dart`**: Same doctor list + photo pattern.
+  - **`personal_information_screen.dart`**: **Tap-to-pick** profile photo from gallery.
+  - **`pubspec.yaml`**: **`image_picker`**; **`AndroidManifest.xml`**: read image permissions; **`Info.plist`**: photo library usage string.
+- **Verify**: `flutter analyze` clean; `flutter test` passes.
+
 ### 2026-04-25 — Branch K: chat inbox, empty chat, discovery, profile tabs shell
 
 - **Goal**: Per plan Branch K — chat/community parity without premium gates (`docs/FEATURE_BRANCH_PLAN.md`).

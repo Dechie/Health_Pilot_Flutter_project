@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
@@ -10,6 +12,8 @@ import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';
 
 import 'package:healthpilot/features/personal_doctor/setup_personal_doctor.dart';
+import 'package:healthpilot/features/profile/personal_info_contact_models.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PersonalInformation extends StatefulWidget {
   const PersonalInformation({super.key});
@@ -19,13 +23,64 @@ class PersonalInformation extends StatefulWidget {
 }
 
 class _PersonalInformationState extends State<PersonalInformation> {
-  int doctorCount = 0;
+  final List<PersonalDoctorEntry> _doctors = [];
+  String? _profileImagePath;
 
-  void addDoctor() {
-    if (doctorCount < 3) {
-      setState(() {
-        doctorCount++;
-      });
+  Future<void> _pickProfilePhoto() async {
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file != null && mounted) {
+      setState(() => _profileImagePath = file.path);
+    }
+  }
+
+  Future<void> _addOrEditDoctor({PersonalDoctorEntry? existing, int? index}) async {
+    final result = await Navigator.of(context).push<DoctorSetupResult>(
+      MaterialPageRoute(
+        builder: (context) => SetupPersonalDoctor(initial: existing),
+      ),
+    );
+    if (!mounted || result == null) {
+      return;
+    }
+    if (result.deleted && index != null) {
+      setState(() => _doctors.removeAt(index));
+      return;
+    }
+    final entry = result.entry;
+    if (entry == null) {
+      return;
+    }
+    setState(() {
+      if (index != null) {
+        _doctors[index] = entry;
+      } else if (_doctors.length < 3) {
+        _doctors.add(entry);
+      }
+    });
+  }
+
+  Future<void> _confirmRemoveDoctor(int index) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remove personal doctor?'),
+        content: const Text(
+          'This doctor will be removed from your list.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) {
+      setState(() => _doctors.removeAt(index));
     }
   }
 
@@ -102,54 +157,55 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   SizedBox(
                     height: size.height * 0.02,
                   ),
-                  Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: size.width * 0.1,
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(size.height * 0.08),
-                          child: Image.asset(
-                            height: size.width * 0.25,
-                            personPicForProfile,
-                            fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: _pickProfilePhoto,
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: size.width * 0.1,
+                          backgroundImage: _profileImagePath != null
+                              ? FileImage(File(_profileImagePath!))
+                              : null,
+                          child: _profileImagePath == null
+                              ? ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.circular(size.height * 0.08),
+                                  child: Image.asset(
+                                    height: size.width * 0.25,
+                                    personPicForProfile,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : null,
+                        ),
+                        Positioned(
+                          top: size.width * 0.16,
+                          left: size.width * 0.13,
+                          child: Container(
+                            height: size.width * 0.04,
+                            width: size.width * 0.04,
+                            padding: EdgeInsets.only(left: size.width * 0.01),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                size.width * 0.02,
+                              ),
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                            ),
+                            child: Icon(
+                              LineIcons.edit,
+                              size: size.width * 0.03,
+                              color: const Color.fromARGB(255, 73, 70, 70),
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(
-                            top: size.width * 0.16, left: size.width * 0.13),
-                        child:
-                            // CircleAvatar(
-                            //   backgroundColor: Colors.white,
-                            //   radius: size.width * 0.025,
-                            //   child:
-                            Container(
-                                height: size.width * 0.04,
-                                width: size.width * 0.04,
-                                padding:
-                                    EdgeInsets.only(left: size.width * 0.01),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    size.width * 0.02,
-                                  ),
-                                  color:
-                                      const Color.fromARGB(255, 255, 255, 255),
-                                ),
-                                child: Icon(
-                                  LineIcons.edit,
-                                  size: size.width * 0.03,
-                                  color: const Color.fromARGB(255, 73, 70, 70),
-                                )),
-                      ),
-                      // ),
-                    ],
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height: size.height * 0.03,
                   ),
                   Text(
-                    'Upload your profile photo',
+                    'Tap to upload your profile photo',
                     style: AppTheme.bodyMuted(context),
                   ),
                 ],
@@ -311,99 +367,162 @@ class _PersonalInformationState extends State<PersonalInformation> {
                               fontWeight: FontWeight.w500, fontSize: 16),
                         ),
                         IconButton(
-                            onPressed: () {
-                              // addDoctor();
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    SetupPersonalDoctor(add: addDoctor),
-                              ));
-                            },
-                            icon: const Icon(
-                              Icons.add_circle_outline,
-                              color: Colors.black,
-                            ))
+                          onPressed: () {
+                            if (_doctors.length >= 3) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'You can add up to 3 personal doctors.',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+                            _addOrEditDoctor();
+                          },
+                          icon: const Icon(
+                            Icons.add_circle_outline,
+                            color: Colors.black,
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(
-                      height: doctorCount <= 0
+                      height: _doctors.isEmpty
                           ? size.height * 0.08
-                          : size.height * 0.08 * doctorCount,
-                      child: doctorCount <= 0
+                          : size.height * 0.11 * _doctors.length,
+                      child: _doctors.isEmpty
                           ? const Center(
                               child: Text(
                                 'You don\'t have a personal doctor!',
                                 style: TextStyle(
-                                    color: Color.fromRGBO(110, 182, 255, 1),
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14),
+                                  color: Color.fromRGBO(110, 182, 255, 1),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 14,
+                                ),
                               ),
                             )
                           : ListView.builder(
-                              itemCount: doctorCount,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _doctors.length,
                               itemBuilder: (context, index) {
-                                return Row(
-                                  children: [
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Container(
-                                          width: size.width * 0.003,
-                                          height: size.height * 0.08,
-                                          color: const Color.fromRGBO(
-                                              110, 182, 255, 1),
-                                        ),
-                                        Container(
-                                          width: size.width * 0.03,
-                                          height: size.width * 0.03,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                                size.width * 0.015),
-                                            color: const Color.fromRGBO(
-                                                110, 182, 255, 1),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: size.width * 0.03,
-                                          height: size.width * 0.03,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                                size.width * 0.015),
-                                            color: const Color.fromRGBO(
-                                                110, 182, 255, 1),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.only(
-                                          left: size.width * 0.02),
-                                      width: size.width * 0.8,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                final d = _doctors[index];
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: size.height * 0.012,
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.center,
                                         children: [
-                                          const Text('Bobby Firminio'),
-                                          ElevatedButton(
-                                            onPressed: () {},
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    const Color.fromRGBO(
-                                                        110, 182, 255, 1),
-                                                foregroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5))),
-                                            child: const Text(
-                                              'Edit',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600),
+                                          Container(
+                                            width: size.width * 0.003,
+                                            height: size.height * 0.09,
+                                            color: const Color.fromRGBO(
+                                              110,
+                                              182,
+                                              255,
+                                              1,
+                                            ),
+                                          ),
+                                          Container(
+                                            width: size.width * 0.03,
+                                            height: size.width * 0.03,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                size.width * 0.015,
+                                              ),
+                                              color: const Color.fromRGBO(
+                                                110,
+                                                182,
+                                                255,
+                                                1,
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
+                                      Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            left: size.width * 0.02,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                d.displayName,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              Text(
+                                                d.profession,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Color.fromRGBO(
+                                                    42,
+                                                    42,
+                                                    42,
+                                                    0.65,
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                d.email,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Color.fromRGBO(
+                                                    42,
+                                                    42,
+                                                    42,
+                                                    0.5,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        tooltip: 'Edit',
+                                        onPressed: () => _addOrEditDoctor(
+                                          existing: d,
+                                          index: index,
+                                        ),
+                                        icon: const Icon(
+                                          Icons.edit_outlined,
+                                          color: Color.fromRGBO(
+                                            110,
+                                            182,
+                                            255,
+                                            1,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        tooltip: 'Remove',
+                                        onPressed: () =>
+                                            _confirmRemoveDoctor(index),
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          color: Color.fromRGBO(
+                                            180,
+                                            60,
+                                            60,
+                                            1,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 );
                               },
                             ),
