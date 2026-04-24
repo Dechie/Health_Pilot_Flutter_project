@@ -188,6 +188,7 @@ Branch naming convention (recommended):
 ### Branch G — Tutorials feature (missing feature)
 - **Branch**: `feat/tutorials`
 - **Type**: B (UI feature)
+- **Status (2026-04-24)**: List + detail + **Home** entry implemented with **interim** Material cards; align typography/spacing/content to **Figma** when assets are available.
 - **Design inputs**: Before starting, capture Figma screenshots (or link) for tutorials list/cards and tutorial detail (if any).
 - **Goal**: Implement the missing tutorials feature noted in the analysis.
 - **Scope**:
