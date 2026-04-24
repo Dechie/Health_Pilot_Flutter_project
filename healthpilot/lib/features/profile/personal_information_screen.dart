@@ -16,6 +16,7 @@
 /// additional premium features.
 library;
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ import 'package:healthpilot/features/profile/personal_doctor_personal_informatio
     as doctor;
 import 'package:healthpilot/features/profile/emergency_contact_personal_information.dart'
     as contact;
+import 'package:image_picker/image_picker.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';
 // import 'package:healthpilot/features/personal_doctor/personal_information.dart' as doctor;
@@ -44,6 +46,14 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   final bool _isPersonalDoctorSubscribed = false;
 
   final bool _isNutritionTrackingSubscribed = false;
+  String? _profileImagePath;
+
+  Future<void> _pickProfilePhoto() async {
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file != null && mounted) {
+      setState(() => _profileImagePath = file.path);
+    }
+  }
 
   void showAlertDialogue() {
     showDialog(
@@ -194,44 +204,55 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                   SizedBox(
                     height: screenHeight * 0.03,
                   ),
-                  Stack(
-                    children: [
-                      SizedBox(
-                        width: screenWidth * 0.3,
-                        height: screenWidth * 0.3,
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(screenWidth * 0.15),
-                          child: const Image(
-                            image: AssetImage(
-                              'assets/images/personel.png',
-                            ),
-                            fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: _pickProfilePhoto,
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          width: screenWidth * 0.3,
+                          height: screenWidth * 0.3,
+                          child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.15),
+                            child: _profileImagePath != null
+                                ? Image.file(
+                                    File(_profileImagePath!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Image(
+                                    image: AssetImage(
+                                      'assets/images/personel.png',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        bottom: screenWidth * 0.000,
-                        right: screenWidth * 0.03,
-                        child: Container(
+                        Positioned(
+                          bottom: screenWidth * 0.000,
+                          right: screenWidth * 0.03,
+                          child: Container(
                             width: screenWidth * 0.05,
                             height: screenWidth * 0.05,
                             decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.circular(screenWidth * 0.025),
-                                color: Colors.white),
+                              borderRadius: BorderRadius.circular(
+                                screenWidth * 0.025,
+                              ),
+                              color: Colors.white,
+                            ),
                             child: Icon(
                               LineIcons.edit,
                               size: screenWidth * 0.03,
                               color: const Color.fromARGB(255, 73, 70, 70),
-                            )),
-                      ),
-                    ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: screenHeight * 0.02),
                     child: Text(
-                      "Upload your profile photo",
+                      "Tap to upload your profile photo",
                       style: TextStyle(
                         fontFamily: "PlusJakartaSans",
                         fontWeight: FontWeight.w400,
