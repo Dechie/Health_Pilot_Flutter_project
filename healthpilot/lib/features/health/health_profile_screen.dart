@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/health/health_tracking_screen.dart';
+import 'package:healthpilot/features/medication/medication_history_screen.dart';
+import 'package:healthpilot/features/medication/medication_reminders_screen.dart';
+import 'package:healthpilot/features/medication/medications_screen.dart';
 
 import 'symptom_tracking_screen.dart';
 
@@ -224,6 +227,70 @@ class _HealthProfileState extends State<HealthProfile> {
                       onTap: () {},
                     );
                   },
+                ),
+              ),
+              SizedBox(
+                height: size.height * 0.03,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Medication',
+                    style: TextStyle(
+                        fontFamily: "PlusJakartaSans",
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16),
+                  ),
+                ],
+              ),
+              SizedBox(height: size.height * 0.01),
+              Card(
+                margin: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.medication_outlined),
+                      title: const Text('My medications'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => const MedicationScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.notifications_active_outlined),
+                      title: const Text('Reminders'),
+                      subtitle: const Text('Coming soon'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                const MedicationRemindersScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.history),
+                      title: const Text('History'),
+                      subtitle: const Text('Coming soon'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => const MedicationHistoryScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
