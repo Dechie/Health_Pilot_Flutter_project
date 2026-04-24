@@ -7,6 +7,24 @@ import 'package:intl/intl.dart';
 import '../../data/constants.dart';
 import 'vidoe_call_screen.dart';
 
+Widget _profileSharedTabPlaceholder(String message) {
+  return Center(
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: Color.fromRGBO(42, 42, 42, 0.55),
+        ),
+      ),
+    ),
+  );
+}
+
 class UserDetailScreen extends StatelessWidget {
   final String id;
   const UserDetailScreen({super.key, required this.id});
@@ -53,17 +71,54 @@ class UserDetailScreen extends StatelessWidget {
               subTitle:
                   DateFormat.MMMMd().format(user.chatHistory.last.timestamp),
             )),
-        body: const SafeArea(
+        body: SafeArea(
           bottom: true,
-          child: SingleChildScrollView(
+          child: DefaultTabController(
+            length: 5,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                UserProfileInfo(
+                const UserProfileInfo(
                   mobile: '+251905221804',
                   id: 'ID15463164946',
                   notification: false,
                 ),
-                TabBarViewWidget()
+                TabBar(
+                  unselectedLabelColor: const Color.fromRGBO(42, 42, 42, 0.45),
+                  labelColor: const Color.fromRGBO(110, 182, 255, 1),
+                  isScrollable: true,
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 20),
+                  indicatorSize: TabBarIndicatorSize.label,
+                  indicatorColor: const Color.fromRGBO(110, 182, 255, 1),
+                  labelStyle: const TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  tabs: const [
+                    Tab(text: 'Media'),
+                    Tab(text: 'Files'),
+                    Tab(text: 'Audio'),
+                    Tab(text: 'Links'),
+                    Tab(text: 'Groups'),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _profileSharedTabPlaceholder('No media shared yet.'),
+                      _profileSharedTabPlaceholder('No files shared yet.'),
+                      _profileSharedTabPlaceholder('No audio shared yet.'),
+                      _profileSharedTabPlaceholder('No links shared yet.'),
+                      _profileSharedTabPlaceholder('No groups in common yet.'),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -211,7 +266,7 @@ class CustomeAppBarForUserDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(5)),
                   child: const Center(
                     child: Text(
-                      'Premium',
+                      'Community',
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 10,
@@ -382,68 +437,5 @@ class _CustomeSwitchState extends State<CustomeSwitch> {
             ),
           ],
         ));
-  }
-}
-
-class TabBarViewWidget extends StatelessWidget {
-  const TabBarViewWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    Widget tab(String text) {
-      return Tab(
-        child: Text(
-          text,
-          style: const TextStyle(
-              fontFamily: 'Plus Jakarta Sans',
-              fontSize: 14,
-              fontWeight: FontWeight.w400),
-        ),
-      );
-    }
-
-    return DefaultTabController(
-      length: 5,
-      initialIndex: 0,
-      child: SizedBox(
-        height: size.height * 0.5,
-        child: Column(
-          children: [
-            TabBar(
-              unselectedLabelColor: const Color.fromRGBO(42, 42, 42, 1),
-              labelColor: const Color.fromRGBO(110, 182, 255, 1),
-              // tabAlignment: TabAlignment.center,
-              isScrollable: true,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 20),
-              indicatorSize: TabBarIndicatorSize.label,
-              tabs: [
-                tab('Media'),
-                tab('Files'),
-                tab('Audio'),
-                tab('Links'),
-                tab('Groups'),
-              ],
-            ),
-            Expanded(
-              child: TabBarView(children: [
-                Center(
-                  child: tab('No media shared!'),
-                ),
-                Center(
-                  child: tab('No files shared!'),
-                ),
-                Center(
-                  child: tab('No links shared!'),
-                ),
-                Center(
-                  child: tab('No groups in common!'),
-                ),
-              ]),
-            )
-          ],
-        ),
-      ),
-    );
   }
 }

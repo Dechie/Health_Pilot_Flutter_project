@@ -4,6 +4,53 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/features/chat/public_profile_screen.dart';
 
+void _showCommunityFloatingSnackBar(
+  BuildContext context, {
+  required Color backgroundColor,
+  required IconData icon,
+  required String message,
+}) {
+  final size = MediaQuery.of(context).size;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      elevation: 0,
+      backgroundColor: backgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      margin: EdgeInsets.only(
+        bottom: size.height * 0.15,
+        left: size.width * 0.07,
+        right: size.width * 0.07,
+      ),
+      behavior: SnackBarBehavior.floating,
+      content: Row(
+        children: [
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 15,
+          ),
+          SizedBox(
+            width: size.width * 0.03,
+          ),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontFamily: 'Plus Jakarta Sans',
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class SimilarPeopleScreen extends StatelessWidget {
   const SimilarPeopleScreen({
     super.key,
@@ -24,8 +71,20 @@ class SimilarPeopleScreen extends StatelessWidget {
           ),
           actions: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SvgPicture.asset(translateIcon),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: IconButton(
+                tooltip: 'Translate',
+                onPressed: () {
+                  _showCommunityFloatingSnackBar(
+                    context,
+                    backgroundColor: const Color.fromRGBO(252, 34, 34, 1),
+                    icon: Icons.translate_outlined,
+                    message:
+                        'Translation unavailable. Please try again later.',
+                  );
+                },
+                icon: SvgPicture.asset(translateIcon),
+              ),
             )
           ],
         ),
@@ -73,43 +132,6 @@ class PeopleLikeYouCard extends StatelessWidget {
       required this.disease,
       required this.persentOfMatch,
       required this.description});
-
-  void sendConnectionRequest(String userId, BuildContext context, Color color,
-      IconData icon, String text) {
-    final size = MediaQuery.of(context).size;
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        elevation: 0,
-        backgroundColor: color,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: EdgeInsets.only(
-          bottom: size.height * 0.15,
-          left: size.width * 0.07,
-          right: size.width * 0.07,
-        ),
-        behavior: SnackBarBehavior.floating,
-        content: Row(
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 15,
-            ),
-            SizedBox(
-              width: size.width * 0.03,
-            ),
-            Text(
-              text,
-              style: const TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400),
-            ),
-          ],
-        )));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,21 +235,39 @@ class PeopleLikeYouCard extends StatelessWidget {
                         children: [
                           Align(
                             alignment: const Alignment(0.05, -0.7),
-                            child: Container(
-                              alignment: Alignment.center,
-                              width: size.width * 0.3,
-                              height: size.height * 0.03,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  color:
-                                      const Color.fromRGBO(42, 42, 42, 0.65)),
-                              child: const Text(
-                                'Wants to connect',
-                                style: TextStyle(
-                                    fontSize: 8,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(4),
+                                onTap: () {
+                                  _showCommunityFloatingSnackBar(
+                                    context,
+                                    backgroundColor:
+                                        const Color.fromRGBO(76, 217, 100, 1),
+                                    icon: Icons.how_to_reg_outlined,
+                                    message: 'Vote to connect sent.',
+                                  );
+                                },
+                                child: Ink(
+                                  width: size.width * 0.36,
+                                  height: size.height * 0.03,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4),
+                                    color: const Color.fromRGBO(
+                                        42, 42, 42, 0.65),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Vote to connect',
+                                      style: TextStyle(
+                                        fontSize: 8,
+                                        fontFamily: 'Plus Jakarta Sans',
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -311,23 +351,24 @@ class PeopleLikeYouCard extends StatelessWidget {
                           CircularFloatingButton(
                               svgIcon: closeIcon,
                               onPress: () {
-                                sendConnectionRequest(
-                                  '',
+                                _showCommunityFloatingSnackBar(
                                   context,
-                                  const Color.fromRGBO(252, 34, 34, 1),
-                                  Icons.close,
-                                  'Something went wrong .Please try again',
+                                  backgroundColor:
+                                      const Color.fromRGBO(120, 120, 120, 1),
+                                  icon: Icons.swipe_left_alt_outlined,
+                                  message: 'Skipped this suggestion.',
                                 );
                               }),
                           RoundedRectFloatingButton(
                             svgIcon: handShakeIcon,
                             onPress: () {
-                              sendConnectionRequest(
-                                  '',
-                                  context,
-                                  const Color.fromRGBO(76, 217, 100, 1),
-                                  Icons.done_rounded,
-                                  'Connection request successfully sent');
+                              _showCommunityFloatingSnackBar(
+                                context,
+                                backgroundColor:
+                                    const Color.fromRGBO(76, 217, 100, 1),
+                                icon: Icons.done_rounded,
+                                message: 'Connection request sent.',
+                              );
                             },
                           ),
                           CircularFloatingButton(
