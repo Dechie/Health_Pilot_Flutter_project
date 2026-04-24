@@ -68,6 +68,15 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 This section records **what we changed in code** (files + intent). It’s meant for future you (or another dev) to quickly understand “what moved” and “why”, and to spot temporary hacks that should be revisited.
 
+### 2026-04-25 — Branch O: home emergency countdown + tutorial (no subscription)
+
+- **Goal**: Per plan Branch O — emergency modal countdown + cancel; first-run tutorial copy and step count aligned; **Finish setup** / **Setup later** without subscription routes (`docs/FEATURE_BRANCH_PLAN.md`).
+- **Changes**:
+  - **`home_page_screen.dart`**: **`_tutorialSlides`** (three non–upsell slides); **`PageView`** / **`SmoothPageIndicator`** use the same length; **Next** advances via **`PageController.nextPage`** only; mid-flow **Setup later** and last-slide **Finish setup** (prefs + close + Profile tab) / **Setup later** (**`_finishTutorialToProfile`** / **`_dismissTutorial`**).
+  - **Emergency**: triangle runs **`_startEmergencyCall`** (was wrongly tied to cancel-style state); modal shows **Connecting in M:SS** with **`Timer.periodic`**; **Cancel** → **`_cancelEmergencyCall`**; demo copy states no real call; **`dispose`** cancels timer and disposes tutorial controller.
+  - **Prefs**: **`_tutorPrefsFuture`** + **`getTutorStatus`** as **`Future<void>`** for a single tutor load in **`FutureBuilder`**.
+- **Verify**: `flutter analyze` clean; `flutter test` passes.
+
 ### 2026-04-25 — Branch J: articles list → detail, share, comments shell
 
 - **Goal**: Per plan Branch J — Figma-aligned articles experience without subscription UI (`docs/FEATURE_BRANCH_PLAN.md`).

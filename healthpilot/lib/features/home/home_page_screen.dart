@@ -40,35 +40,34 @@ class _HomePageScreenState extends State<HomePageScreen> {
   final _pageControllerOfTutorial = PageController();
   var _currentPageOfTutorial = 0;
   ScaffoldMessengerState? _scaffoldMessenger;
+  late final Future<void> _tutorPrefsFuture;
+
+  Timer? _emergencyCountdownTimer;
+  int _emergencySecondsRemaining = 60;
 
   @override
   void initState() {
-    getTutorStatus();
-    isOnHelp = widget.isHelpPressed;
     super.initState();
+    _tutorPrefsFuture = getTutorStatus();
+    isOnHelp = widget.isHelpPressed;
   }
 
-// _tuturText holds the list of totur which displays only when the app runs for the 1st time :)
-  final _tutorText = [
+  /// First-run carousel (no subscription upsell — deferred to Branch D).
+  final List<Map<String, String>> _tutorialSlides = [
     {
-      'title': 'Welcome to health pilot',
+      'title': 'Welcome to HealthPilot',
       'description':
-          'Let’s learn a few things about what health pilot can do for you.'
+          'Your home base for wellbeing: see quick vitals on Home, run guided check-ins from Assessments, and use HealthBot for general questions—not emergencies.',
     },
     {
-      'title': 'Did you know? Premium users can have personal doctors',
+      'title': 'Stay on top of your health',
       'description':
-          'By Subscribing to a premium membership you can add your personal doctor'
+          'Open the Health tab for medications and wellness cards, keep assessments in one place, and use Chat to stay connected with people in your care circle.',
     },
     {
-      'title': 'Add stuff here you want to display',
+      'title': 'Complete your profile when you are ready',
       'description':
-          'Details about the tutorial and things that you want to describe'
-    },
-    {
-      'title': 'Finish setting up you account',
-      'description':
-          'Finish setting up your account to get full access to all features'
+          'Add emergency contacts, personal details, and preferences from Profile. You can return any time from the bottom navigation—no payment required for these basics.',
     },
   ];
 
@@ -203,6 +202,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   @override
   void dispose() {
+    _emergencyCountdownTimer?.cancel();
+    _pageControllerOfTutorial.dispose();
     _scaffoldMessenger?.removeCurrentSnackBar();
     showAiAlert = false;
     super.dispose();
@@ -213,15 +214,68 @@ class _HomePageScreenState extends State<HomePageScreen> {
   late bool isOnEmeregencyCalling = false;
   late bool isOnHelp = false;
 
-  Future getTutorStatus() async {
+  Future<void> getTutorStatus() async {
     prefs = await SharedPreferences.getInstance();
-
     isTutorGiven = prefs.getBool('isTutorGiven') ?? false;
   }
 
-  void cancelEmergencyCall() {
+  String _formatEmergencyCountdown() {
+    final m = _emergencySecondsRemaining ~/ 60;
+    final s = _emergencySecondsRemaining % 60;
+    return '$m:${s.toString().padLeft(2, '0')}';
+  }
+
+  void _startEmergencyCall() {
+    _emergencyCountdownTimer?.cancel();
     setState(() {
       isOnEmeregencyCalling = true;
+      _emergencySecondsRemaining = 60;
+    });
+    _emergencyCountdownTimer =
+        Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        if (_emergencySecondsRemaining <= 1) {
+          _emergencyCountdownTimer?.cancel();
+          isOnEmeregencyCalling = false;
+        } else {
+          _emergencySecondsRemaining--;
+        }
+      });
+    });
+  }
+
+  void _cancelEmergencyCall() {
+    _emergencyCountdownTimer?.cancel();
+    setState(() {
+      isOnEmeregencyCalling = false;
+    });
+  }
+
+  Future<void> _dismissTutorial() async {
+    final p = await SharedPreferences.getInstance();
+    await p.setBool('isTutorGiven', true);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      isTutorGiven = true;
+      isOnHelp = false;
+    });
+  }
+
+  Future<void> _finishTutorialToProfile() async {
+    final p = await SharedPreferences.getInstance();
+    await p.setBool('isTutorGiven', true);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      isTutorGiven = true;
+      isOnHelp = false;
+      _currentIndex = 4;
     });
   }
 
@@ -267,7 +321,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                           )),
                       InkWell(
                         splashColor: const Color.fromARGB(100, 0, 0, 0),
-                        onTap: () => cancelEmergencyCall(),
+                        onTap: _startEmergencyCall,
                         child: SafeSvgAsset(
                           triangleExclamationIcon,
                           width: size.width * 0.06,
@@ -425,8 +479,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
       const ProfileScreen(),
     ];
 
-    return FutureBuilder(
-      future: getTutorStatus(),
+    return FutureBuilder<void>(
+      future: _tutorPrefsFuture,
       builder: (context, snapshot) => Stack(
         children: [
           Scaffold(
@@ -554,47 +608,47 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                 triangeExclamationPic,
                                 height: size.height * 0.08,
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.circular(size.width * 0.02),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: size.width * 0.06,
                                 ),
-                                height: size.height * 0.1,
-                                width: size.width * 0.9,
-                                child: PageView.builder(
-                                  controller: _pageControllerOfTutorial,
-                                  itemCount: _tutorText.length,
-                                  onPageChanged: (index) {
-                                    setState(() {
-                                      _currentPageOfTutorial = index;
-                                    });
-                                  },
-                                  itemBuilder: (context, index) => Padding(
-                                    padding: EdgeInsets.all(size.width * 0.02),
-                                    child: Column(
-                                      children: [
-                                        const Text(
-                                          'Calling your emergency contacts',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        SizedBox(
-                                          height: size.height * 0.01,
-                                        ),
-                                        const Text(
-                                          "You have 1 minute to cancel ",
-                                          style: TextStyle(
-                                              color:
-                                                  Color.fromARGB(105, 0, 0, 0),
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      'Calling your emergency contacts',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                  ),
+                                    SizedBox(height: size.height * 0.015),
+                                    Text(
+                                      'Connecting in ${_formatEmergencyCountdown()}',
+                                      style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.w700,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: size.height * 0.01),
+                                    Text(
+                                      'This is a demo flow—no real call is placed. Tap Cancel to stop the countdown.',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.65),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w400,
+                                        height: 1.3,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ),
                               ),
                               SizedBox(
@@ -608,11 +662,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                       borderRadius: BorderRadius.circular(
                                           size.width * 0.02)),
                                   color: Theme.of(context).colorScheme.primary,
-                                  onPressed: () {
-                                    setState(() {
-                                      isOnEmeregencyCalling = false;
-                                    });
-                                  },
+                                  onPressed: _cancelEmergencyCall,
                                   child: Text(
                                     'Cancel',
                                     style: Theme.of(context)
@@ -675,7 +725,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                 width: size.width * 0.9,
                                 child: PageView.builder(
                                   controller: _pageControllerOfTutorial,
-                                  itemCount: _tutorText.length,
+                                  itemCount: _tutorialSlides.length,
                                   onPageChanged: (index) {
                                     setState(() {
                                       _currentPageOfTutorial = index;
@@ -686,7 +736,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                     child: Column(
                                       children: [
                                         Text(
-                                          _tutorText[index]['title']!,
+                                          _tutorialSlides[index]['title']!,
                                           style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500),
@@ -696,7 +746,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                           height: size.height * 0.02,
                                         ),
                                         Text(
-                                          _tutorText[index]['description']!,
+                                          _tutorialSlides[index]
+                                              ['description']!,
                                           style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w400),
@@ -707,114 +758,91 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                   ),
                                 ),
                               ),
-                              _currentPageOfTutorial < _tutorText.length - 1
-                                  ? SizedBox(
-                                      width: size.width * 0.2,
-                                      height: size.height * 0.04,
-                                      child: MaterialButton(
-                                        shape: RoundedRectangleBorder(
+                              if (_currentPageOfTutorial <
+                                  _tutorialSlides.length - 1)
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: size.width * 0.04,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: size.width * 0.28,
+                                        height: size.height * 0.044,
+                                        child: MaterialButton(
+                                          shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
-                                                size.width * 0.02)),
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        onPressed: () {
-                                          _currentPageOfTutorial++;
-                                          setState(() {
-                                            if (_currentPageOfTutorial <
-                                                _tutorText.length) {
-                                              _pageControllerOfTutorial
-                                                  .nextPage(
-                                                      duration: const Duration(
-                                                          milliseconds: 300),
-                                                      curve: Curves.bounceIn);
-                                            }
-                                          });
-                                        },
-                                        child: Text(
-                                          'Next',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                        ),
-                                      ),
-                                    )
-                                  : SizedBox(
-                                      width: size.width * 0.3,
-                                      height: size.height * 0.04,
-                                      child: MaterialButton(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                size.width * 0.02)),
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        onPressed: () {
-                                          setState(() {
-                                            prefs.setBool('isTutorGiven', true);
-                                            isTutorGiven = true;
-                                            isOnHelp = false;
-
-                                            _currentIndex = 4;
-                                          });
-                                        },
-                                        child: Text(
-                                          'Finish Setup',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                              SizedBox(
-                                width: size.width * 0.2,
-                                height: size.height * 0.04,
-                                child: MaterialButton(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          size.width * 0.02)),
-                                  onPressed: () {
-                                    SharedPreferences.getInstance().then((prefs) {
-                                      prefs.setBool('isTutorGiven', true);
-                                      if (!mounted) return;
-                                      setState(() {
-                                        isTutorGiven = true;
-                                        isOnHelp = false;
-                                      });
-                                    });
-                                  },
-                                  child: Text(
-                                    'Skip',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
+                                              size.width * 0.02,
+                                            ),
+                                          ),
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .onSurface,
-                                          fontWeight: FontWeight.w500,
+                                              .primary,
+                                          onPressed: () {
+                                            _pageControllerOfTutorial.nextPage(
+                                              duration: const Duration(
+                                                milliseconds: 300,
+                                              ),
+                                              curve: Curves.easeOutCubic,
+                                            );
+                                          },
+                                          child: Text(
+                                            'Next',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                          ),
                                         ),
+                                      ),
+                                      TextButton(
+                                        onPressed: _dismissTutorial,
+                                        child: const Text('Setup later'),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: size.width * 0.04,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: SizedBox(
+                                          height: size.height * 0.044,
+                                          child: FilledButton(
+                                            onPressed: _finishTutorialToProfile,
+                                            child: const Text('Finish setup'),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: SizedBox(
+                                          height: size.height * 0.044,
+                                          child: OutlinedButton(
+                                            onPressed: _dismissTutorial,
+                                            child: const Text('Setup later'),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
                               SizedBox(
                                 height: size.height * 0.02,
                               ),
                               SmoothPageIndicator(
                                 controller: _pageControllerOfTutorial,
-                                count: _tutorText.length,
+                                count: _tutorialSlides.length,
                                 effect: ExpandingDotsEffect(
                                     activeDotColor: Theme.of(context)
                                         .colorScheme
