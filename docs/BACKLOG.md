@@ -65,6 +65,17 @@ This section records **what we changed in code** (files + intent). It’s meant 
 - **Files**: `healthpilot/lib/features/health/health_profile_screen.dart`, `healthpilot/lib/features/medication/medication_reminders_screen.dart`, `healthpilot/lib/features/medication/medication_history_screen.dart`.
 - **Note**: Profile → Medications entry unchanged. Subscription work remains deferred (Branch D).
 
+### 2026-04-24 — Branch F: language UI in profile + AppState locale
+
+- **Goal**: Per plan Branch F — language screen owned by profile; Settings entry unchanged; implementation does not live under onboarding.
+- **Changes**:
+  - **`profile/language_translation.dart`**: full picker UI (moved from onboarding); selection calls **`AppState.setLocaleFromLanguageIndex`**; fixed copy **“Urudu” → “Urdu”**; initial highlight synced from **`AppState.locale`** on first `didChangeDependencies`.
+  - **`onboarding/language_translation.dart`**: deprecated **re-export** of profile types for legacy imports.
+  - **`AppState`**: `locale`, `setLocaleFromLanguageIndex`, `clearLocaleOverride`.
+  - **`main.dart`**: `MaterialApp.locale` + `supportedLocales` (`en`, `am`, `es`, `fr`, `ur`, `ar`).
+  - **Imports**: `home_page_screen.dart`, `forgot_password_flow.dart` now use **`features/profile/language_translation.dart`**.
+- **Follow-up**: Persist locale (for example `shared_preferences`) and restore before `runApp` if the product requires survival across restarts.
+
 ### 2026-04-15 — Refactor plan created (feature-by-feature branches)
 
 - **Decision**: Adopt a “one feature (or one refactor theme) per branch” workflow for upcoming restructuring work from the fromdld analysis.

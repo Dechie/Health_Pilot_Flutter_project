@@ -42,6 +42,15 @@ class HealthPilotApp extends StatelessWidget {
                 theme: AppTheme.light,
                 darkTheme: AppTheme.dark,
                 themeMode: appState.themeMode,
+                locale: appState.locale,
+                supportedLocales: const [
+                  Locale('en'),
+                  Locale('am'),
+                  Locale('es'),
+                  Locale('fr'),
+                  Locale('ur'),
+                  Locale('ar'),
+                ],
                 home: const WelcomeScreen(),
               );
             },

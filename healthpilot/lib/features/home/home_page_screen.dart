@@ -14,7 +14,7 @@ import 'package:healthpilot/features/home/discover_healthpilot.dart';
 import 'package:healthpilot/features/health/health_profile_screen.dart';
 
 import 'package:healthpilot/features/health_assessment/assessment_history_screen.dart';
-import 'package:healthpilot/features/onboarding/language_translation.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
