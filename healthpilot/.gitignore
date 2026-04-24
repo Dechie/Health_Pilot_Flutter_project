@@ -40,12 +40,12 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android Studio / Gradle — never commit outputs
+/android/app/build/
+/android/build/
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Android Gradle / CMake outputs (nested; top-level /build/ is not enough)
-/android/app/build/
-/android/build/
+*.apk
+*.aab
 /android/app/.cxx/

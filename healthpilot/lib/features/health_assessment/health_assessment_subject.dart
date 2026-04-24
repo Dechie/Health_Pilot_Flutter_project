@@ -1,0 +1,5 @@
+enum HealthAssessmentSubject {
+  myself,
+  someoneElse,
+}
+

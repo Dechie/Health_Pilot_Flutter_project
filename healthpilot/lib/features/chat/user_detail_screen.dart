@@ -54,16 +54,19 @@ class UserDetailScreen extends StatelessWidget {
               subTitle:
                   DateFormat.MMMMd().format(user.chatHistory.last.timestamp),
             )),
-        body: const SingleChildScrollView(
-          child: Column(
-            children: [
-              UserProfileInfo(
-                mobile: '+251905221804',
-                id: 'ID15463164946',
-                notification: false,
-              ),
-              TabBarViewWidget()
-            ],
+        body: const SafeArea(
+          bottom: true,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                UserProfileInfo(
+                  mobile: '+251905221804',
+                  id: 'ID15463164946',
+                  notification: false,
+                ),
+                TabBarViewWidget()
+              ],
+            ),
           ),
         ));
   }
