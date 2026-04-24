@@ -79,6 +79,16 @@ This section records **what we changed in code** (files + intent). It’s meant 
   - **`pubspec.yaml`**: **`share_plus`** dependency.
 - **Verify**: `flutter analyze` clean; `flutter test` passes.
 
+### 2026-04-25 — Branch M: food & nutrition prefs, history, no nutrition paywall
+
+- **Goal**: Per plan Branch M — tracking UI parity, local prefs, history + empty state, no nutrition subscribe gate (`docs/FEATURE_BRANCH_PLAN.md`).
+- **Changes**:
+  - **`food_nutrition_models.dart`**: `FoodReportFrequency`, `FoodMealEntry` / `FoodDayLog`, **`FoodNutritionPrefs`** (`SharedPreferences` for frequency, push toggle, diet chips, JSON history), **`kFoodNutritionDietChoices`** (deduplicated ordered list), one-time **sample history** seed after first successful **Finish** on setup when history was empty.
+  - **`food_nutrition_tracking_screen.dart`**: Load/save prefs; push copy clarifies **device-side** reminders; chips driven from canonical diet list.
+  - **`food_nutrition_history_screen.dart`**: Stateful **`FutureBuilder`** timeline for multiple days; **empty state** + CTA to setup; reload after returning from setup.
+  - **`personal_information_screen.dart`**: Nutrition card **always** “Start setup” (no lock / no payment route); **View nutrition history** link.
+- **Verify**: `flutter analyze` clean; `flutter test` passes.
+
 ### 2026-04-25 — Branch L: personal info hubs, emergency & doctor forms
 
 - **Goal**: Per plan Branch L — form parity, validation, delete, photo pick, no new subscription gates (`docs/FEATURE_BRANCH_PLAN.md`).

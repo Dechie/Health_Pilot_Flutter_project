@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/food_nutrition/food_nutrition_models.dart';
 import 'package:healthpilot/theme/app_theme.dart';
-
-enum FoodReportFrequency { daily, biWeekly, weekly, monthly }
 
 /// Preferences for food and nutrition reports (Figma-style setup).
 class FoodNutritionTrackingScreen extends StatefulWidget {
@@ -17,24 +16,62 @@ class FoodNutritionTrackingScreen extends StatefulWidget {
 
 class _FoodNutritionTrackingScreenState
     extends State<FoodNutritionTrackingScreen> {
+  bool _prefsLoaded = false;
   FoodReportFrequency _frequency = FoodReportFrequency.biWeekly;
   bool _pushNotifications = true;
-  final Set<String> _diets = {'Vegetarian', 'Vegan'};
+  final Set<String> _diets = {};
 
-  static const _dietOptions = [
-    'Vegetarian',
-    'Vegan',
-    'Atkins',
-    'Keto',
-    'Mediterranean',
-    'Halal',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final s = await FoodNutritionPrefs.loadSettings();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _frequency = s.frequency;
+      _pushNotifications = s.pushNotificationsEnabled;
+      _diets
+        ..clear()
+        ..addAll(s.diets.where(kFoodNutritionDietChoices.contains));
+      if (_diets.isEmpty) {
+        _diets.addAll({'Vegetarian', 'Vegan'});
+      }
+      _prefsLoaded = true;
+    });
+  }
+
+  Future<void> _onFinish() async {
+    await FoodNutritionPrefs.saveSettings(
+      FoodNutritionSettings(
+        frequency: _frequency,
+        pushNotificationsEnabled: _pushNotifications,
+        diets: Set<String>.from(_diets),
+      ),
+    );
+    await FoodNutritionPrefs.seedHistoryIfEmpty();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final scheme = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleMedium;
+
+    if (!_prefsLoaded) {
+      return const Scaffold(
+        body: SafeArea(
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -131,12 +168,13 @@ class _FoodNutritionTrackingScreenState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Enable Push Notifications',
+                                'Enable push notifications',
                                 style: Theme.of(context).textTheme.bodyLarge,
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'This will send you notifications to eat regularly during eating times and have a balanced diet',
+                                'When on, we will remind you around meal times to eat regularly and keep a balanced diet. '
+                                'Reminders follow your device notification settings; server-delivered push is not wired yet.',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
@@ -160,7 +198,7 @@ class _FoodNutritionTrackingScreenState
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: _dietOptions.map((d) {
+                      children: kFoodNutritionDietChoices.map((d) {
                         final selected = _diets.contains(d);
                         return FilterChip(
                           label: Text(d),
@@ -174,25 +212,25 @@ class _FoodNutritionTrackingScreenState
                               }
                             });
                           },
-                          selectedColor: scheme.primary.withValues(alpha: 0.35),
+                          selectedColor:
+                              scheme.primary.withValues(alpha: 0.35),
                           checkmarkColor: scheme.primary,
-                          labelStyle: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                color: selected
-                                    ? scheme.primary
-                                    : scheme.onSurface,
-                                fontWeight:
-                                    selected ? FontWeight.w600 : FontWeight.w400,
-                              ),
+                          labelStyle:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: selected
+                                        ? scheme.primary
+                                        : scheme.onSurface,
+                                    fontWeight: selected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                  ),
                           side: BorderSide(color: scheme.outline),
                         );
                       }).toList(),
                     ),
                     const SizedBox(height: 32),
                     FilledButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: _onFinish,
                       child: const Text('Finish'),
                     ),
                     const SizedBox(height: 24),
