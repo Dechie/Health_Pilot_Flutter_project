@@ -18,9 +18,7 @@ class GeneralChatScreen extends StatefulWidget {
   State<GeneralChatScreen> createState() => _GeneralChatScreenState();
 }
 
-class _GeneralChatScreenState extends State<GeneralChatScreen>
-    with TickerProviderStateMixin {
-  late TabController _tabController;
+class _GeneralChatScreenState extends State<GeneralChatScreen> {
   List<User> userList = [];
   List<GroupChat> groupChat = [];
 
@@ -78,7 +76,6 @@ class _GeneralChatScreenState extends State<GeneralChatScreen>
   void initState() {
     userList = Users.users;
     groupChat = GroupChats.groupChats;
-    _tabController = TabController(length: 3, initialIndex: 0, vsync: this);
     allChatData = chatData;
     super.initState();
   }
@@ -343,7 +340,6 @@ class _GeneralChatScreenState extends State<GeneralChatScreen>
           fontWeight: FontWeight.w500,
           letterSpacing: -0.165.sp,
         ),
-        // controller: _tabController,
         indicatorColor: Theme.of(context).colorScheme.primary,
         tabs: const [
           Tab(

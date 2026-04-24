@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:healthpilot/data/constants.dart';
 
-import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 
 class SetupPersonalDoctor extends StatefulWidget {
@@ -494,8 +492,7 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
               BoxShadow(
                 blurRadius: 35,
                 spreadRadius: 0,
-                color:
-                    const Color.fromRGBO(46, 46, 46, 1.000).withOpacity(0.07),
+                color: const Color.fromRGBO(46, 46, 46, 0.07),
               )
             ]),
             padding: EdgeInsets.all(size.width * 0.06),

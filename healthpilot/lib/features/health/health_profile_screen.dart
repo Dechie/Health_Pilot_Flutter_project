@@ -350,7 +350,7 @@ class PremiumTags extends StatelessWidget {
               BoxShadow(
                 blurRadius: 35,
                 spreadRadius: 0,
-                color: const Color.fromRGBO(46, 46, 46, 1.000).withOpacity(0.1),
+                color: const Color.fromRGBO(46, 46, 46, 0.1),
               ),
             ],
           ),

@@ -80,6 +80,18 @@ This section records **what we changed in code** (files + intent). It’s meant 
   - **`onboarding_flow_screen.dart`**: comment updated to point at `AppNavigation.replaceWithHome`.
 - **Note**: No central `go_router` yet (plan: optional later). Other `Navigator.push` call sites unchanged in this slice.
 
+### 2026-04-24 — Branch I: final cleanup, analyzer clean, tests + assets
+
+- **Goal**: Per plan Branch I — stabilize after refactors; **`flutter analyze` clean**; remove unused imports / dead controller; fix Linux-case asset paths; smoke widget test.
+- **Changes**:
+  - **`dart fix --apply`**: unused imports, `use_super_parameters`, dangling library docs, `MaterialStateProperty` → `WidgetStateProperty`, `prefer_const_constructors_in_immutables`, `sized_box_for_whitespace`, `sort_child_properties_last`, `prefer_final_fields` across touched files.
+  - **Chat / UI**: `debugPrint` instead of `print`; `VideoCallScreen` / `_VideoCallScreenState` rename; `SvgPicture` `color` → `colorFilter`; `CustomeSwitch` typed callbacks; `withOpacity` → explicit `Color.fromRGBO(..., alpha)` where flagged; removed unused nested **`TabController`** from **`GeneralChatScreen`** (tabs use **`DefaultTabController`**).
+  - **`analysis_options.yaml`**: **`file_names: false`** for legacy filenames (`addgadgetScreen.dart`, etc.); document intent in comment.
+  - **`asset_paths.dart`**: paths that live under **`assets/Icons/`** updated from incorrect **`assets/icons/`** (case-sensitive OS / CI); **`welcomeLogoSvg`** → existing PNG; paths that only exist under lowercase **`assets/icons/`** unchanged (GitHub/Gmail/translate/bell/bottom-nav, etc.).
+  - **`home_page_screen.dart`**: cache **`ScaffoldMessenger.maybeOf`** in **`didChangeDependencies`** and clear snackbar in **`dispose`** (avoids ancestor lookup on deactivated context — fixes widget test teardown).
+  - **`test/widget_test.dart`**: wraps **`HealthPilotApp`** with same **`MultiProvider`** as **`main()`**; asserts splash handoff to shell (**`Scaffold`**).
+- **Verify**: `flutter analyze` (no issues), `flutter test` (passes).
+
 ### 2026-04-24 — Branch G: tutorials list, detail, and Home entry
 
 - **Goal**: Per plan Branch G — tutorials module with list/cards and a stable entry from **Home**; Figma can refine later (Type B).

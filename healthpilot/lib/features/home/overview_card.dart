@@ -21,8 +21,7 @@ class OverviewCard extends StatelessWidget {
           width: size.width * 0.18,
           decoration: BoxDecoration(boxShadow: [
             BoxShadow(
-                color:
-                    const Color.fromRGBO(46, 46, 46, 1.000).withOpacity(0.07),
+                color: const Color.fromRGBO(46, 46, 46, 0.07),
                 blurRadius: 30,
                 spreadRadius: 0,
                 offset: const Offset(0, 0))
@@ -31,8 +30,7 @@ class OverviewCard extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             border: Border.all(
-                color:
-                    const Color.fromRGBO(46, 46, 46, 1.000).withOpacity(0.1)),
+                color: const Color.fromRGBO(46, 46, 46, 0.1)),
             borderRadius: BorderRadius.circular(size.width * 0.02),
             gradient: AppTheme.homeOverviewGradient(context),
           ),

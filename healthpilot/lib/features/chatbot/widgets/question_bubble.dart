@@ -10,6 +10,17 @@ class QuestionBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          gradient: LinearGradient(colors: [
+            Color.fromRGBO(110, 182, 255, 0.30),
+            Color.fromRGBO(110, 182, 255, 0.26),
+            Color.fromRGBO(110, 182, 255, 0.08),
+          ], stops: [
+            0.17,
+            0.75,
+            1
+          ])),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -29,17 +40,6 @@ class QuestionBubble extends StatelessWidget {
           ),
         ],
       ),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          gradient: LinearGradient(colors: [
-            Color.fromRGBO(110, 182, 255, 0.30),
-            Color.fromRGBO(110, 182, 255, 0.26),
-            Color.fromRGBO(110, 182, 255, 0.08),
-          ], stops: [
-            0.17,
-            0.75,
-            1
-          ])),
     );
   }
 }

@@ -39,6 +39,7 @@ class HomePageScreen extends StatefulWidget {
 class _HomePageScreenState extends State<HomePageScreen> {
   final _pageControllerOfTutorial = PageController();
   var _currentPageOfTutorial = 0;
+  ScaffoldMessengerState? _scaffoldMessenger;
 
   @override
   void initState() {
@@ -197,11 +198,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
   }
 
   @override
   void dispose() {
-    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    _scaffoldMessenger?.removeCurrentSnackBar();
     showAiAlert = false;
     super.dispose();
   }

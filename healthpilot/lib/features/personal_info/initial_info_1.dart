@@ -7,7 +7,7 @@ import 'package:healthpilot/features/personal_info/initial_info_2.dart';
 import '../../theme/app_theme.dart';
 
 class InitialInfoFirst extends StatefulWidget {
-  const InitialInfoFirst({Key? key}) : super(key: key);
+  const InitialInfoFirst({super.key});
 
   @override
   State<InitialInfoFirst> createState() => _InitialInfoFirstState();

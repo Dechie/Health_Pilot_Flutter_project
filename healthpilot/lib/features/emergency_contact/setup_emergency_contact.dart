@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:healthpilot/data/constants.dart';
-import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 
-import '../../theme/app_theme.dart';
 
 class SetupEmergencyContact extends StatelessWidget {
   const SetupEmergencyContact({super.key});

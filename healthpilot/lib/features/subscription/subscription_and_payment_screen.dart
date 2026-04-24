@@ -21,6 +21,7 @@
 /// Usage:
 /// The screen can be accessed from various parts of the application's navigation
 /// flow, such as from an onboarding process or user account settings.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -666,13 +667,12 @@ class PaymentButton extends StatelessWidget {
   final double screenHeight;
   final VoidCallback? buttonAction;
   const PaymentButton(
-      {Key? key,
+      {super.key,
       required this.screenWidth,
       required this.screenHeight,
       // ignore: non_constant_identifier_names
       required this.buttonText,
-      this.buttonAction})
-      : super(key: key);
+      this.buttonAction});
 
   @override
   Widget build(BuildContext context) {

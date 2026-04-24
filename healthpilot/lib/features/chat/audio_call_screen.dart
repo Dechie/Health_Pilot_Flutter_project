@@ -20,7 +20,7 @@ class AudioCallScreen extends StatelessWidget {
       onPressed: onPressed,
       child: SvgPicture.asset(
         svgPicture,
-        color: Colors.white,
+        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
       ),
     );
   }
@@ -85,7 +85,7 @@ class AudioCallScreen extends StatelessWidget {
                   children: [
                     customButton(videoCallIcon, () {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => videoCallScreen(id: id)));
+                          builder: (context) => VideoCallScreen(id: id)));
                     }),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
