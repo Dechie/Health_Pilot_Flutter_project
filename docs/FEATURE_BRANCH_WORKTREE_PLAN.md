@@ -133,14 +133,16 @@ Aligned with `docs/FEATURE_BRANCH_PLAN.md` §2. **Base column** = GitHub PR targ
 | A | `refactor/features-boundaries` | `health-assessment` (or `main` if already merged) | Medication/subscription folders + imports |
 | B | `refactor/profile-feature` | `refactor/features-boundaries` | Profile module + tab entry |
 | C | `refactor/onboarding-flow` | `refactor/profile-feature` | Single onboarding controller |
-| D | `refactor/subscription-feature` | `refactor/onboarding-flow` | Subscription owns routing + entrypoints |
-| E | `refactor/medication-feature` | `refactor/subscription-feature` | Medication discoverable from health/home |
+| D | `refactor/subscription-feature` | **Deferred — run last** (see `FEATURE_BRANCH_PLAN.md` §2) | Subscription owns routing + entrypoints |
+| E | `refactor/medication-feature` | **`main`** while D is deferred | Medication discoverable from health/home |
 | F | `refactor/language-settings` | `refactor/medication-feature` | Language under profile/settings |
 | G | `feat/tutorials` | `refactor/language-settings` | Tutorials module + Home entry |
 | H | `refactor/navigation-cleanup` | `feat/tutorials` | Entry screens + fewer ad-hoc pushes |
 | I | `chore/final-cleanup` | `refactor/navigation-cleanup` | Smoke + analyzer + dead code |
 
 If a step is **skipped or merged to `main` early**, rebase the next branch onto **`origin/main`** and set PR base to `main`.
+
+**2026-04-24:** Row **D** is intentionally **out of sequence**; complete **E** (and follow-on rows) first, then return to **D** when subscription work is in scope again.
 
 ---
 

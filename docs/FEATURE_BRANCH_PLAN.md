@@ -88,6 +88,12 @@ Branch naming convention (recommended):
 
 ## 2) Planned branches (in recommended order)
 
+### Execution order (stack adjustment — 2026-04-24)
+
+- **Branch D** (`refactor/subscription-feature`) is **deferred to last** in the current sequence. Until it is explicitly started, treat **subscription-specific refactors and new subscribe/paywall flows as out of scope** (leave existing entry points such as profile/settings as they are unless fixing breakage).
+- **Next slice from `main`:** **Branch E** (`refactor/medication-feature`). Open the PR with **base = `main`** while D is deferred (see `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4).
+- When **Branch D** is eventually picked up, do it **after** the branches you chose to run ahead of it (at minimum after **E**, and typically after **F** as well if you keep the original F→G dependency), then reconcile any subscription entry-point duplication called for by the plan.
+
 ### Branch A — Extract misplaced feature boundaries (foundational)
 - **Branch**: `refactor/features-boundaries`
 - **Type**: A (refactor)
@@ -142,6 +148,7 @@ Branch naming convention (recommended):
 ### Branch D — Subscription feature: make reusable + independent
 - **Branch**: `refactor/subscription-feature`
 - **Type**: A (refactor)
+- **Status (2026-04-24)**: **Deferred — run last.** No subscription-focused refactors or new subscription UX until this branch is started; see **Execution order** above.
 - **Goal**: Subscription/payment UI becomes reusable and not tied to onboarding.
 - **Scope**:
   - Ensure the subscription module owns the payment screen and routing.
@@ -155,6 +162,7 @@ Branch naming convention (recommended):
 ### Branch E — Medication feature: standalone health feature
 - **Branch**: `refactor/medication-feature`
 - **Type**: A (refactor)
+- **While Branch D is deferred**: Branch **from `main`**, PR base **`main`** (not stacked on `refactor/subscription-feature`).
 - **Goal**: Medication is accessible from appropriate places (health/home) and ready for reminders/history.
 - **Scope**:
   - Move/rename medication screen(s) into `features/medication/`.
@@ -214,6 +222,7 @@ Branch naming convention (recommended):
 
 ## 3) Notes / constraints
 
+- While **Branch D** is deferred, **do not** expand subscription/paywall scope; keep existing paths stable unless fixing correctness or merge fallout.
 - Keep `docs/BACKLOG.md` as the primary decision + implementation record.
 - Prefer moving code with minimal functional changes per branch; do “behavior improvements” on follow-up feature branches.
 - Backend integration is a known future dependency; avoid baking fake state into UI that will fight real auth/subscription state later.

@@ -37,6 +37,12 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
   - For **Type C** branches, pause and decide scope/acceptance criteria before coding.
 - **Plan doc**: `docs/FEATURE_BRANCH_PLAN.md` now includes **Type** fields and a **Design inputs** reminder where applicable.
 
+### 2026-04-24 — Branch D (subscription) deferred; Branch E next from `main`
+
+- **Decision**: **Pause plan Branch D** (`refactor/subscription-feature`) until **last** in the current sequence. **Subscription-focused refactors and new subscription UX are out of scope** until that branch is explicitly started.
+- **Next work**: **Branch E** — `refactor/medication-feature`, branched from **`main`**, PR base **`main`** (stack adjustment documented in `docs/FEATURE_BRANCH_PLAN.md` §2 and `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4).
+- **Rationale**: Product wants to ignore subscription work for now while continuing the refactor roadmap.
+
 ### 2026-04-22 — What to do with completed branches after merges (A/B/C…)
 
 - **Decision**: Once a branch is merged into `main`, we generally **do not keep “syncing” the completed branch**.
