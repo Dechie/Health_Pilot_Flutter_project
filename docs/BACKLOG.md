@@ -71,6 +71,15 @@ This section records **what we changed in code** (files + intent). It’s meant 
 - **Files**: `healthpilot/lib/features/health/health_profile_screen.dart`, `healthpilot/lib/features/medication/medication_reminders_screen.dart`, `healthpilot/lib/features/medication/medication_history_screen.dart`.
 - **Note**: Profile → Medications entry unchanged. Subscription work remains deferred (Branch D).
 
+### 2026-04-24 — Branch H: navigation cleanup (home entry + docs)
+
+- **Goal**: Per plan Branch H — standardize “land on home shell” transitions; document canonical feature entry surfaces; avoid duplicated `Navigator` + `MaterialPageRoute` + `HomePageScreen` blocks.
+- **Changes**:
+  - **`core/navigation/app_navigation.dart`**: `AppNavigation.replaceWithHome` (root navigator by default); library doc lists primary **feature entry** widgets/paths.
+  - **Call sites** now use the helper: `signup_and_login_screen.dart` (skip to home), `initial_info_4.dart`, `settings_screen.dart` (Help → home with help flag), `personal_doctor_personal_information.dart` and `emergency_contact_personal_information.dart` (Finish → home, `useRootNavigator: false` to match prior nearest-navigator behavior).
+  - **`onboarding_flow_screen.dart`**: comment updated to point at `AppNavigation.replaceWithHome`.
+- **Note**: No central `go_router` yet (plan: optional later). Other `Navigator.push` call sites unchanged in this slice.
+
 ### 2026-04-24 — Branch G: tutorials list, detail, and Home entry
 
 - **Goal**: Per plan Branch G — tutorials module with list/cards and a stable entry from **Home**; Figma can refine later (Type B).

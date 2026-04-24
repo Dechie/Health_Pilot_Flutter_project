@@ -7,8 +7,9 @@ import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 const bool kEnableOnboardingFlow = false;
 
 /// Owns a nested [Navigator] for onboarding-only screens (intro carousel → auth → initial info → done).
-/// Child routes that leave onboarding for the main app must use
-/// `Navigator.of(context, rootNavigator: true)` when pushing [HomePageScreen].
+/// Child routes that leave onboarding for the main app must replace the stack with
+/// the home shell via `AppNavigation.replaceWithHome` (see `core/navigation/app_navigation.dart`;
+/// uses the root navigator).
 class OnboardingFlowScreen extends StatelessWidget {
   const OnboardingFlowScreen({super.key});
 

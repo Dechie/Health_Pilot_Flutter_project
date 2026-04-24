@@ -3,7 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
-import 'package:healthpilot/features/home/home_page_screen.dart';
+import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/features/emergency_contact/setup_emergency_contact.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';
@@ -633,11 +633,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                HomePageScreen(isHelpPressed: false),
-                          ),
+                        AppNavigation.replaceWithHome(
+                          context,
+                          useRootNavigator: false,
                         );
                       },
                       style: ElevatedButton.styleFrom(

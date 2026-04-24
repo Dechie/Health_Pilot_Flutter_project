@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
-import 'package:healthpilot/features/home/home_page_screen.dart';
+import 'package:healthpilot/core/navigation/app_navigation.dart';
 
 class InitialInfoFinal extends StatefulWidget {
   const InitialInfoFinal({super.key});
@@ -73,13 +73,7 @@ class _InitialInfoFinal extends State<InitialInfoFinal> {
         ),
         GestureDetector(
           onTap: () {
-            Navigator.of(context, rootNavigator: true).pushReplacement(
-              MaterialPageRoute<void>(
-                builder: (context) => HomePageScreen(
-                  isHelpPressed: false,
-                ),
-              ),
-            );
+            AppNavigation.replaceWithHome(context);
           },
           child: Container(
             alignment: Alignment.center,

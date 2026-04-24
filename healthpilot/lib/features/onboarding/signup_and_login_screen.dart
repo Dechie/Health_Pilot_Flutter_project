@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:healthpilot/features/home/home_page_screen.dart';
+import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
 import 'package:healthpilot/features/get_started/get_started_screen.dart';
 
@@ -284,12 +284,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                   normalTexts: "Wanna give it a try? ",
                   commandTexts: "Skip",
                   login: () {
-                    Navigator.of(context, rootNavigator: true).pushReplacement(
-                      MaterialPageRoute<void>(
-                        builder: (context) =>
-                            const HomePageScreen(isHelpPressed: false),
-                      ),
-                    );
+                    AppNavigation.replaceWithHome(context);
                   },
                   fontSize: 15,
                 ),
