@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
-import 'package:healthpilot/features/home/home_page_screen.dart';
+import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/features/profile/terms_and_policy_dialog.dart';
 import 'package:healthpilot/features/profile/widgets/premium_feature_dialog.dart';
@@ -92,13 +92,9 @@ class SettingsScreen extends StatelessWidget {
                       settingAdress: 'Help',
                       iconData: Icons.arrow_forward,
                       onpressed: () {
-                        Navigator.of(context, rootNavigator: true)
-                            .pushReplacement(
-                          MaterialPageRoute<void>(
-                            builder: (context) => HomePageScreen(
-                              isHelpPressed: true,
-                            ),
-                          ),
+                        AppNavigation.replaceWithHome(
+                          context,
+                          isHelpPressed: true,
                         );
                       },
                     ),
