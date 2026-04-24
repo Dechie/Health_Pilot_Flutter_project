@@ -79,6 +79,13 @@ This section records **what we changed in code** (files + intent). It’s meant 
   - **`pubspec.yaml`**: **`share_plus`** dependency.
 - **Verify**: `flutter analyze` clean; `flutter test` passes.
 
+### 2026-04-25 — Branch N: HealthBot starter chips, menu, typing stub
+
+- **Goal**: Per plan Branch N — chatbot starter UX and overflow actions without premium bot gates (`docs/FEATURE_BRANCH_PLAN.md`).
+- **Changes**:
+  - **`chatbot_screen.dart`**: Stateful conversation list; **horizontal suggestion chips** until the first user message; **send** field + button; **typing** row before stub bot reply; **PopupMenuButton** with **Help & safety** dialog and **Clear chat** (confirm) resetting to welcome + chips; removed static duplicate question row; header copy clarifies not a substitute for care.
+- **Verify**: `flutter analyze` clean; `flutter test` passes.
+
 ### 2026-04-25 — Branch M: food & nutrition prefs, history, no nutrition paywall
 
 - **Goal**: Per plan Branch M — tracking UI parity, local prefs, history + empty state, no nutrition subscribe gate (`docs/FEATURE_BRANCH_PLAN.md`).
