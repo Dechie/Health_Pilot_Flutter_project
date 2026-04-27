@@ -20,6 +20,7 @@ class BlogRecomendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
 
     return InkWell(
       onTap: () {
@@ -47,14 +48,16 @@ class BlogRecomendationCard extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(left: size.width * 0.05),
             decoration: BoxDecoration(
-                color: const Color.fromARGB(206, 255, 255, 255),
-                borderRadius: BorderRadius.circular(size.width * 0.03)),
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(size.width * 0.03),
+            ),
             width: size.width * 0.5,
             height: size.height * 0.3,
             child: Column(
               children: [
                 Card(
                   // elevation: 3,
+                  color: Colors.transparent,
                   child: Container(
                     height: size.height * 0.15,
                     width: double.infinity,
@@ -77,6 +80,10 @@ class BlogRecomendationCard extends StatelessWidget {
                   child: Text(
                     title,
                     textAlign: TextAlign.left,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: cs.onSurface),
                   ),
                 ),
                 Container(
@@ -86,7 +93,8 @@ class BlogRecomendationCard extends StatelessWidget {
                   width: double.infinity,
                   child: Text(
                     description,
-                    style: AppTheme.blogCardDescription(context),
+                    style: AppTheme.blogCardDescription(context)
+                        .copyWith(color: cs.onSurfaceVariant),
                   ),
                 )
               ],

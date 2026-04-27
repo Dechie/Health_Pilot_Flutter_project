@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
 import 'chat_screen.dart';
@@ -352,15 +353,7 @@ class ChatList extends StatelessWidget {
                                     vertical: 14, horizontal: 10),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
-                                    gradient: const LinearGradient(colors: [
-                                      Color.fromRGBO(110, 182, 255, 0.30),
-                                      Color.fromRGBO(110, 182, 255, 0.26),
-                                      Color.fromRGBO(110, 182, 255, 0.08),
-                                    ], stops: [
-                                      0.17,
-                                      0.75,
-                                      1
-                                    ])),
+                                    gradient: AppTheme.chatBubbleGradient),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -414,15 +407,7 @@ class ChatList extends StatelessWidget {
                                     vertical: 14, horizontal: 10),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
-                                    gradient: const LinearGradient(colors: [
-                                      Color.fromRGBO(110, 182, 255, 0.30),
-                                      Color.fromRGBO(110, 182, 255, 0.26),
-                                      Color.fromRGBO(110, 182, 255, 0.08),
-                                    ], stops: [
-                                      0.17,
-                                      0.75,
-                                      1
-                                    ])),
+                                    gradient: AppTheme.chatBubbleGradient),
                                 child: Wrap(
                                   // mainAxisAlignment:
                                   //     MainAxisAlignment.spaceBetween,

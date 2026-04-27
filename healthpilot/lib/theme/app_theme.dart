@@ -16,6 +16,19 @@ abstract final class AppPalette {
 abstract final class AppTheme {
   static const String _font = 'PlusJakartaSans';
 
+  /// Figma: `#6EB6FFD9 85%` and `#6EB6FF40 25%`.
+  ///
+  /// Note: gradient stops must be ordered low→high.
+  static const LinearGradient chatBubbleGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0x406EB6FF), // 25%
+      Color(0xD96EB6FF), // 85%
+    ],
+    stops: [0.25, 0.85],
+  );
+
   static ThemeData get light => _theme(Brightness.light);
   static ThemeData get dark => _theme(Brightness.dark);
 

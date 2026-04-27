@@ -282,6 +282,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
 
     final List<Widget> pages = [
       SingleChildScrollView(
@@ -318,6 +319,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                             translateIcon,
                             width: size.width * 0.06,
                             height: size.width * 0.06,
+                            color: cs.onSurface,
                           )),
                       InkWell(
                         splashColor: const Color.fromARGB(100, 0, 0, 0),
@@ -326,12 +328,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
                           triangleExclamationIcon,
                           width: size.width * 0.06,
                           height: size.width * 0.06,
+                          color: cs.onSurface,
                         ),
                       ),
                       SafeSvgAsset(
                         bellReminder,
                         width: size.width * 0.06,
                         height: size.width * 0.06,
+                        color: cs.onSurface,
                       ),
                     ],
                   ),
