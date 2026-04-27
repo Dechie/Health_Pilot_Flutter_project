@@ -84,6 +84,8 @@ class BlogRecomendationCard extends StatelessWidget {
                         .textTheme
                         .bodyLarge
                         ?.copyWith(color: cs.onSurface),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Container(
@@ -95,6 +97,8 @@ class BlogRecomendationCard extends StatelessWidget {
                     description,
                     style: AppTheme.blogCardDescription(context)
                         .copyWith(color: cs.onSurfaceVariant),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 )
               ],

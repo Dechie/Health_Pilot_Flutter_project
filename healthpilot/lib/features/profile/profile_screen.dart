@@ -45,11 +45,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 40, left: 20),
-                        child: ClipRRect(
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
+                    child: Row(
+                      children: [
+                        ClipRRect(
                           borderRadius:
                               BorderRadius.circular(screenWidth * 0.1),
                           child: Image.asset(
@@ -59,39 +59,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 58,
-                              left: 0,
-                            ),
-                            child: Text(
-                              kDemoUserProfile.displayName ?? 'Profile',
-                              style: const TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.16,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                kDemoUserProfile.displayName ?? 'Profile',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontFamily: 'PlusJakartaSans',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.16,
+                                    ),
                               ),
-                            ),
+                              const SizedBox(height: 10),
+                              _isPremium
+                                  ? const GradientButton(title: 'premium')
+                                  : const GradientButton(title: 'Free'),
+                            ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 18, left: 10),
-                            child: _isPremium
-                                ? const GradientButton(title: 'premium')
-                                : const GradientButton(title: 'Free'),
-                          ),
-                        ],
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 42, left: 55, right: 0),
-                        child: ProfileEditButton(),
-                      ),
-                    ],
+                        ),
+                        const SizedBox(width: 12),
+                        const ProfileEditButton(),
+                      ],
+                    ),
                   ),
                   const SettingsTitle(title: 'Health Information'),
                   Padding(
