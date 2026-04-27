@@ -74,6 +74,7 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Container(
@@ -88,15 +89,16 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
               child: Container(
                 width: size.height * 0.06,
                 height: size.height * 0.06,
-                decoration: const BoxDecoration(
-                  color: Color.fromRGBO(110, 182, 225, 0.25),
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer,
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
-                    child: Icon(
-                  Icons.arrow_back,
-                  color: Color.fromRGBO(110, 182, 255, 1),
-                )),
+                child: Center(
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: cs.onSurface,
+                  ),
+                ),
               ),
             ),
             SizedBox(
@@ -104,8 +106,8 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
             ),
             Container(
               padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: Color.fromRGBO(110, 182, 255, 1),
+              decoration: BoxDecoration(
+                color: cs.primary,
                 shape: BoxShape.circle,
               ),
               child: Container(
@@ -136,24 +138,31 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
                         child: Text(
                           title,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Color.fromRGBO(42, 42, 42, 1)),
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
+                          ),
                         ),
                       ),
-                      if (isMuted) SvgPicture.asset(muteIcon)
+                      if (isMuted)
+                        SvgPicture.asset(
+                          muteIcon,
+                          colorFilter:
+                              ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
+                        )
                     ],
                   ),
                   Text(
                     subTitle,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: 12,
-                        fontFamily: 'Plus Jakarta Sans',
-                        color: Color.fromRGBO(42, 42, 42, 1)),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                      fontFamily: 'Plus Jakarta Sans',
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -163,7 +172,10 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
             ),
             InkWell(
               onTap: more,
-              child: SvgPicture.asset(moreIcon),
+              child: SvgPicture.asset(
+                moreIcon,
+                colorFilter: ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
+              ),
             ),
           ],
         ),
@@ -228,233 +240,118 @@ class ChatList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      const Expanded(child: Divider()),
+                      Expanded(
+                        child: Divider(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.25),
+                        ),
+                      ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
                           DateFormat.MMMd().format(DateTime.now()) == chat
                               ? 'Today'
                               : chat,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 10,
-                              color: Color.fromRGBO(42, 42, 42, 0.5)),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ),
-                      const Expanded(child: Divider()),
+                      Expanded(
+                        child: Divider(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.25),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-          itemBuilder: (context, chat) => Wrap(
-                children: [
-                  Bubble(
-                    alignment: int.parse(chat.senderId) != int.parse(userId)
-                        ? Alignment.centerLeft
-                        : Alignment.centerRight,
-                    radius: const Radius.circular(5),
-                    nip: int.parse(chat.senderId) != int.parse(userId)
-                        ? BubbleNip.leftBottom
-                        : BubbleNip.rightBottom,
-                    margin: const BubbleEdges.symmetric(vertical: 5),
-                    padding: const BubbleEdges.all(0),
-                    showNip: true,
-                    color: int.parse(chat.senderId) != 1
-                        ? const Color.fromRGBO(110, 182, 255, 0.30)
-                        : const Color.fromRGBO(110, 182, 255, 0.08),
-                    // color: Color.fromRGBO(110, 182, 255, 0.30),
-                    shadowColor: Colors.transparent,
-                    child: Stack(
+          itemBuilder: (context, chat) {
+            final isIncoming = int.parse(chat.senderId) != int.parse(userId);
+            final cs = Theme.of(context).colorScheme;
+
+            final bubbleDecoration = isIncoming
+                ? BoxDecoration(
+                    color: cs.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(10),
+                  )
+                : BoxDecoration(
+                    gradient: AppTheme.chatBubbleGradient(context),
+                    borderRadius: BorderRadius.circular(10),
+                  );
+
+            return Bubble(
+              alignment:
+                  isIncoming ? Alignment.centerLeft : Alignment.centerRight,
+              radius: const Radius.circular(10),
+              nip: isIncoming ? BubbleNip.leftBottom : BubbleNip.rightBottom,
+              margin: const BubbleEdges.symmetric(vertical: 5),
+              padding: const BubbleEdges.all(0),
+              showNip: true,
+              color: Colors.transparent,
+              shadowColor: Colors.transparent,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                decoration: bubbleDecoration,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment:
+                      isIncoming ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                  children: [
+                    if (isIncoming)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          Users.findById(chat.senderId).displayName,
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 11,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        int.parse(chat.senderId) != int.parse(userId)
-                            ? Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14, horizontal: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      Users.findById(chat.senderId).displayName,
-                                      style: const TextStyle(
-                                          fontFamily: 'Plus Jakarta Sans',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 12,
-                                          color:
-                                              Color.fromRGBO(42, 42, 42, 0.5)),
-                                    ),
-                                    Wrap(
-                                      children: [
-                                        Text(
-                                          chat.content,
-                                          style: GoogleFonts.plusJakartaSans(
-                                              color: const Color.fromRGBO(
-                                                  42, 42, 42, 1),
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                        SizedBox(
-                                          width: size.width * 0.02,
-                                        ),
-                                        Text(
-                                          DateFormat('hh:mm a')
-                                              .format(chat.timestamp),
-                                          style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14, horizontal: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                ),
-                                child: Wrap(
-                                  children: [
-                                    Text(
-                                      DateFormat('hh:mm a')
-                                          .format(chat.timestamp),
-                                      style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                    SizedBox(
-                                      width: size.width * 0.02,
-                                    ),
-                                    Expanded(
-                                      child: Wrap(
-                                        children: [
-                                          Text(
-                                            chat.content,
-                                            style: GoogleFonts.plusJakartaSans(
-                                                color: const Color.fromRGBO(
-                                                    42, 42, 42, 1),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w400),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                        int.parse(chat.senderId) != int.parse(userId)
-                            ? Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14, horizontal: 10),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    gradient:
-                                        AppTheme.chatBubbleGradient(context)),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      Users.findById(chat.senderId).displayName,
-                                      style: const TextStyle(
-                                          fontFamily: 'Plus Jakarta Sans',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 12,
-                                          color:
-                                              Color.fromRGBO(42, 42, 42, 0.5)),
-                                    ),
-                                    Wrap(
-                                      // mainAxisAlignment:
-                                      //     MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Wrap(
-                                            children: [
-                                              Text(
-                                                chat.content,
-                                                style:
-                                                    GoogleFonts.plusJakartaSans(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimary,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w500),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: size.width * 0.02,
-                                        ),
-                                        Text(
-                                          DateFormat('hh:mm a')
-                                              .format(chat.timestamp),
-                                          style: GoogleFonts.plusJakartaSans(
-                                            fontSize: 8,
-                                            fontWeight: FontWeight.w400,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary
-                                                .withValues(alpha: 0.85),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 14, horizontal: 10),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    gradient:
-                                        AppTheme.chatBubbleGradient(context)),
-                                child: Wrap(
-                                  // mainAxisAlignment:
-                                  //     MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      DateFormat('hh:mm a')
-                                          .format(chat.timestamp),
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary
-                                            .withValues(alpha: 0.85),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: size.width * 0.02,
-                                    ),
-                                    Wrap(
-                                      children: [
-                                        Text(
-                                          chat.content,
-                                          style: GoogleFonts.plusJakartaSans(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                        Flexible(
+                          child: Text(
+                            chat.content,
+                            style: GoogleFonts.plusJakartaSans(
+                              color: isIncoming ? cs.onSurface : cs.onPrimary,
+                              fontSize: 12,
+                              fontWeight:
+                                  isIncoming ? FontWeight.w400 : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          DateFormat('hh:mm a').format(chat.timestamp),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w400,
+                            color: (isIncoming ? cs.onSurface : cs.onPrimary)
+                                .withValues(alpha: 0.8),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ],
-              )),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
     );
   }
 }
@@ -474,15 +371,16 @@ class _SendMessageState extends State<SendMessage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         InkWell(
           onTap: widget.attach,
-          child: const Icon(
+          child: Icon(
             Icons.add_outlined,
-            color: Color.fromRGBO(42, 42, 42, 1),
+            color: cs.onSurface,
           ),
         ),
         Container(
@@ -491,8 +389,8 @@ class _SendMessageState extends State<SendMessage> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                  color: const Color.fromRGBO(82, 30, 30, 0.247), width: 1)),
+              border: Border.all(color: cs.outline, width: 1),
+              color: cs.surfaceContainerHighest),
           height: size.height * 0.06,
           width: size.width * 0.72,
           child: TextField(
@@ -502,13 +400,14 @@ class _SendMessageState extends State<SendMessage> {
               });
             },
             maxLines: 1,
-            decoration: const InputDecoration(
+            style: TextStyle(color: cs.onSurface),
+            decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Message',
                 hintStyle: TextStyle(
                   fontFamily: 'Manrope',
                   fontWeight: FontWeight.w400,
-                  color: Color.fromRGBO(42, 42, 42, 0.25),
+                  color: cs.onSurfaceVariant,
                   fontSize: 12,
                 )),
           ),
@@ -519,7 +418,7 @@ class _SendMessageState extends State<SendMessage> {
             message.isEmpty
                 ? Icons.keyboard_voice_outlined
                 : Icons.send_outlined,
-            color: const Color.fromRGBO(42, 42, 42, 1),
+            color: cs.onSurface,
           ),
         )
       ],
