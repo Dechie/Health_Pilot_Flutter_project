@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:provider/provider.dart';
 
@@ -22,14 +23,7 @@ class _LanguageTranslationState extends State<LanguageTranslation> {
   ];
 
   /// Order matches `_languages` and [AppState.setLocaleFromLanguageIndex].
-  static const List<String> _localeCodes = [
-    'en',
-    'am',
-    'es',
-    'fr',
-    'ur',
-    'ar',
-  ];
+  static const List<String> _localeCodes = AppLocales.supportedLanguageCodes;
 
   late int _selectedButtonIndex;
   bool _initializedFromAppState = false;
