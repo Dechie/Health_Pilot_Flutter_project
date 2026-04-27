@@ -16,18 +16,33 @@ abstract final class AppPalette {
 abstract final class AppTheme {
   static const String _font = 'PlusJakartaSans';
 
-  /// Figma: `#6EB6FFD9 85%` and `#6EB6FF40 25%`.
+  /// Chat bubble background.
   ///
-  /// Note: gradient stops must be ordered low→high.
-  static const LinearGradient chatBubbleGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0x406EB6FF), // 25%
-      Color(0xD96EB6FF), // 85%
-    ],
-    stops: [0.25, 0.85],
-  );
+  /// - Light: matches the Figma spec (`#6EB6FFD9 85%` and `#6EB6FF40 25%`).
+  /// - Dark: keeps the same hue but deepens it for the blue-surface theme.
+  static LinearGradient chatBubbleGradient(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (!isDark) {
+      return const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0x406EB6FF), // 25%
+          Color(0xD96EB6FF), // 85%
+        ],
+        stops: [0.25, 0.85],
+      );
+    }
+    return LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        AppPalette.dark.withValues(alpha: 0.55),
+        AppPalette.darkSoft.withValues(alpha: 0.8),
+      ],
+      stops: const [0.25, 0.85],
+    );
+  }
 
   static ThemeData get light => _theme(Brightness.light);
   static ThemeData get dark => _theme(Brightness.dark);

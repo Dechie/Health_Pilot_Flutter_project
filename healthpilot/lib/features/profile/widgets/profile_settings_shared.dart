@@ -20,7 +20,7 @@ class GradientButton extends StatelessWidget {
           width: 72,
           height: 28,
           decoration: BoxDecoration(
-            gradient: AppTheme.chatBubbleGradient,
+            gradient: AppTheme.chatBubbleGradient(context),
           ),
           child: Center(
             child: TextButton(

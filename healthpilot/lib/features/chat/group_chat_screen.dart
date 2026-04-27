@@ -353,7 +353,8 @@ class ChatList extends StatelessWidget {
                                     vertical: 14, horizontal: 10),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
-                                    gradient: AppTheme.chatBubbleGradient),
+                                    gradient:
+                                        AppTheme.chatBubbleGradient(context)),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -377,12 +378,12 @@ class ChatList extends StatelessWidget {
                                                 chat.content,
                                                 style:
                                                     GoogleFonts.plusJakartaSans(
-                                                        color: const Color
-                                                            .fromRGBO(
-                                                            39, 10, 10, 1),
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onPrimary,
                                                         fontSize: 12,
                                                         fontWeight:
-                                                            FontWeight.w400),
+                                                            FontWeight.w500),
                                               ),
                                             ],
                                           ),
@@ -394,8 +395,13 @@ class ChatList extends StatelessWidget {
                                           DateFormat('hh:mm a')
                                               .format(chat.timestamp),
                                           style: GoogleFonts.plusJakartaSans(
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.w400),
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.w400,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary
+                                                .withValues(alpha: 0.85),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -407,7 +413,8 @@ class ChatList extends StatelessWidget {
                                     vertical: 14, horizontal: 10),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
-                                    gradient: AppTheme.chatBubbleGradient),
+                                    gradient:
+                                        AppTheme.chatBubbleGradient(context)),
                                 child: Wrap(
                                   // mainAxisAlignment:
                                   //     MainAxisAlignment.spaceBetween,
@@ -416,8 +423,13 @@ class ChatList extends StatelessWidget {
                                       DateFormat('hh:mm a')
                                           .format(chat.timestamp),
                                       style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w400),
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary
+                                            .withValues(alpha: 0.85),
+                                      ),
                                     ),
                                     SizedBox(
                                       width: size.width * 0.02,
@@ -427,10 +439,11 @@ class ChatList extends StatelessWidget {
                                         Text(
                                           chat.content,
                                           style: GoogleFonts.plusJakartaSans(
-                                              color: const Color.fromRGBO(
-                                                  39, 10, 10, 1),
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary,
                                               fontSize: 12,
-                                              fontWeight: FontWeight.w400),
+                                              fontWeight: FontWeight.w500),
                                         ),
                                       ],
                                     ),
