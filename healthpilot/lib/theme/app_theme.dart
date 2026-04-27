@@ -21,32 +21,7 @@ abstract final class AppTheme {
 
   static ThemeData _theme(Brightness brightness) {
     final isLight = brightness == Brightness.light;
-    final primary = isLight ? AppPalette.light : AppPalette.dark;
-    final secondary = isLight ? AppPalette.lightStrong : AppPalette.darkStrong;
-    final tertiary = isLight ? AppPalette.lightSoft : AppPalette.darkSoft;
-
-    final onSurface = isLight ? const Color(0xFF2A2A2A) : const Color(0xFFE7E7E7);
-    final onSurfaceVariant =
-        isLight ? onSurface.withValues(alpha: 0.55) : const Color(0xFFBFC7D5);
-    final surface = isLight ? Colors.white : const Color(0xFF121316);
-
-    final scheme = ColorScheme.fromSeed(
-      seedColor: primary,
-      brightness: brightness,
-    ).copyWith(
-      primary: primary,
-      onPrimary: Colors.white,
-      primaryContainer: tertiary.withValues(alpha: isLight ? 0.55 : 0.4),
-      onPrimaryContainer: isLight ? const Color(0xFF1A1C1E) : Colors.white,
-      secondary: secondary,
-      onSecondary: Colors.white,
-      tertiary: tertiary,
-      onTertiary: Colors.white,
-      surface: surface,
-      onSurface: onSurface,
-      onSurfaceVariant: onSurfaceVariant,
-      outline: isLight ? const Color(0xFFE0E0E0) : const Color(0xFF3D4554),
-    );
+    final scheme = isLight ? _lightScheme() : _darkScheme();
 
     final textTheme = TextTheme(
       displayLarge: TextStyle(
@@ -138,24 +113,121 @@ abstract final class AppTheme {
           backgroundColor: scheme.primary,
           foregroundColor: scheme.onPrimary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          textStyle: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.onSurface,
+          side: BorderSide(color: scheme.outline),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          textStyle: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: scheme.onSurface,
+          textStyle: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        filled: !isLight,
+        fillColor: !isLight
+            ? scheme.onSurface.withValues(alpha: 0.12)
+            : scheme.surface,
+        hintStyle: textTheme.bodyMedium,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: scheme.outline),
+        ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: scheme.primary, width: 1.5),
         ),
       ),
       cardTheme: CardThemeData(
-        color: scheme.primaryContainer,
+        color: isLight ? scheme.primaryContainer : scheme.surfaceContainerHighest,
         elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor:
+            isLight ? scheme.surface : scheme.surfaceContainerHighest,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        titleTextStyle: textTheme.titleMedium,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurface),
+      ),
+      dividerTheme: DividerThemeData(
+        color: scheme.onSurface.withValues(alpha: isLight ? 0.12 : 0.18),
+        thickness: 1,
+        space: 1,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         selectedItemColor: scheme.primary,
         unselectedItemColor: scheme.onSurfaceVariant,
         backgroundColor: scheme.surface,
       ),
+    );
+  }
+
+  static ColorScheme _lightScheme() {
+    final primary = AppPalette.light;
+    final secondary = AppPalette.lightStrong;
+    final tertiary = AppPalette.lightSoft;
+    final onSurface = const Color(0xFF2A2A2A);
+    final onSurfaceVariant = onSurface.withValues(alpha: 0.55);
+
+    return ColorScheme.fromSeed(
+      seedColor: primary,
+      brightness: Brightness.light,
+    ).copyWith(
+      primary: primary,
+      onPrimary: Colors.white,
+      primaryContainer: tertiary.withValues(alpha: 0.55),
+      onPrimaryContainer: const Color(0xFF1A1C1E),
+      secondary: secondary,
+      onSecondary: Colors.white,
+      tertiary: tertiary,
+      onTertiary: Colors.white,
+      surface: Colors.white,
+      onSurface: onSurface,
+      onSurfaceVariant: onSurfaceVariant,
+      outline: const Color(0xFFE0E0E0),
+    );
+  }
+
+  /// Dark theme colors tuned to the Figma blue-surface UI.
+  static ColorScheme _darkScheme() {
+    const surface = AppPalette.darkStrong; // base background (blue)
+    const surfaceContainer = Color(0xFF3E6A94); // cards / panels
+    const primary = AppPalette.darkSoft; // buttons / highlights
+    const onPrimary = Colors.white;
+    const onSurface = Color(0xFFF2F6FF);
+    const onSurfaceVariant = Color(0xFFC9D6E9);
+    const outline = Color(0xFF5C86AE);
+
+    return const ColorScheme(
+      brightness: Brightness.dark,
+      primary: primary,
+      onPrimary: onPrimary,
+      secondary: primary,
+      onSecondary: onPrimary,
+      error: Color(0xFFFF6B6B),
+      onError: Colors.white,
+      surface: surface,
+      onSurface: onSurface,
+    ).copyWith(
+      surfaceContainerHighest: surfaceContainer,
+      onSurfaceVariant: onSurfaceVariant,
+      outline: outline,
+      primaryContainer: surfaceContainer,
+      onPrimaryContainer: onSurface,
+      secondaryContainer: surfaceContainer,
+      onSecondaryContainer: onSurface,
+      tertiary: AppPalette.dark,
+      onTertiary: onPrimary,
     );
   }
 
