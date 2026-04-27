@@ -24,7 +24,6 @@ class SettingsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SettingsTitle(title: 'Settings'),
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: Column(

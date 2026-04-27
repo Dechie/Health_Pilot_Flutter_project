@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
@@ -43,13 +45,11 @@ class HealthPilotApp extends StatelessWidget {
                 darkTheme: AppTheme.dark,
                 themeMode: appState.themeMode,
                 locale: appState.locale,
-                supportedLocales: const [
-                  Locale('en'),
-                  Locale('am'),
-                  Locale('es'),
-                  Locale('fr'),
-                  Locale('ur'),
-                  Locale('ar'),
+                supportedLocales: AppLocales.supportedLocales,
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
                 ],
                 home: const WelcomeScreen(),
               );

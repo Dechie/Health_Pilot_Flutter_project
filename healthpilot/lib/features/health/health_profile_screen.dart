@@ -70,6 +70,7 @@ class _HealthProfileState extends State<HealthProfile> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       body: SingleChildScrollView(
         child: SafeArea(
@@ -104,13 +105,31 @@ class _HealthProfileState extends State<HealthProfile> {
                             // Navigator.of(context).push(MaterialPageRoute(
                             //   // builder: (context) => const LanguageTranslation(),
                             // )),
-                            child: SvgPicture.asset(translateIcon)),
+                            child: SvgPicture.asset(
+                              translateIcon,
+                              colorFilter: ColorFilter.mode(
+                                cs.onSurface,
+                                BlendMode.srcIn,
+                              ),
+                            )),
                         InkWell(
                           splashColor: const Color.fromARGB(100, 0, 0, 0),
                           onTap: () {},
-                          child: SvgPicture.asset(triangleExclamationIcon),
+                          child: SvgPicture.asset(
+                            triangleExclamationIcon,
+                            colorFilter: ColorFilter.mode(
+                              cs.onSurface,
+                              BlendMode.srcIn,
+                            ),
+                          ),
                         ),
-                        SvgPicture.asset(bellReminder),
+                        SvgPicture.asset(
+                          bellReminder,
+                          colorFilter: ColorFilter.mode(
+                            cs.onSurface,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -175,7 +194,7 @@ class _HealthProfileState extends State<HealthProfile> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.arrow_forward))
+                      icon: Icon(Icons.arrow_forward, color: cs.onSurface))
                 ],
               ),
               SizedBox(
@@ -212,7 +231,7 @@ class _HealthProfileState extends State<HealthProfile> {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.arrow_forward),
+                    icon: Icon(Icons.arrow_forward, color: cs.onSurface),
                   ),
                 ],
               ),
@@ -308,7 +327,7 @@ class _HealthProfileState extends State<HealthProfile> {
                   ),
                   IconButton(
                       onPressed: () {},
-                      icon: const Icon(Icons.add_circle_outline))
+                      icon: Icon(Icons.add_circle_outline, color: cs.onSurface))
                 ],
               ),
               SizedBox(
@@ -339,27 +358,26 @@ class PremiumTags extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
 
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(size.width * 0.02),
-            color: const Color.fromRGBO(255, 255, 255, 1),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 35,
-                spreadRadius: 0,
-                color: const Color.fromRGBO(46, 46, 46, 0.1),
-              ),
-            ],
+            color: cs.surfaceContainerHighest,
           ),
           height: size.height * 0.08,
           width: size.width * 0.28,
           alignment: const Alignment(0, 0),
-          child: const Text(
-            "Subscribed",
-            style: TextStyle(fontSize: 40),
+          child: Text(
+            "My statistics",
+            style: TextStyle(
+              color: cs.onSurface.withValues(alpha: 0.65),
+              fontSize: 11,
+              fontFamily: "PlusJakartaSans",
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         ClipRRect(
@@ -373,7 +391,7 @@ class PremiumTags extends StatelessWidget {
                 minWidth: size.width * 0.28,
                 height: size.height * 0.03,
                 elevation: 0,
-                color: const Color.fromRGBO(110, 182, 255, 1),
+                color: cs.primary,
                 onPressed: () {},
                 child: const Text(
                   'Subscribe',
@@ -477,6 +495,7 @@ class SymptomTracking extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
     return SizedBox(
       width: size.width * 1,
       child: Row(
@@ -525,8 +544,7 @@ class SymptomTracking extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.arrow_forward,
-                    color: Color.fromRGBO(42, 42, 42, 0.5)),
+                icon: Icon(Icons.arrow_forward, color: cs.onSurface),
               ),
             ],
           ),

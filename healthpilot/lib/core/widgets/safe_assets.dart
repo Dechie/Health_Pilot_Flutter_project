@@ -53,6 +53,7 @@ class SafeSvgAsset extends StatefulWidget {
     this.height,
     this.fit = BoxFit.contain,
     this.alignment = Alignment.center,
+    this.color,
   });
 
   final String assetName;
@@ -60,6 +61,7 @@ class SafeSvgAsset extends StatefulWidget {
   final double? height;
   final BoxFit fit;
   final AlignmentGeometry alignment;
+  final Color? color;
 
   @override
   State<SafeSvgAsset> createState() => _SafeSvgAssetState();
@@ -105,6 +107,9 @@ class _SafeSvgAssetState extends State<SafeSvgAsset> {
           height: widget.height,
           fit: widget.fit,
           alignment: widget.alignment,
+          colorFilter: widget.color == null
+              ? null
+              : ColorFilter.mode(widget.color!, BlendMode.srcIn),
         );
       },
     );

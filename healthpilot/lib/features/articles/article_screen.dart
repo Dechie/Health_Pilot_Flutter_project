@@ -112,6 +112,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -135,14 +136,14 @@ class _ArticleScreenState extends State<ArticleScreen> {
                         width: screenWidth * 0.1,
                         height: screenWidth * 0.1,
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(110, 182, 255, 0.25),
+                          color: cs.primaryContainer,
                           borderRadius:
                               BorderRadius.circular(screenWidth * 0.05),
                         ),
                         child: IconButton(
                           onPressed: () => Navigator.of(context).pop(),
                           icon: const Icon(Icons.arrow_back),
-                          color: const Color.fromRGBO(110, 182, 255, 1),
+                          color: cs.onSurface,
                           iconSize: screenWidth * 0.055,
                         ),
                       ),
@@ -160,6 +161,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                           fontSize: screenWidth * 0.05,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'PlusJakartaSans',
+                          color: cs.onSurface,
                         ),
                       ),
                     ),
@@ -172,6 +174,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
                         child: SvgPicture.asset(
                           'assets/images/Vector.svg',
                           fit: BoxFit.cover,
+                          colorFilter:
+                              ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
                         ),
                       ),
                     ),
@@ -238,12 +242,14 @@ class ArticleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final snippetLen = item.body.length < 125 ? item.body.length : 125;
     final snippet = item.body.substring(0, snippetLen);
+    final cs = Theme.of(context).colorScheme;
 
     return InkWell(
       onTap: () => onOpen(item),
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 4,
+        elevation: 0,
+        color: cs.surfaceContainerHighest,
         margin: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.04,
           vertical: screenHeight * 0.02,
@@ -270,26 +276,27 @@ class ArticleCard extends StatelessWidget {
                 children: [
                   Text(
                     item.title,
-                    style: const TextStyle(
-                      fontFamily: 'PlusJakartaSans',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: -0.17,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.17,
+                          color: cs.onSurface,
+                        ),
                   ),
                   SizedBox(height: screenHeight * 0.01),
                   Padding(
                     padding: EdgeInsets.only(right: screenWidth * 0.1),
                     child: RichText(
                       text: TextSpan(
-                        style: const TextStyle(
-                          fontFamily: 'PlusJakartaSans',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color.fromRGBO(42, 42, 42, 0.85),
-                          height: 1.0,
-                          letterSpacing: -0.165,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: cs.onSurfaceVariant,
+                              height: 1.0,
+                              letterSpacing: -0.165,
+                            ),
                         children: [
                           TextSpan(text: snippet),
                           WidgetSpan(
@@ -323,10 +330,8 @@ class ArticleCard extends StatelessWidget {
                           Row(
                             children: [
                               ColorFiltered(
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.black,
-                                  BlendMode.srcIn,
-                                ),
+                                colorFilter:
+                                    ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
                                 child: Image.asset('assets/Icons/like.png'),
                               ),
                               SizedBox(width: screenWidth * 0.02),
@@ -346,10 +351,8 @@ class ArticleCard extends StatelessWidget {
                           Row(
                             children: [
                               ColorFiltered(
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.black,
-                                  BlendMode.srcIn,
-                                ),
+                                colorFilter:
+                                    ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
                                 child: Image.asset('assets/Icons/comment.png'),
                               ),
                               SizedBox(width: screenWidth * 0.02),
@@ -372,10 +375,8 @@ class ArticleCard extends StatelessWidget {
                                 width: 16,
                                 height: 16,
                                 child: ColorFiltered(
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.black,
-                                    BlendMode.srcIn,
-                                  ),
+                                  colorFilter:
+                                      ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
                                   child: Image.asset('assets/Icons/stopwatch .png'),
                                 ),
                               ),
@@ -399,10 +400,18 @@ class ArticleCard extends StatelessWidget {
                           IconButton(
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            icon: const Icon(Icons.share_outlined, size: 18),
+                            icon: Icon(
+                              Icons.share_outlined,
+                              size: 18,
+                              color: cs.onSurface,
+                            ),
                             onPressed: () => onShare(item),
                           ),
-                          const Icon(Icons.more_vert_rounded, size: 16),
+                          Icon(
+                            Icons.more_vert_rounded,
+                            size: 16,
+                            color: cs.onSurface,
+                          ),
                         ],
                       ),
                     ],
@@ -449,6 +458,8 @@ class CommentInputField extends StatefulWidget {
 class _CommentInputFieldState extends State<CommentInputField> {
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.screenWidth * 0.04),
       child: Column(
@@ -463,10 +474,9 @@ class _CommentInputFieldState extends State<CommentInputField> {
               textAlignVertical: TextAlignVertical.bottom,
               decoration: InputDecoration(
                 hintText: widget.hintText,
-                hintStyle: const TextStyle(
-                  color: Color.fromRGBO(193, 193, 193, 1),
+                hintStyle: tt.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
                   fontFamily: 'PlusJakartaSans',
-                  fontSize: 14,
                   fontWeight: FontWeight.w300,
                   letterSpacing: -0.165,
                   height: 18 / 14,
@@ -478,7 +488,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
                         ),
                         child: Icon(
                           widget.icon,
-                          color: const Color.fromRGBO(193, 193, 193, 1),
+                          color: cs.onSurfaceVariant,
                         ),
                       )
                     : null,
@@ -486,16 +496,27 @@ class _CommentInputFieldState extends State<CommentInputField> {
                     ? IconButton(
                         padding: EdgeInsets.only(right: widget.screenWidth * 0.02),
                         onPressed: widget.onSuffixTap,
-                        icon: SvgPicture.asset(widget.suffixIcon!),
+                        icon: SvgPicture.asset(
+                          widget.suffixIcon!,
+                          colorFilter:
+                              ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
+                        ),
                       )
                     : null,
                 border: OutlineInputBorder(
                   gapPadding: 12,
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                    width: 1,
-                    color: Color.fromRGBO(193, 193, 193, 1),
-                  ),
+                  borderSide: BorderSide(width: 1, color: cs.outline),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(width: 1, color: cs.outline),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(width: 1.5, color: cs.primary),
                 ),
                 contentPadding: EdgeInsets.symmetric(
                   vertical: widget.screenHeight * 0.07,

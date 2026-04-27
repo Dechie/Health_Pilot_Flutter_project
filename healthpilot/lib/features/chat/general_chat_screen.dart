@@ -97,7 +97,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             automaticallyImplyLeading: widget.showBackButton,
             toolbarHeight: 70,
             elevation: 0,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             title: _buildTabBar(),
             centerTitle: true,
           ),
@@ -325,13 +325,14 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
   }
 
   TabBar _buildTabBar() {
+    final cs = Theme.of(context).colorScheme;
     return TabBar(
         tabAlignment: TabAlignment.center,
         indicatorSize: TabBarIndicatorSize.label,
-        labelColor: const Color.fromRGBO(110, 182, 255, 1),
-        unselectedLabelColor: const Color.fromRGBO(42, 42, 42, 0.45),
+        labelColor: cs.primary,
+        unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
         unselectedLabelStyle: TextStyle(
-          color: const Color.fromRGBO(42, 42, 42, 0.45),
+          color: cs.onSurface.withValues(alpha: 0.7),
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 16.sp,
           fontStyle: FontStyle.normal,
@@ -339,14 +340,14 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           letterSpacing: -0.165.sp,
         ),
         labelStyle: TextStyle(
-          color: const Color.fromRGBO(110, 182, 255, 1),
+          color: cs.primary,
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 16.sp,
           fontStyle: FontStyle.normal,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.165.sp,
         ),
-        indicatorColor: Theme.of(context).colorScheme.primary,
+        indicatorColor: cs.primary,
         tabs: const [
           Tab(
             text: 'All',

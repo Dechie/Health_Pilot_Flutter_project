@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/features/profile/personal_information_screen.dart';
+import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 class GradientButton extends StatelessWidget {
@@ -12,29 +13,22 @@ class GradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return ClipRRect(
       borderRadius: BorderRadius.circular(5),
       child: Container(
           width: 72,
           height: 28,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(110, 182, 255, 0.3),
-                Color.fromRGBO(110, 182, 255, 0.26),
-                Color.fromRGBO(110, 182, 255, 0.08),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+          decoration: BoxDecoration(
+            gradient: AppTheme.chatBubbleGradient(context),
           ),
           child: Center(
             child: TextButton(
               onPressed: () {},
               child: Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.black,
+                style: TextStyle(
+                  color: cs.onSurface,
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
@@ -92,14 +86,10 @@ class SettingsTitle extends StatelessWidget {
       padding: const EdgeInsets.only(top: 42, left: 30),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Color.fromRGBO(42, 42, 42, 1),
-          fontFamily: 'PlusJakartaSans',
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          height: 1.25,
-          letterSpacing: -0.165,
-        ),
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
       ),
     );
   }
@@ -121,6 +111,7 @@ class HealthInformationSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(top: 0, left: 30, right: 40),
       child: SizedBox(
@@ -130,22 +121,25 @@ class HealthInformationSettings extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               leading: SvgPicture.asset(
                 imageAdress,
+                colorFilter: ColorFilter.mode(
+                  cs.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
               ),
               title: Text(
                 settingAdress,
-                style: const TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: -0.2,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface,
+                      fontSize: 12,
+                      letterSpacing: -0.2,
+                    ),
               ),
               horizontalTitleGap: 5,
-              trailing: Icon(iconData),
+              trailing: Icon(iconData, color: cs.onSurface),
               onTap: onpressed,
             ),
-            const Divider(
-              color: Colors.grey,
+            Divider(
+              color: cs.onSurface.withValues(alpha: 0.18),
               thickness: 0.5,
             ),
           ],
@@ -202,22 +196,28 @@ class _SettingsForDarkModeState extends State<SettingsForDarkMode> {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final cs = Theme.of(context).colorScheme;
+    final primary = cs.primary;
     return Padding(
       padding: const EdgeInsets.only(top: 3, left: 30, right: 40),
       child: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: SvgPicture.asset(widget.imageAdress),
+            leading: SvgPicture.asset(
+              widget.imageAdress,
+              colorFilter: ColorFilter.mode(
+                cs.onSurfaceVariant,
+                BlendMode.srcIn,
+              ),
+            ),
             title: Text(
               widget.settingAdress,
-              style: const TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                letterSpacing: -0.2,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurface,
+                    fontSize: 12,
+                    letterSpacing: -0.2,
+                  ),
             ),
             horizontalTitleGap: 5,
             trailing: GestureDetector(
@@ -252,8 +252,8 @@ class _SettingsForDarkModeState extends State<SettingsForDarkMode> {
               ),
             ),
           ),
-          const Divider(
-            color: Colors.grey,
+          Divider(
+            color: cs.onSurface.withValues(alpha: 0.18),
             thickness: 0.5,
           ),
         ],

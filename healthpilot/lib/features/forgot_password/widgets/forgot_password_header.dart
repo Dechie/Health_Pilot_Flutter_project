@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthpilot/core/widgets/safe_assets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/data/constants.dart';
 
 class ForgotPasswordHeader extends StatelessWidget {
@@ -69,10 +69,14 @@ class ForgotPasswordHeader extends StatelessWidget {
                 ? const SizedBox.shrink()
                 : IconButton(
                     onPressed: onTranslate,
-                    icon: SafeSvgAsset(
+                    icon: SvgPicture.asset(
                       translateIcon,
                       width: screenWidth * 0.06,
                       height: screenWidth * 0.06,
+                      colorFilter: ColorFilter.mode(
+                        cs.onSurface,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     padding: EdgeInsets.zero,
                   ),
