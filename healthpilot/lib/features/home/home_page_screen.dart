@@ -291,36 +291,36 @@ class _HomePageScreenState extends State<HomePageScreen> {
             SizedBox(
               height: size.height * 0.03,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: size.width * 0.06),
-                  width: size.width * 0.5,
-                  child: Text(
-                    'Hello, $userName',
-                    style: AppTheme.userGreeting(context),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Hello, $userName',
+                      style: AppTheme.userGreeting(context),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(right: size.width * 0.08),
-                  width: size.width * 0.2,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  const SizedBox(width: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       InkWell(
-                          splashColor: const Color.fromARGB(100, 0, 0, 0),
-                          onTap: () =>
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    const LanguageTranslation(),
-                              )),
-                          child: SafeSvgAsset(
-                            translateIcon,
-                            width: size.width * 0.06,
-                            height: size.width * 0.06,
-                            color: cs.onSurface,
-                          )),
+                        splashColor: const Color.fromARGB(100, 0, 0, 0),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const LanguageTranslation(),
+                          ),
+                        ),
+                        child: SafeSvgAsset(
+                          translateIcon,
+                          width: size.width * 0.06,
+                          height: size.width * 0.06,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
                       InkWell(
                         splashColor: const Color.fromARGB(100, 0, 0, 0),
                         onTap: _startEmergencyCall,
@@ -331,6 +331,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                           color: cs.onSurface,
                         ),
                       ),
+                      const SizedBox(width: 10),
                       SafeSvgAsset(
                         bellReminder,
                         width: size.width * 0.06,
@@ -339,8 +340,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             Container(
               margin: EdgeInsets.only(
@@ -356,23 +357,30 @@ class _HomePageScreenState extends State<HomePageScreen> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-              child: const Row(
-                  // mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: const [
                     OverviewCard(
-                        icon: LineIcons.heart,
-                        overviewResult: '120',
-                        overviewUnit: 'BPM'),
+                      icon: LineIcons.heart,
+                      overviewResult: '120',
+                      overviewUnit: 'BPM',
+                    ),
+                    SizedBox(width: 12),
                     OverviewCard(
-                        icon: LineIcons.weight,
-                        overviewResult: '21.6',
-                        overviewUnit: 'BMI'),
+                      icon: LineIcons.weight,
+                      overviewResult: '21.6',
+                      overviewUnit: 'BMI',
+                    ),
+                    SizedBox(width: 12),
                     OverviewCard(
-                        icon: LineIcons.bed,
-                        overviewResult: '6.5',
-                        overviewUnit: 'hours'),
-                  ]),
+                      icon: LineIcons.bed,
+                      overviewResult: '6.5',
+                      overviewUnit: 'hours',
+                    ),
+                  ],
+                ),
+              ),
             ),
             Container(
               margin: EdgeInsets.only(
@@ -389,7 +397,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   left: size.width * 0.06,
                 ),
                 width: double.infinity,
-                child: Row(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 6,
                   children: [
                     Text(
                       'Tell us your symptoms',
@@ -397,8 +407,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     ),
                     Icon(
                       LineIcons.arrowRight,
+                      size: 16,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    )
+                    ),
                   ],
                 )),
             Container(
@@ -737,27 +748,29 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                   },
                                   itemBuilder: (context, index) => Padding(
                                     padding: EdgeInsets.all(size.width * 0.02),
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          _tutorialSlides[index]['title']!,
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        SizedBox(
-                                          height: size.height * 0.02,
-                                        ),
-                                        Text(
-                                          _tutorialSlides[index]
-                                              ['description']!,
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            _tutorialSlides[index]['title']!,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          SizedBox(
+                                            height: size.height * 0.015,
+                                          ),
+                                          Text(
+                                            _tutorialSlides[index]
+                                                ['description']!,
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -768,8 +781,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                   padding: EdgeInsets.symmetric(
                                     horizontal: size.width * 0.04,
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  child: Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 12,
+                                    runSpacing: 6,
                                     children: [
                                       SizedBox(
                                         width: size.width * 0.28,

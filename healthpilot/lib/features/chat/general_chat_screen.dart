@@ -327,25 +327,27 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
   TabBar _buildTabBar() {
     final cs = Theme.of(context).colorScheme;
     return TabBar(
-        tabAlignment: TabAlignment.center,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        labelPadding: const EdgeInsets.symmetric(horizontal: 14),
         indicatorSize: TabBarIndicatorSize.label,
         labelColor: cs.primary,
         unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
         unselectedLabelStyle: TextStyle(
           color: cs.onSurface.withValues(alpha: 0.7),
           fontFamily: 'Plus Jakarta Sans',
-          fontSize: 16.sp,
+          fontSize: 14,
           fontStyle: FontStyle.normal,
           fontWeight: FontWeight.w500,
-          letterSpacing: -0.165.sp,
+          letterSpacing: -0.165,
         ),
         labelStyle: TextStyle(
           color: cs.primary,
           fontFamily: 'Plus Jakarta Sans',
-          fontSize: 16.sp,
+          fontSize: 14,
           fontStyle: FontStyle.normal,
           fontWeight: FontWeight.w600,
-          letterSpacing: -0.165.sp,
+          letterSpacing: -0.165,
         ),
         indicatorColor: cs.primary,
         tabs: const [

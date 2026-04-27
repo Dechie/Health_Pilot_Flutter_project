@@ -165,15 +165,18 @@ class _ArticleScreenState extends State<ArticleScreen> {
                         ),
                       ),
                     ),
+                    const Spacer(),
                     Padding(
-                      padding: EdgeInsets.only(top: screenHeight * 0.04),
-                      child: Container(
-                        margin: EdgeInsets.only(left: screenWidth * 0.48),
-                        width: screenWidth * 0.04,
-                        height: screenWidth * 0.04,
+                      padding: EdgeInsets.only(
+                        top: screenHeight * 0.04,
+                        right: screenWidth * 0.04,
+                      ),
+                      child: SizedBox(
+                        width: screenWidth * 0.045,
+                        height: screenWidth * 0.045,
                         child: SvgPicture.asset(
                           'assets/images/Vector.svg',
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           colorFilter:
                               ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
                         ),
@@ -323,12 +326,16 @@ class ArticleCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Row(
-                            children: [
+                      Expanded(
+                        child: Wrap(
+                          spacing: 16,
+                          runSpacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
                               ColorFiltered(
                                 colorFilter:
                                     ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
@@ -345,11 +352,11 @@ class ArticleCard extends StatelessWidget {
                                   letterSpacing: -0.165,
                                 ),
                               ),
-                            ],
-                          ),
-                          SizedBox(width: screenWidth * 0.1),
-                          Row(
-                            children: [
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
                               ColorFiltered(
                                 colorFilter:
                                     ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
@@ -366,11 +373,11 @@ class ArticleCard extends StatelessWidget {
                                   letterSpacing: -0.165,
                                 ),
                               ),
-                            ],
-                          ),
-                          SizedBox(width: screenWidth * 0.1),
-                          Row(
-                            children: [
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
                               SizedBox(
                                 width: 16,
                                 height: 16,
@@ -391,9 +398,10 @@ class ArticleCard extends StatelessWidget {
                                   letterSpacing: -0.165,
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       Row(
                         children: [

@@ -82,65 +82,72 @@ class _HealthProfileState extends State<HealthProfile> {
                 height: size.height * 0.02,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    width: size.width * 0.5,
-                    child: const Text(
+                  Expanded(
+                    child: Text(
                       'Hello, UserName',
-                      style: TextStyle(
-                          fontFamily: 'PlusJakartaSans',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    width: size.width * 0.2,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                            splashColor: const Color.fromARGB(100, 0, 0, 0),
-                            onTap: () => {},
-                            // Navigator.of(context).push(MaterialPageRoute(
-                            //   // builder: (context) => const LanguageTranslation(),
-                            // )),
-                            child: SvgPicture.asset(
-                              translateIcon,
-                              colorFilter: ColorFilter.mode(
-                                cs.onSurface,
-                                BlendMode.srcIn,
-                              ),
-                            )),
-                        InkWell(
-                          splashColor: const Color.fromARGB(100, 0, 0, 0),
-                          onTap: () {},
-                          child: SvgPicture.asset(
-                            triangleExclamationIcon,
-                            colorFilter: ColorFilter.mode(
-                              cs.onSurface,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                        SvgPicture.asset(
-                          bellReminder,
+                  const SizedBox(width: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        splashColor: const Color.fromARGB(100, 0, 0, 0),
+                        onTap: () => {},
+                        child: SvgPicture.asset(
+                          translateIcon,
                           colorFilter: ColorFilter.mode(
                             cs.onSurface,
                             BlendMode.srcIn,
                           ),
+                          width: 20,
+                          height: 20,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 10),
+                      InkWell(
+                        splashColor: const Color.fromARGB(100, 0, 0, 0),
+                        onTap: () {},
+                        child: SvgPicture.asset(
+                          triangleExclamationIcon,
+                          colorFilter: ColorFilter.mode(
+                            cs.onSurface,
+                            BlendMode.srcIn,
+                          ),
+                          width: 20,
+                          height: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SvgPicture.asset(
+                        bellReminder,
+                        colorFilter: ColorFilter.mode(
+                          cs.onSurface,
+                          BlendMode.srcIn,
+                        ),
+                        width: 20,
+                        height: 20,
+                      ),
+                    ],
                   ),
                 ],
               ),
               SizedBox(
                 height: size.height * 0.02,
               ),
-              Row(
-                children: [
-                  const Text(
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                children: const [
+                  Text(
                     "My Statistics",
                     style: TextStyle(
                       fontFamily: "PlusJakartaSans",
@@ -148,42 +155,48 @@ class _HealthProfileState extends State<HealthProfile> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(
-                    width: size.width * 0.02,
-                  ),
-                  const Text(
+                  Text(
                     "premium",
                     style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: "PlusJakartaSans",
-                        fontWeight: FontWeight.w500,
-                        color: Color.fromRGBO(110, 182, 255, 1)),
-                  )
+                      fontSize: 12,
+                      fontFamily: "PlusJakartaSans",
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromRGBO(110, 182, 255, 1),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(
                 height: size.height * 0.02,
               ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  PremiumTags(),
-                  PremiumTags(),
-                  PremiumTags(),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: const [
+                    PremiumTags(),
+                    SizedBox(width: 12),
+                    PremiumTags(),
+                    SizedBox(width: 12),
+                    PremiumTags(),
+                  ],
+                ),
               ),
               SizedBox(
                 height: size.height * 0.03,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Health Tracking',
-                    style: TextStyle(
+                  const Expanded(
+                    child: Text(
+                      'Health Tracking',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
                         fontFamily: "PlusJakartaSans",
                         fontWeight: FontWeight.w500,
-                        fontSize: 16),
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                   IconButton(
                       onPressed: () {
@@ -213,14 +226,18 @@ class _HealthProfileState extends State<HealthProfile> {
                 height: size.height * 0.03,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Symptom Tracking',
-                    style: TextStyle(
+                  const Expanded(
+                    child: Text(
+                      'Symptom Tracking',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
                         fontFamily: "PlusJakartaSans",
                         fontWeight: FontWeight.w500,
-                        fontSize: 16),
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                   IconButton(
                     onPressed: () {
@@ -316,18 +333,24 @@ class _HealthProfileState extends State<HealthProfile> {
                 height: size.height * 0.03,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Health Profiles',
-                    style: TextStyle(
+                  const Expanded(
+                    child: Text(
+                      'Health Profiles',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
                         fontFamily: "PlusJakartaSans",
                         fontWeight: FontWeight.w500,
-                        fontSize: 16),
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                   IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.add_circle_outline, color: cs.onSurface))
+                    onPressed: () {},
+                    icon:
+                        Icon(Icons.add_circle_outline, color: cs.onSurface),
+                  ),
                 ],
               ),
               SizedBox(
@@ -447,34 +470,38 @@ class HealthTracking extends StatelessWidget {
             ),
           ],
         ),
-        Container(
-          padding: EdgeInsets.only(left: size.width * 0.02),
-          width: size.width * 0.8,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: size.width * 0.4,
-                child: Text(
-                  disorder,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontFamily: "PlusJakartaSans",
-                    fontWeight: FontWeight.w400,
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(left: size.width * 0.02),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    disorder,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontFamily: "PlusJakartaSans",
+                      fontWeight: FontWeight.w400,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                date,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontFamily: "PlusJakartaSans",
-                  fontWeight: FontWeight.w500,
-                  color: Color.fromRGBO(110, 182, 255, 1),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    date,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontFamily: "PlusJakartaSans",
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromRGBO(110, 182, 255, 1),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
