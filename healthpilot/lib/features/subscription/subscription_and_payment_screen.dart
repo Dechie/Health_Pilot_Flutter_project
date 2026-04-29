@@ -36,61 +36,74 @@ class SubscriptionAndPaymentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      body: SafeArea(child: LayoutBuilder(
-        builder: ((context, constraints) {
-          final size = constraints.biggest;
-          final screenWidth = size.width;
-          final screenHeight = size.height;
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                PageTitles(
-                  title: "Unleash the full potential of HealthPilot",
-                  screenWidth: screenWidth,
-                  screenHeight: screenHeight,
-                  padding: EdgeInsets.only(
-                    top: screenHeight * 0.05,
-                    left: screenWidth * 0.04,
+      appBar: AppBar(
+        backgroundColor: cs.surface,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).maybePop(),
+          icon: Icon(Icons.arrow_back, color: cs.onSurface),
+        ),
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: ((context, constraints) {
+            final size = constraints.biggest;
+            final screenWidth = size.width;
+            final screenHeight = size.height;
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  PageTitles(
+                    title: "Unleash the full potential of HealthPilot",
+                    screenWidth: screenWidth,
+                    screenHeight: screenHeight,
+                    padding: EdgeInsets.only(
+                      top: screenHeight * 0.03,
+                      left: screenWidth * 0.04,
+                    ),
+                    letterHeight: 1.5,
                   ),
-                  letterHeight: 1.5,
-                ),
-                AccountMessageText(
-                  text:
-                      "Get access to more features by subscribing to our premium plan.",
-                  screenHeight: screenHeight,
-                  screenWidth: screenWidth,
-                  color: const Color.fromRGBO(42, 42, 42, 1),
-                  letterHeight: 1.3,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.05,
-                      vertical: screenHeight * 0.02),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                  child: PremiumFeatureContainer(
+                  AccountMessageText(
+                    text:
+                        "Get access to more features by subscribing to our premium plan.",
                     screenHeight: screenHeight,
                     screenWidth: screenWidth,
-                    color: const Color.fromRGBO(110, 182, 255, 1),
+                    color: cs.onSurfaceVariant,
+                    letterHeight: 1.3,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.05,
+                        vertical: screenHeight * 0.02),
                   ),
-                ),
-                FreeFeatureContainer(
-                    screenHeight: screenHeight, screenWidth: screenWidth),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.03),
-                  child: Button(
-                      screenWidth: screenWidth * 1.3,
-                      screenHeight: screenHeight * 1.1,
-                      buttonText: "Next",
-                      buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
-                      textColor: Colors.white,
-                      fontsize: 18),
-                )
-              ],
-            ),
-          );
-        }),
-      )),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                    child: PremiumFeatureContainer(
+                      screenHeight: screenHeight,
+                      screenWidth: screenWidth,
+                      color: const Color.fromRGBO(110, 182, 255, 1),
+                    ),
+                  ),
+                  FreeFeatureContainer(
+                      screenHeight: screenHeight, screenWidth: screenWidth),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: screenHeight * 0.03),
+                    child: Button(
+                        screenWidth: screenWidth * 1.3,
+                        screenHeight: screenHeight * 1.1,
+                        buttonText: "Next",
+                        buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
+                        textColor: Colors.white,
+                        fontsize: 18),
+                  )
+                ],
+              ),
+            );
+          }),
+        ),
+      ),
     );
   }
 }
@@ -207,6 +220,7 @@ class FreeFeatureContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: screenHeight * 0.007),
       child: SizedBox(
@@ -218,11 +232,11 @@ class FreeFeatureContainer extends StatelessWidget {
               padding: EdgeInsets.symmetric(
                 vertical: screenHeight * 0.023,
               ),
-              child: const Text(
+              child: Text(
                 "Free Version",
                 style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
-                  color: Colors.black,
+                  color: cs.onSurface,
                   fontSize: 16.0,
                   fontWeight: FontWeight.w600,
                   height: 1.25, // line height of 20px with 16px font size
@@ -236,25 +250,25 @@ class FreeFeatureContainer extends StatelessWidget {
                 screenWidth: screenWidth,
                 icons: Icons.star_border,
                 text: "Access to chatbot",
-                textColor: Colors.black),
+                textColor: cs.onSurface),
             FeaturesText(
                 screenHeight: screenHeight,
                 screenWidth: screenWidth,
                 icons: Icons.star_border,
                 text: "Track Health and activity",
-                textColor: Colors.black),
+                textColor: cs.onSurface),
             FeaturesText(
                 screenHeight: screenHeight,
                 screenWidth: screenWidth,
                 icons: Icons.star_border,
                 text: "Symptom Tracker",
-                textColor: Colors.black),
+                textColor: cs.onSurface),
             FeaturesText(
                 screenHeight: screenHeight,
                 screenWidth: screenWidth,
                 icons: Icons.star_border,
                 text: "Personalized recommendation",
-                textColor: Colors.black),
+                textColor: cs.onSurface),
             Padding(
               padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
               child: Button(
@@ -473,6 +487,7 @@ class PaymentReviewScreen extends StatelessWidget {
                           fontSize: screenWidth * 0.05,
                           fontWeight: FontWeight.w700,
                           fontFamily: "PlusJakartaSans",
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -487,6 +502,10 @@ class PaymentReviewScreen extends StatelessWidget {
                         child: SvgPicture.asset(
                           'assets/images/Vector.svg',
                           fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.onSurface,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ),
@@ -520,7 +539,7 @@ class PaymentReviewScreen extends StatelessWidget {
                       screenHeight: screenHeight,
                       isChecked: paymentInfo.isChappaChecked,
                       icons: null,
-                      pngAssetPath: "assets/Icons/chapa.png",
+                      pngAssetPath: "assets/Icons/chapa.svg",
                       checker: null,
                     )
                   ],
@@ -730,19 +749,20 @@ class PageTitlesInPayment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
         padding: EdgeInsets.symmetric(
             vertical: screenHeight * 0.02, horizontal: screenWidth * 0.047),
         child: Text(title,
             textAlign: TextAlign.left,
-            style: const TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              color: Color.fromRGBO(42, 42, 42, 1),
-              fontSize: 17,
-              fontWeight: FontWeight.w500,
-              letterSpacing: -0.17,
-              height: 2,
-            )));
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontFamily: 'PlusJakartaSans',
+                  color: cs.onSurface,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: -0.17,
+                  height: 2,
+                )));
   }
 }
 
@@ -783,6 +803,7 @@ class PaymentMethodButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: checker,
       child: Padding(
@@ -796,11 +817,11 @@ class PaymentMethodButtons extends StatelessWidget {
             border: Border.all(
                 color: isChecked
                     ? const Color.fromRGBO(110, 182, 255, 1)
-                    : const Color.fromRGBO(42, 42, 42, 0.25),
+                    : cs.outline.withValues(alpha: 0.5),
                 width: 1),
             color: isChecked
                 ? const Color.fromRGBO(110, 182, 255, 1)
-                : Colors.white,
+                : cs.surfaceContainerHighest,
             boxShadow: const [
               BoxShadow(
                 color: Colors.white,
@@ -810,21 +831,32 @@ class PaymentMethodButtons extends StatelessWidget {
           ),
           child: Center(
             child: pngAssetPath != null
-                ? ColorFiltered(
-                    colorFilter: isChecked
-                        ? const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          )
-                        : const ColorFilter.mode(
-                            Color.fromRGBO(110, 182, 255, 1),
-                            BlendMode.srcIn,
-                          ),
-                    child: Image.asset(
-                      pngAssetPath!,
-                      // fit: BoxFit.cover,
-                    ), // Replace with your image asset
-                  )
+                ? (pngAssetPath!.toLowerCase().endsWith('.svg')
+                    ? SvgPicture.asset(
+                        pngAssetPath!,
+                        width: screenWidth * 0.09,
+                        height: screenWidth * 0.09,
+                        colorFilter: ColorFilter.mode(
+                          isChecked
+                              ? Colors.white
+                              : const Color.fromRGBO(110, 182, 255, 1),
+                          BlendMode.srcIn,
+                        ),
+                      )
+                    : ColorFiltered(
+                        colorFilter: isChecked
+                            ? const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
+                              )
+                            : const ColorFilter.mode(
+                                Color.fromRGBO(110, 182, 255, 1),
+                                BlendMode.srcIn,
+                              ),
+                        child: Image.asset(
+                          pngAssetPath!,
+                        ),
+                      ))
                 : Icon(
                     icons,
                     color: isChecked
@@ -866,6 +898,7 @@ class PaymentInformations extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.symmetric(
           vertical: screenHeight * 0.03, horizontal: screenWidth * 0.047),
@@ -873,14 +906,14 @@ class PaymentInformations extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontFamily: 'PlusJakartaSans',
-              color: Color.fromRGBO(42, 42, 42, 0.5),
-              fontSize: 14,
-              fontWeight: FontWeight.w300,
-              height: 1.22,
-              letterSpacing: -0.165,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontFamily: 'PlusJakartaSans',
+                  color: cs.onSurfaceVariant,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                  height: 1.22,
+                  letterSpacing: -0.165,
+                ),
             textAlign: TextAlign.left,
           ),
         ],
@@ -915,20 +948,21 @@ class PersonalpayInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: screenHeight * 0.03,
       ),
       child: Text(
         personalPaymentInfo,
-        style: const TextStyle(
-          fontFamily: 'PlusJakartaSans',
-          color: Color.fromRGBO(42, 42, 42, 1),
-          fontSize: 14,
-          fontWeight: FontWeight.w300,
-          height: 1.22,
-          letterSpacing: -0.165,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontFamily: 'PlusJakartaSans',
+              color: cs.onSurface,
+              fontSize: 14,
+              fontWeight: FontWeight.w300,
+              height: 1.22,
+              letterSpacing: -0.165,
+            ),
       ),
     );
   }
@@ -956,6 +990,7 @@ class SubscriptionFinishScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
         body: SafeArea(child: LayoutBuilder(
           // ignore: non_constant_identifier_names
@@ -974,7 +1009,7 @@ class SubscriptionFinishScreen extends StatelessWidget {
                   Padding(
                     padding:
                         EdgeInsets.symmetric(vertical: screenHeight * 0.03),
-                    child: const Text(
+                    child: Text(
                       'Purchase Successful',
                       textAlign: TextAlign.left,
                       style: TextStyle(
@@ -983,6 +1018,7 @@ class SubscriptionFinishScreen extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         height: 1.25,
                         letterSpacing: -0.165,
+                        color: cs.onSurface,
                       ),
                     ),
                   ),
@@ -990,7 +1026,7 @@ class SubscriptionFinishScreen extends StatelessWidget {
                     padding: EdgeInsets.symmetric(
                         horizontal: screenWidth * 0.16,
                         vertical: screenHeight * 0.015),
-                    child: const Text(
+                    child: Text(
                       'You have successfully signed up for a premium plan. We\'ve sent you an email verifying receipt.',
                       style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
@@ -998,8 +1034,7 @@ class SubscriptionFinishScreen extends StatelessWidget {
                         fontWeight: FontWeight.w400,
                         height: 1.25, // Equivalent to line height of 20px
                         letterSpacing: -0.165,
-                        color: Color.fromRGBO(
-                            42, 42, 42, 1), // Set your desired text color
+                        color: cs.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
                     ),
