@@ -601,7 +601,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: cs.surface,
       body: SafeArea(
         child: LayoutBuilder(
             // ignore: non_constant_identifier_names
@@ -627,7 +629,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         width: screenWidth * 0.1,
                         height: screenWidth * 0.1,
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(110, 182, 255, 0.25),
+                          color: cs.primary.withValues(alpha: 0.25),
                           borderRadius:
                               BorderRadius.circular(screenWidth * 0.05),
                         ),
@@ -636,7 +638,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                             Navigator.of(context).pop();
                           },
                           icon: const Icon(Icons.arrow_back),
-                          color: const Color.fromRGBO(110, 182, 255, 1),
+                          color: cs.primary,
                           iconSize: screenWidth * 0.055,
                         ),
                       ),
@@ -649,11 +651,12 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         0,
                       ),
                       child: Text(
-                        "Confirm Email",
+                        "Checkout",
                         style: TextStyle(
                           fontSize: screenWidth * 0.05,
                           fontWeight: FontWeight.w700,
                           fontFamily: "PlusJakartaSans",
+                          color: cs.onSurface,
                         ),
                       ),
                     ),
@@ -663,11 +666,15 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         left: screenWidth * 0.37,
                       ),
                       child: SizedBox(
-                        width: screenWidth * 0.04,
-                        height: screenWidth * 0.04,
+                        width: screenWidth * 0.045,
+                        height: screenWidth * 0.045,
                         child: SvgPicture.asset(
-                          'assets/images/Vector.svg',
-                          fit: BoxFit.cover,
+                          translateIcon,
+                          fit: BoxFit.contain,
+                          colorFilter: ColorFilter.mode(
+                            cs.onSurface,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ),
@@ -811,7 +818,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                             Padding(
                               padding:
                                   EdgeInsets.only(left: screenWidth * 0.02),
-                              child: const Text(
+                              child: Text(
                                 'Remember payment information',
                                 style: TextStyle(
                                   fontFamily: 'PlusJakartaSans',
@@ -820,7 +827,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                                   height:
                                       1.25, // Calculated based on line height: 20 / 16
                                   letterSpacing: -0.165,
-                                  color: Color.fromRGBO(42, 42, 42, 0.5),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                 ),
                                 textAlign: TextAlign.left,
                               ),
@@ -923,6 +932,11 @@ class PaymentInputFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(5),
+      borderSide: BorderSide(color: cs.outline),
+    );
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
       child: Column(
@@ -934,32 +948,39 @@ class PaymentInputFields extends StatelessWidget {
               obscureText: isobscured,
               textInputAction: inputActiom,
               keyboardType: keyboardType,
+              style: TextStyle(color: cs.onSurface),
               textAlignVertical: TextAlignVertical.bottom,
               decoration: InputDecoration(
+                filled: true,
+                fillColor: cs.surface,
                 hintText: hintText,
-                hintStyle: const TextStyle(
-                  color: Color.fromRGBO(42, 42, 42, 0.5),
-
+                hintStyle: TextStyle(
+                  color: cs.onSurfaceVariant,
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
                   fontWeight: FontWeight.w300,
                   letterSpacing: -0.165,
                   height: 18 / 14, // line-height / font-size
                 ),
-                suffixIcon: IconButton(
-                  icon: Icon(suffixIcon),
-                  onPressed: iconPressed,
-                ),
+                suffixIcon: suffixIcon != null
+                    ? IconButton(
+                        icon: Icon(suffixIcon, color: cs.onSurfaceVariant),
+                        onPressed: iconPressed,
+                      )
+                    : null,
                 prefixIcon: prefixIcon != null
                     ? Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth * 0.03),
-                        child: Icon(prefixIcon),
+                        child: Icon(prefixIcon, color: cs.onSurfaceVariant),
                       )
                     : null,
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: const BorderSide()),
+                border: border,
+                enabledBorder: border,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: cs.primary, width: 2),
+                ),
                 contentPadding: EdgeInsets.symmetric(
                   vertical: 53, // No vertical padding
                   horizontal: prefixIcon == null
@@ -1007,6 +1028,7 @@ class PaymentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: buttonAction,
       child: ClipRRect(
@@ -1014,14 +1036,14 @@ class PaymentButton extends StatelessWidget {
           child: Container(
             width: screenWidth * 0.48, // 23.1% of screen width
             height: screenHeight * 0.063, // 5% of screen height
-            decoration: const BoxDecoration(
-              color: Color.fromRGBO(110, 182, 255, 1),
+            decoration: BoxDecoration(
+              color: cs.primary,
             ), // Adjust the width as needed
             child: Center(
               child: Text(
                 buttonText,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: cs.onPrimary,
                   fontFamily: "PlusJakartaSans",
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -1061,14 +1083,15 @@ class PageTitlesInPayment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
         padding: EdgeInsets.symmetric(
             vertical: screenHeight * 0.02, horizontal: screenWidth * 0.047),
         child: Text(title,
             textAlign: TextAlign.left,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'PlusJakartaSans',
-              color: Color.fromRGBO(42, 42, 42, 1),
+              color: cs.onSurface,
               fontSize: 17,
               fontWeight: FontWeight.w500,
               letterSpacing: -0.17,
@@ -1126,19 +1149,22 @@ class PaymentMethodButtons extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             border: Border.all(
-                color: isChecked
-                    ? const Color.fromRGBO(110, 182, 255, 1)
-                    : cs.outline.withValues(alpha: 0.5),
+                color: isChecked ? cs.primary : cs.outline.withValues(alpha: 0.5),
                 width: 1),
             color: isChecked
-                ? const Color.fromRGBO(110, 182, 255, 1)
-                : cs.surfaceContainerHighest,
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.white,
-                spreadRadius: 1,
-              ),
-            ],
+                ? cs.primary
+                : (Theme.of(context).brightness == Brightness.light
+                    ? cs.surface
+                    : cs.surfaceContainerHighest),
+            boxShadow: Theme.of(context).brightness == Brightness.light && !isChecked
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Center(
             child: pngAssetPath != null
@@ -1148,31 +1174,21 @@ class PaymentMethodButtons extends StatelessWidget {
                         width: screenWidth * 0.09,
                         height: screenWidth * 0.09,
                         colorFilter: ColorFilter.mode(
-                          isChecked
-                              ? Colors.white
-                              : const Color.fromRGBO(110, 182, 255, 1),
+                          isChecked ? cs.onPrimary : cs.primary,
                           BlendMode.srcIn,
                         ),
                       )
                     : ColorFiltered(
                         colorFilter: isChecked
-                            ? const ColorFilter.mode(
-                                Colors.white,
-                                BlendMode.srcIn,
-                              )
-                            : const ColorFilter.mode(
-                                Color.fromRGBO(110, 182, 255, 1),
-                                BlendMode.srcIn,
-                              ),
+                            ? ColorFilter.mode(cs.onPrimary, BlendMode.srcIn)
+                            : ColorFilter.mode(cs.primary, BlendMode.srcIn),
                         child: Image.asset(
                           pngAssetPath!,
                         ),
                       ))
                 : Icon(
                     icons,
-                    color: isChecked
-                        ? Colors.white
-                        : const Color.fromRGBO(110, 182, 255, 1),
+                    color: isChecked ? cs.onPrimary : cs.primary,
                   ),
           ),
         ),

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/articles/article_feed_item.dart';
 
 import 'article_detail_screen.dart';
@@ -665,7 +666,7 @@ class _CommentIconsState extends State<CommentIcons> {
                 colorFilter: isToogled
                     ? const ColorFilter.mode(Colors.blue, BlendMode.srcIn)
                     : const ColorFilter.mode(Colors.black38, BlendMode.srcIn),
-                child: Image.asset('assets/Icons/like.png'),
+                child: Image.asset(AssetPaths.articleLikePng),
               ),
             ),
             const SizedBox(
@@ -738,7 +739,7 @@ class _ReplyCommentIconsState extends State<ReplyCommentIcons> {
                 colorFilter: isToogled
                     ? const ColorFilter.mode(Colors.blue, BlendMode.srcIn)
                     : const ColorFilter.mode(Colors.black38, BlendMode.srcIn),
-                child: Image.asset('assets/Icons/like.png'),
+                child: Image.asset(AssetPaths.articleLikePng),
               ),
             ),
             const SizedBox(

@@ -32,6 +32,11 @@ abstract final class AssetPaths {
   static const assessmentSummaryIllustration = 'assets/images/assessment_summary.svg';
   static const backToHomeIllustration = 'assets/images/back_to_home.svg';
 
+  /// Article UI (PNG). Use lowercase `assets/icons/` so builds work on
+  /// case-sensitive hosts; `assets/Icons/` duplicates can fail on some devices.
+  static const articleLikePng = 'assets/icons/like.png';
+  static const articleCommentPng = 'assets/icons/comment.png';
+
   static const githubLogo = 'assets/icons/github_logo.svg';
   static const chatBot = 'assets/Icons/bot.svg';
   static const barIndicatorUp = 'assets/Icons/bar_indicator.svg';

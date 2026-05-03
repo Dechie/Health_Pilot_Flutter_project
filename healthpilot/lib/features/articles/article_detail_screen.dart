@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/articles/article_comment_screen.dart';
 import 'package:healthpilot/features/articles/article_feed_item.dart';
 import 'package:share_plus/share_plus.dart';
@@ -125,7 +126,7 @@ class ArticleDetail extends StatelessWidget {
                                           Colors.white,
                                           BlendMode.srcIn,
                                         ),
-                                        child: Image.asset('assets/Icons/like.png'),
+                                        child: Image.asset(AssetPaths.articleLikePng),
                                       ),
                                       SizedBox(width: screenWidth * 0.02),
                                       Text(
@@ -162,7 +163,7 @@ class ArticleDetail extends StatelessWidget {
                                             );
                                           },
                                           child: Image.asset(
-                                            'assets/Icons/comment.png',
+                                            AssetPaths.articleCommentPng,
                                           ),
                                         ),
                                       ),
