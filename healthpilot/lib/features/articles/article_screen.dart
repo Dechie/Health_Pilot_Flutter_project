@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/articles/article_detail_screen.dart';
 import 'package:healthpilot/features/articles/article_feed_item.dart';
 import 'package:share_plus/share_plus.dart';
@@ -339,7 +340,7 @@ class ArticleCard extends StatelessWidget {
                               ColorFiltered(
                                 colorFilter:
                                     ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
-                                child: Image.asset('assets/Icons/like.png'),
+                                child: Image.asset(AssetPaths.articleLikePng),
                               ),
                               SizedBox(width: screenWidth * 0.02),
                               Text(
@@ -360,7 +361,7 @@ class ArticleCard extends StatelessWidget {
                               ColorFiltered(
                                 colorFilter:
                                     ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
-                                child: Image.asset('assets/Icons/comment.png'),
+                                child: Image.asset(AssetPaths.articleCommentPng),
                               ),
                               SizedBox(width: screenWidth * 0.02),
                               Text(

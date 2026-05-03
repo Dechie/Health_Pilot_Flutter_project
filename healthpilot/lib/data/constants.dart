@@ -31,6 +31,8 @@ const String forgotPasswordIllustration = AssetPaths.forgotPasswordIllustration;
 const String forgotPasswordCheckEmailIllustration =
     AssetPaths.forgotPasswordCheckEmailIllustration;
 
+const String articleLikePng = AssetPaths.articleLikePng;
+const String articleCommentPng = AssetPaths.articleCommentPng;
 const String githubLogo = AssetPaths.githubLogo;
 const String chatBot = AssetPaths.chatBot;
 const String barIndicatorUp = AssetPaths.barIndicatorUp;

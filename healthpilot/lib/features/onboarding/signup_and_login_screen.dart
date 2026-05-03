@@ -478,13 +478,14 @@ class PageTitles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Padding(
         padding: padding,
         child: Text(title,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'PlusJakartaSans',
-              color: const Color.fromRGBO(42, 42, 42, 1),
+              color: onSurface,
               fontSize: 22,
               fontWeight: FontWeight.w600,
               letterSpacing: -0.17,

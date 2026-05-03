@@ -129,7 +129,9 @@ class _MedicationScreenState extends State<MedicationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: cs.surface,
       body: SafeArea(child: LayoutBuilder(
         builder: (context, constraints) {
           final size = constraints.biggest;
@@ -153,7 +155,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                           width: screenWidth * 0.1,
                           height: screenWidth * 0.1,
                           decoration: BoxDecoration(
-                            color: const Color.fromRGBO(110, 182, 255, 0.25),
+                            color: cs.primary.withValues(alpha: 0.25),
                             borderRadius:
                                 BorderRadius.circular(screenWidth * 0.05),
                           ),
@@ -162,7 +164,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                               Navigator.of(context).pop();
                             },
                             icon: const Icon(Icons.arrow_back),
-                            color: const Color.fromRGBO(110, 182, 255, 1),
+                            color: cs.primary,
                             iconSize: screenWidth * 0.055,
                           ),
                         ),
@@ -181,6 +183,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                             fontSize: screenWidth * 0.05,
                             fontWeight: FontWeight.w700,
                             fontFamily: "PlusJakartaSans",
+                            color: cs.onSurface,
                           ),
                         ),
                       ),
@@ -193,9 +196,9 @@ class _MedicationScreenState extends State<MedicationScreen> {
                         screenWidth * 0.05,
                         screenHeight * 0.02,
                       ),
-                      child: const Texts(
+                      child: Texts(
                         fontSize: 18,
-                        color: Colors.black,
+                        color: cs.onSurface,
                         fontWeight: FontWeight.w500,
                         text: "Add your Medication",
                         align: TextAlign.left,
@@ -231,11 +234,11 @@ class _MedicationScreenState extends State<MedicationScreen> {
                             SizedBox(
                               height: screenHeight * 0.03,
                             ),
-                            const Align(
+                            Align(
                               alignment: Alignment.topCenter,
                               child: Texts(
                                 fontSize: 16,
-                                color: Colors.black,
+                                color: cs.onSurface,
                                 fontWeight: FontWeight.w500,
                                 text: "No Medications Found",
                                 align: TextAlign.center,
@@ -246,11 +249,11 @@ class _MedicationScreenState extends State<MedicationScreen> {
                                 horizontal: screenWidth * 0.12,
                                 vertical: screenHeight * 0.02,
                               ),
-                              child: const Align(
+                              child: Align(
                                 alignment: Alignment.topCenter,
                                 child: Texts(
                                   fontSize: 14,
-                                  color: Color.fromRGBO(42, 42, 42, 0.85),
+                                  color: cs.onSurfaceVariant,
                                   fontWeight: FontWeight.w400,
                                   text:
                                       "Search for your medications from our database and add them to track your health better",
@@ -293,9 +296,9 @@ class _MedicationScreenState extends State<MedicationScreen> {
                               itemCount: filteredMedications.length,
                               separatorBuilder:
                                   (BuildContext context, int index) {
-                                return const Divider(
+                                return Divider(
                                   height: 1,
-                                  color: Color.fromRGBO(42, 42, 42, 0.15),
+                                  color: cs.outline.withValues(alpha: 0.35),
                                 );
                               },
                             ),
@@ -373,15 +376,17 @@ class MedicationListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(
         medicationName,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'PlusJakartaSans',
           fontSize: 14,
           fontWeight: FontWeight.w400,
           letterSpacing: -0.2,
+          color: cs.onSurface,
         ),
       ),
       horizontalTitleGap: 5,
@@ -399,7 +404,15 @@ class MedicationListTile extends StatelessWidget {
             width: screenWidth * 0.03,
           ),
           GestureDetector(
-              onTap: onTap, child: SvgPicture.asset('assets/Icons/xmark.svg')),
+            onTap: onTap,
+            child: SvgPicture.asset(
+              'assets/Icons/xmark.svg',
+              colorFilter: ColorFilter.mode(
+                cs.onSurface,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
         ],
       ),
       onTap: onpressed,
@@ -495,10 +508,11 @@ class InputLabels extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Text(
       label,
-      style: const TextStyle(
-          color: Color.fromRGBO(42, 42, 42, 0.5),
+      style: TextStyle(
+          color: cs.onSurfaceVariant,
           fontSize: 14,
           fontFamily: 'PlusJakartaSans',
           fontWeight: FontWeight.w500,
@@ -571,6 +585,9 @@ class SearchInputField extends StatefulWidget {
 class _SearchInputFieldState extends State<SearchInputField> {
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final iconColor = cs.onSurface.withValues(alpha: 0.75);
+    final borderSide = BorderSide(width: 1, color: cs.outline);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.screenWidth * 0.04),
       child: Column(
@@ -582,12 +599,14 @@ class _SearchInputFieldState extends State<SearchInputField> {
               controller: widget.controller,
               textInputAction: widget.inputAction,
               keyboardType: TextInputType.text,
+              style: TextStyle(color: cs.onSurface),
               textAlignVertical: TextAlignVertical.bottom,
               decoration: InputDecoration(
+                filled: true,
+                fillColor: cs.surface,
                 hintText: widget.hintText,
-                hintStyle: const TextStyle(
-                  color: Color.fromRGBO(193, 193, 193, 1),
-
+                hintStyle: TextStyle(
+                  color: cs.onSurfaceVariant,
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
                   fontWeight: FontWeight.w300,
@@ -598,17 +617,27 @@ class _SearchInputFieldState extends State<SearchInputField> {
                     ? Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: widget.screenWidth * 0.03),
-                        child: const Icon(
-                          Icons.search,
-                          color: Color.fromRGBO(193, 193, 193, 1),
+                        child: Icon(
+                          widget.icon,
+                          color: iconColor,
                         ),
                       )
                     : null,
                 border: OutlineInputBorder(
-                    gapPadding: 12,
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                        width: 1, color: Color.fromRGBO(193, 193, 193, 1))),
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: borderSide,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: borderSide,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(width: 2, color: cs.primary),
+                ),
                 contentPadding: EdgeInsets.symmetric(
                   vertical: widget.screenHeight * 0.07, // No vertical padding
                   horizontal: widget.screenWidth * 0.07,
@@ -698,7 +727,9 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: cs.surface,
       body: SafeArea(child: LayoutBuilder(
         builder: (context, constraints) {
           final size = constraints.biggest;
@@ -721,7 +752,7 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
                         width: screenWidth * 0.1,
                         height: screenWidth * 0.1,
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(110, 182, 255, 0.25),
+                          color: cs.primary.withValues(alpha: 0.25),
                           borderRadius:
                               BorderRadius.circular(screenWidth * 0.05),
                         ),
@@ -730,7 +761,7 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
                             Navigator.of(context).pop();
                           },
                           icon: const Icon(Icons.arrow_back),
-                          color: const Color.fromRGBO(110, 182, 255, 1),
+                          color: cs.primary,
                           iconSize: screenWidth * 0.055,
                         ),
                       ),
@@ -749,6 +780,7 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
                           fontSize: screenWidth * 0.05,
                           fontWeight: FontWeight.w700,
                           fontFamily: "PlusJakartaSans",
+                          color: cs.onSurface,
                         ),
                       ),
                     ),
@@ -844,8 +876,9 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
                                         BorderRadius.all(Radius.circular(10))),
                                 elevation: 0,
                                 backgroundColor:
-                                    const Color.fromRGBO(110, 182, 255, 1),
-                                foregroundColor: Colors.white),
+                                    Theme.of(context).colorScheme.primary,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onPrimary),
                             onPressed: widget.existingMedication == null
                                 ? () {
                                     MedicationListProvider.addMedication(
@@ -970,6 +1003,8 @@ class _IcreamentDecreamentInputFieldState
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final borderSide = BorderSide(width: 1, color: cs.outline);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.screenWidth * 0.04),
       child: Column(
@@ -980,12 +1015,14 @@ class _IcreamentDecreamentInputFieldState
               controller: widget.controller,
               textInputAction: widget.inputAction,
               keyboardType: TextInputType.number, // Use number input type
+              style: TextStyle(color: cs.onSurface),
               textAlignVertical: TextAlignVertical.bottom,
               decoration: InputDecoration(
+                filled: true,
+                fillColor: cs.surface,
                 hintText: "Enter a number",
-                hintStyle: const TextStyle(
-                  color: Color.fromRGBO(193, 193, 193, 1),
-
+                hintStyle: TextStyle(
+                  color: cs.onSurfaceVariant,
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
                   fontWeight: FontWeight.w300,
@@ -1001,33 +1038,45 @@ class _IcreamentDecreamentInputFieldState
                     children: [
                       GestureDetector(
                           onTap: _incrementNumber,
-                          child: SvgPicture.asset('assets/Icons/up.svg')
-
-                          // const Icon(
-                          //   Icons.arrow_drop_up,
-                          //   color: Color.fromRGBO(193, 193, 193, 1),
-                          // ),
+                          child: SvgPicture.asset(
+                            'assets/Icons/up.svg',
+                            colorFilter: ColorFilter.mode(
+                              cs.onSurface.withValues(alpha: 0.75),
+                              BlendMode.srcIn,
+                            ),
+                          ),
                           ),
                       SizedBox(
                         height: widget.screenHeight * 0.007,
                       ),
                       GestureDetector(
                           onTap: _decrementNumber,
-                          child: SvgPicture.asset('assets/Icons/down.svg')
-
-                          // const Icon(
-                          //   Icons.arrow_drop_down,
-                          //   color: Color.fromRGBO(193, 193, 193, 1),
-                          // ,  )
+                          child: SvgPicture.asset(
+                            'assets/Icons/down.svg',
+                            colorFilter: ColorFilter.mode(
+                              cs.onSurface.withValues(alpha: 0.75),
+                              BlendMode.srcIn,
+                            ),
+                          ),
                           ),
                     ],
                   ),
                 ),
                 border: OutlineInputBorder(
-                    gapPadding: 12,
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                        width: 1, color: Color.fromRGBO(193, 193, 193, 1))),
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: borderSide,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: borderSide,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  gapPadding: 12,
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(width: 2, color: cs.primary),
+                ),
                 contentPadding: EdgeInsets.symmetric(
                   vertical: widget.screenHeight * 0.07, // No vertical padding
                   horizontal: widget.screenWidth * 0.07,

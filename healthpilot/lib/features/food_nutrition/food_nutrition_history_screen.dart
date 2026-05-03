@@ -94,6 +94,7 @@ class _HistoryScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.titleMedium;
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: SafeArea(
@@ -124,6 +125,7 @@ class _HistoryScaffold extends StatelessWidget {
                       translateIcon,
                       width: 24,
                       height: 24,
+                      color: scheme.onSurface,
                     ),
                   ),
                 ],

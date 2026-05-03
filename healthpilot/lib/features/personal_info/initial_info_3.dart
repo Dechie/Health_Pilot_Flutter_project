@@ -69,6 +69,8 @@ class _InitialInfoThird extends State<InitialInfoThird> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
+    final iconMuted = cs.onSurface.withValues(alpha: 0.75);
     _focusNode.addListener(
       () {
         if (_focusNode.hasFocus) {
@@ -80,6 +82,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
     );
 
     return Scaffold(
+      backgroundColor: cs.surface,
       appBar: (!textFieldIsOnfocused)
           ? PreferredSize(
               preferredSize: Size(double.infinity, size.height * 0.1),
@@ -100,7 +103,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                           width: size.width * 0.1,
                           height: size.width * 0.1,
                           decoration: BoxDecoration(
-                            color: const Color.fromRGBO(110, 182, 255, 0.25),
+                            color: cs.primary.withValues(alpha: 0.25),
                             borderRadius:
                                 BorderRadius.circular(size.width * 0.05),
                           ),
@@ -109,7 +112,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                               Navigator.of(context).pop();
                             },
                             icon: const Icon(Icons.arrow_back),
-                            color: const Color.fromRGBO(110, 182, 255, 1),
+                            color: cs.primary,
                             iconSize: size.width * 0.055,
                           ),
                         ),
@@ -126,14 +129,21 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                               fontSize: size.width * 0.05,
                               fontWeight: FontWeight.w600,
                               fontFamily: "PlusJakartaSans",
+                              color: cs.onSurface,
                             ),
                           ),
                         ),
                       ],
                     ),
                     SvgPicture.asset(
-                      'assets/images/Vector.svg',
-                      fit: BoxFit.cover,
+                      translateIcon,
+                      width: size.width * 0.045,
+                      height: size.width * 0.045,
+                      fit: BoxFit.contain,
+                      colorFilter: ColorFilter.mode(
+                        cs.onSurface,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ],
                 ),
@@ -153,12 +163,13 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                  child: const Text(
+                  child: Text(
                     "Do you have any allergies?",
                     style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: Colors.black),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: cs.onSurface,
+                    ),
                     textAlign: TextAlign.left,
                     maxLines: 2,
                   ),
@@ -174,39 +185,52 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                     setState(() {});
                   },
                   focusNode: _focusNode,
+                  style: TextStyle(color: cs.onSurface),
                   decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                      border: OutlineInputBorder(
-                        // Use OutlineInputBorder for visible borders
-                        borderSide: const BorderSide(
-                            color: Color.fromRGBO(41, 41, 41, 0.5)),
-                        borderRadius: BorderRadius.circular(
-                            13.0), // Adjust the radius as needed
+                    filled: true,
+                    fillColor: cs.surface,
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 10),
+                    hintText: 'Search Allergies',
+                    hintStyle: TextStyle(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 14,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: iconMuted,
+                    ),
+                    suffix: Container(
+                      padding: EdgeInsets.only(
+                        right: size.width * 0.02,
+                        top: size.width * 0.01,
                       ),
-                      hintText: 'Search Allergies',
-                      hintStyle: const TextStyle(
-                          fontWeight: FontWeight.w300, fontSize: 14),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Color.fromRGBO(41, 41, 41, 0.5),
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            searchController.text = '';
+                          });
+                        },
+                        child: Icon(
+                          Icons.highlight_remove_rounded,
+                          color: iconMuted,
+                        ),
                       ),
-                      suffix: Container(
-                        padding: EdgeInsets.only(
-                          right: size.width * 0.02,
-                          top: size.width * 0.01,
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              searchController.text = '';
-                            });
-                          },
-                          child: const Icon(
-                            Icons.highlight_remove_rounded,
-                            color: Color.fromRGBO(41, 41, 41, 0.5),
-                          ),
-                        ),
-                      )),
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: cs.outline),
+                      borderRadius: BorderRadius.circular(13.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: cs.outline),
+                      borderRadius: BorderRadius.circular(13.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: cs.primary, width: 2),
+                      borderRadius: BorderRadius.circular(13.0),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: size.height * 0.03),
@@ -220,12 +244,13 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (searchController.text.isNotEmpty)
-                            const Text(
+                            Text(
                               'Choose all that apply:',
                               style: TextStyle(
                                 fontFamily: ' PlusJakartaSans',
                                 fontSize: 16.0,
                                 fontWeight: FontWeight.w600,
+                                color: cs.onSurface,
                               ),
                             ),
                           if (searchController.text.isNotEmpty)
@@ -238,23 +263,25 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                                             MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(itemNotFound),
-                                          const Text(
+                                          Text(
                                             'No match found',
                                             style: TextStyle(
                                               fontFamily: ' PlusJakartaSans',
                                               fontSize: 20.0,
                                               fontWeight: FontWeight.w400,
+                                              color: cs.onSurface,
                                             ),
                                           ),
                                           SizedBox(height: size.height * 0.005),
                                           SizedBox(
                                             width: size.width * 0.5,
-                                            child: const Text(
+                                            child: Text(
                                               'Make sure you spell your allergy correctly',
                                               style: TextStyle(
                                                 fontFamily: ' PlusJakartaSans',
                                                 fontSize: 14.0,
                                                 fontWeight: FontWeight.w300,
+                                                color: cs.onSurfaceVariant,
                                               ),
                                               textAlign: TextAlign.center,
                                             ),
@@ -270,18 +297,21 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                                         return Column(
                                           children: [
                                             ListTile(
-                                              title: Text(allergy),
+                                              title: Text(
+                                                allergy,
+                                                style: TextStyle(
+                                                  color: cs.onSurface,
+                                                ),
+                                              ),
                                               trailing: selectedAllergies
                                                       .contains(allergy)
-                                                  ? const Icon(
+                                                  ? Icon(
                                                       Icons.add_circle,
-                                                      color: Color.fromRGBO(
-                                                          110, 182, 255, 1),
+                                                      color: cs.primary,
                                                     )
-                                                  : const Icon(
+                                                  : Icon(
                                                       Icons.add_circle_outline,
-                                                      color: Color.fromRGBO(
-                                                          110, 182, 255, 1),
+                                                      color: cs.primary,
                                                     ),
                                               onTap: () {
                                                 setState(() {
@@ -302,7 +332,10 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                                                 left: size.width * 0.04,
                                               ),
                                               child: Divider(
-                                                  height: size.width * 0.02),
+                                                height: size.width * 0.02,
+                                                color: cs.outline
+                                                    .withValues(alpha: 0.35),
+                                              ),
                                             ),
                                           ],
                                         );
@@ -313,12 +346,13 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                           if (selectedAllergies.isNotEmpty &&
                               !textFieldIsOnfocused &&
                               searchController.text.isEmpty)
-                            const Text(
+                            Text(
                               'Selected Allergies:',
                               style: TextStyle(
                                 fontFamily: ' PlusJakartaSans',
                                 fontSize: 16.0,
                                 fontWeight: FontWeight.w600,
+                                color: cs.onSurface,
                               ),
                             ),
 
@@ -335,11 +369,16 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                                     return Column(
                                       children: [
                                         ListTile(
-                                          title: Text(allergy),
+                                          title: Text(
+                                            allergy,
+                                            style: TextStyle(
+                                              color: cs.onSurface,
+                                            ),
+                                          ),
                                           trailing: IconButton(
-                                            icon: const Icon(
+                                            icon: Icon(
                                               Icons.highlight_remove_rounded,
-                                              color: Colors.red,
+                                              color: cs.error,
                                             ),
                                             onPressed: () {
                                               setState(() {
@@ -355,7 +394,10 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                                             left: size.width * 0.04,
                                           ),
                                           child: Divider(
-                                              height: size.width * 0.02),
+                                            height: size.width * 0.02,
+                                            color: cs.outline
+                                                .withValues(alpha: 0.35),
+                                          ),
                                         ),
                                       ],
                                     );
@@ -373,23 +415,25 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'No allergies added',
                             style: TextStyle(
                               fontFamily: ' PlusJakartaSans',
                               fontSize: 20.0,
                               fontWeight: FontWeight.w400,
+                              color: cs.onSurface,
                             ),
                           ),
                           SizedBox(height: size.height * 0.005),
                           SizedBox(
                             width: size.width * 0.5,
-                            child: const Text(
+                            child: Text(
                               'Search the allergies you have and press the + button to add them',
                               style: TextStyle(
                                 fontFamily: ' PlusJakartaSans',
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w300,
+                                color: cs.onSurfaceVariant,
                               ),
                             ),
                           )
@@ -408,14 +452,17 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromRGBO(110, 182, 255, 1),
-                      foregroundColor: Colors.white,
+                      backgroundColor: cs.primary,
+                      foregroundColor: cs.onPrimary,
                       padding: EdgeInsets.symmetric(
                           horizontal: MediaQuery.of(context).size.width * 0.25,
                           vertical: MediaQuery.of(context).size.height * 0.015),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10))),
-                  child: const Text('Finish'),
+                  child: Text(
+                    'Finish',
+                    style: TextStyle(color: cs.onPrimary),
+                  ),
                 ),
               ),
             ],

@@ -102,6 +102,7 @@ class _FoodNutritionTrackingScreenState
                       translateIcon,
                       width: 24,
                       height: 24,
+                      color: scheme.onSurface,
                     ),
                   ),
                 ],
