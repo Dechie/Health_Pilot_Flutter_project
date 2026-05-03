@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/profile/personal_info_contact_models.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:intl_mobile_field/mobile_number.dart';
@@ -116,8 +117,9 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     final initial = widget.initial;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -161,6 +163,7 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                           fontSize: size.width * 0.05,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'PlusJakartaSans',
+                          color: cs.onSurface,
                         ),
                       ),
                     ),
@@ -168,8 +171,14 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                 ],
               ),
               SvgPicture.asset(
-                'assets/images/Vector.svg',
-                fit: BoxFit.cover,
+                translateIcon,
+                width: size.width * 0.045,
+                height: size.width * 0.045,
+                fit: BoxFit.contain,
+                colorFilter: ColorFilter.mode(
+                  cs.onSurface,
+                  BlendMode.srcIn,
+                ),
               ),
             ],
           ),
@@ -190,7 +199,7 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                   label: 'First Name',
                   child: TextFormField(
                     controller: _firstName,
-                    decoration: _inputDecoration(size),
+                    decoration: _inputDecoration(context, size),
                     keyboardType: TextInputType.name,
                     textInputAction: TextInputAction.next,
                     validator: (v) => validateRequiredName(v, 'First name'),
@@ -201,7 +210,7 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                   label: 'Last Name',
                   child: TextFormField(
                     controller: _lastName,
-                    decoration: _inputDecoration(size),
+                    decoration: _inputDecoration(context, size),
                     keyboardType: TextInputType.name,
                     textInputAction: TextInputAction.next,
                     validator: (v) => validateRequiredName(v, 'Last name'),
@@ -212,7 +221,7 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                   label: 'Relationship (optional)',
                   child: TextFormField(
                     controller: _relationship,
-                    decoration: _inputDecoration(size).copyWith(
+                    decoration: _inputDecoration(context, size).copyWith(
                       hintText: 'e.g. Spouse, Parent, Friend',
                     ),
                     keyboardType: TextInputType.text,
@@ -224,17 +233,17 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                   label: 'Email',
                   child: TextFormField(
                     controller: _email,
-                    decoration: _inputDecoration(size),
+                    decoration: _inputDecoration(context, size),
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     validator: validateEmail,
                   ),
                 ),
                 SizedBox(height: size.height * 0.03),
-                const Text(
+                Text(
                   'Phone Number',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w400,
                     fontFamily: 'Plus Jakarta Sans',
                     fontSize: 14,
@@ -246,7 +255,7 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                   initialCountryCode: 'ET',
                   disableLengthCheck: false,
                   dropdownIconPosition: Position.trailing,
-                  decoration: _inputDecoration(size),
+                  decoration: _inputDecoration(context, size),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
                   validator: validateMobileNumber,
@@ -278,28 +287,34 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
     );
   }
 
-  static InputDecoration _inputDecoration(Size size) {
+  static InputDecoration _inputDecoration(BuildContext context, Size size) {
+    final cs = Theme.of(context).colorScheme;
+    final border = OutlineInputBorder(
+      borderSide: BorderSide(color: cs.outline),
+    );
     return InputDecoration(
       contentPadding: EdgeInsets.symmetric(
         vertical: size.height * 0.015,
         horizontal: size.width * 0.03,
       ),
-      border: const OutlineInputBorder(),
+      border: border,
+      enabledBorder: border,
       isDense: true,
-      focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Color.fromARGB(255, 214, 210, 210)),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: cs.primary, width: 2),
       ),
     );
   }
 
   Widget _labeledField({required String label, required Widget child}) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            color: cs.onSurfaceVariant,
             fontWeight: FontWeight.w400,
             fontFamily: 'Plus Jakarta Sans',
             fontSize: 14,

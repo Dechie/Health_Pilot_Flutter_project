@@ -6,6 +6,7 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
+import 'package:healthpilot/core/widgets/setup_promo_card.dart';
 
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
@@ -87,6 +88,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -133,20 +136,28 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         fontSize: size.width * 0.05,
                         fontWeight: FontWeight.w600,
                         fontFamily: "PlusJakartaSans",
+                        color: cs.onSurface,
                       ),
                     ),
                   ),
                 ],
               ),
               SvgPicture.asset(
-                'assets/images/Vector.svg',
-                fit: BoxFit.cover,
+                translateIcon,
+                width: size.width * 0.045,
+                height: size.width * 0.045,
+                fit: BoxFit.contain,
+                colorFilter: ColorFilter.mode(
+                  cs.onSurface,
+                  BlendMode.srcIn,
+                ),
               ),
             ],
           ),
         ),
       ),
       body: SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: 24 + bottomInset),
         child: Column(
           children: [
             SizedBox(
@@ -220,10 +231,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'First Name',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: cs.onSurfaceVariant,
                             fontWeight: FontWeight.w400,
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 14,
@@ -255,10 +266,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Last Name',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: cs.onSurfaceVariant,
                             fontWeight: FontWeight.w400,
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 14,
@@ -290,10 +301,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Email',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: cs.onSurfaceVariant,
                             fontWeight: FontWeight.w400,
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 14,
@@ -325,10 +336,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Phone Number',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: cs.onSurfaceVariant,
                             fontWeight: FontWeight.w400,
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 14,
@@ -361,10 +372,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Personal Doctor',
                           style: TextStyle(
-                              fontWeight: FontWeight.w500, fontSize: 16),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: cs.onSurface,
+                          ),
                         ),
                         IconButton(
                           onPressed: () {
@@ -380,9 +394,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                             }
                             _addOrEditDoctor();
                           },
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.add_circle_outline,
-                            color: Colors.black,
+                            color: cs.onSurface,
                           ),
                         ),
                       ],
@@ -533,10 +547,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Food and Nutrition Tracking',
                           style: TextStyle(
-                              fontWeight: FontWeight.w500, fontSize: 16),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: cs.onSurface,
+                          ),
                         ),
                         IconButton(
                           onPressed: () {
@@ -558,87 +575,23 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     SizedBox(
                       height: size.height * 0.03,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(size.width * 0.02),
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color.fromRGBO(183, 216, 249, 0.786),
-                              Color.fromRGBO(255, 255, 255, 1)
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          )),
+                    SetupPromoCard(
+                      screenWidth: size.width,
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        // crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              'Set up food and nutrition tracking',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                color: Color.fromRGBO(42, 42, 42, 1),
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontSize: 16,
-                                height: 0.2,
-                                letterSpacing: -0.17,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
+                      expandVertically: true,
+                      margin: EdgeInsets.zero,
+                      title: SetupPromoCardCopy.foodNutritionTitle,
+                      description: SetupPromoCardCopy.foodNutritionDescription,
+                      icon: null,
+                      buttonText: 'Start setup',
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                const FoodNutritionTrackingScreen(),
                           ),
-                          SizedBox(
-                            height: size.height * 0.02,
-                          ),
-                          const Text(
-                            'Start setting up your food and nutrition tracking to keep hold of your data on what u eat and drink.',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              fontFamily: 'Plus Jakarta Sans',
-                              color: Color.fromRGBO(42, 42, 42, 0.75),
-                              fontSize: 13,
-                              height: 1.3,
-                              letterSpacing: -0.17,
-                            ),
-                            textAlign: TextAlign.justify,
-                          ),
-                          SizedBox(
-                            height: size.height * 0.03,
-                          ),
-                          SizedBox(
-                            height: size.height * 0.045,
-                            width: size.width * 0.35,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                    builder: (context) =>
-                                        const FoodNutritionTrackingScreen(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromRGBO(110, 182, 255, 1),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 25,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(3))),
-                              child: const Text('Start Setup',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 11,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                  )),
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                     SizedBox(
                       height: size.height * 0.07,

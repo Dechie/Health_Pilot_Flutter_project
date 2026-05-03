@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/profile/personal_info_contact_models.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:intl_mobile_field/mobile_number.dart';
@@ -150,8 +151,7 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
     }
 
     final entry = PersonalDoctorEntry(
-      id: widget.initial?.id ??
-          DateTime.now().microsecondsSinceEpoch.toString(),
+      id: widget.initial?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
       firstName: _firstName.text.trim(),
       lastName: _lastName.text.trim(),
       profession: profession,
@@ -168,14 +168,15 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     final initial = widget.initial;
+    final cs = Theme.of(context).colorScheme;
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: 20, vertical: size.width * 0.08),
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: size.width * 0.08),
           child: Form(
             key: _formKey,
             child: Column(
@@ -192,8 +193,7 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                           height: size.width * 0.1,
                           decoration: BoxDecoration(
                             color: const Color.fromRGBO(110, 182, 255, 0.25),
-                            borderRadius:
-                                BorderRadius.circular(size.width * 0.05),
+                            borderRadius: BorderRadius.circular(size.width * 0.05),
                           ),
                           child: IconButton(
                             onPressed: () => Navigator.of(context).pop(),
@@ -205,21 +205,26 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
                           child: Text(
-                            initial == null
-                                ? 'Setup Personal Doctor'
-                                : 'Edit Personal Doctor',
+                            initial == null ? 'Setup Personal Doctor' : 'Edit Personal Doctor',
                             style: TextStyle(
                               fontSize: size.width * 0.05,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'PlusJakartaSans',
+                              color: cs.onSurface,
                             ),
                           ),
                         ),
                       ],
                     ),
                     SvgPicture.asset(
-                      'assets/images/Vector.svg',
-                      fit: BoxFit.cover,
+                      translateIcon,
+                      width: size.width * 0.045,
+                      height: size.width * 0.045,
+                      fit: BoxFit.contain,
+                      colorFilter: ColorFilter.mode(
+                        cs.onSurface,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ],
                 ),
@@ -237,55 +242,59 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                   ),
                 ],
                 SizedBox(height: size.height * 0.03),
-                _fieldLabel('First Name'),
+                _fieldLabel(context, 'First Name'),
                 TextFormField(
                   controller: _firstName,
-                  decoration: _decoration(size),
+                  decoration: _decoration(context, size),
                   keyboardType: TextInputType.name,
                   textInputAction: TextInputAction.next,
                   validator: (v) => validateRequiredName(v, 'First name'),
                 ),
                 SizedBox(height: size.height * 0.03),
-                _fieldLabel('Last Name'),
+                _fieldLabel(context, 'Last Name'),
                 TextFormField(
                   controller: _lastName,
-                  decoration: _decoration(size),
+                  decoration: _decoration(context, size),
                   keyboardType: TextInputType.name,
                   textInputAction: TextInputAction.next,
                   validator: (v) => validateRequiredName(v, 'Last name'),
                 ),
                 SizedBox(height: size.height * 0.03),
-                _fieldLabel('Personal Doctor Type'),
+                _fieldLabel(context, 'Personal Doctor Type'),
                 CustomDropDownTextFild(
                   customDropDownModels: _professions,
                   initialProfession: initial?.profession,
                   onProfessionSelected: _onProfessionChanged,
                 ),
                 SizedBox(height: size.height * 0.03),
-                _fieldLabel('Email'),
+                _fieldLabel(context, 'Email'),
                 TextFormField(
                   controller: _email,
-                  decoration: _decoration(size),
+                  decoration: _decoration(context, size),
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   validator: validateEmail,
                 ),
                 SizedBox(height: size.height * 0.03),
-                _fieldLabel('Phone Number'),
+                _fieldLabel(context, 'Phone Number'),
                 IntlMobileField(
                   controller: _phoneController,
                   initialCountryCode: 'ET',
                   disableLengthCheck: false,
                   dropdownIconPosition: Position.trailing,
-                  decoration: _decoration(size),
+                  decoration: _decoration(context, size),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
                   validator: validateMobileNumber,
                 ),
                 SizedBox(height: size.height * 0.03),
-                const Text(
+                Text(
                   'How frequently do you want your report to be sent',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: cs.onSurface,
+                  ),
                 ),
                 SizedBox(height: size.height * 0.02),
                 SizedBox(
@@ -299,8 +308,8 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _radioRow(1, 'Daily', size),
-                            _radioRow(2, 'Weekly', size),
+                            _radioRow(context, 1, 'Daily', size),
+                            _radioRow(context, 2, 'Weekly', size),
                           ],
                         ),
                       ),
@@ -309,15 +318,15 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _radioRow(3, 'Bi-Week', size),
-                            _radioRow(4, 'Monthly', size),
+                            _radioRow(context, 3, 'Bi-Week', size),
+                            _radioRow(context, 4, 'Monthly', size),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: size.height * 0.1),
+                SizedBox(height: size.height * 0.028),
                 ElevatedButton(
                   onPressed: _onSave,
                   style: ElevatedButton.styleFrom(
@@ -339,6 +348,7 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                     ),
                   ),
                 ),
+                SizedBox(height: 20 + bottomInset),
               ],
             ),
           ),
@@ -347,7 +357,8 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
     );
   }
 
-  Widget _radioRow(int value, String label, Size size) {
+  Widget _radioRow(BuildContext context, int value, String label, Size size) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -359,19 +370,24 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
         SizedBox(width: size.width * 0.02),
         Text(
           label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: cs.onSurface,
+          ),
         ),
       ],
     );
   }
 
-  static Widget _fieldLabel(String text) {
+  static Widget _fieldLabel(BuildContext context, String text) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Colors.black,
+        style: TextStyle(
+          color: cs.onSurfaceVariant,
           fontWeight: FontWeight.w400,
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 14,
@@ -380,16 +396,21 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
     );
   }
 
-  static InputDecoration _decoration(Size size) {
+  static InputDecoration _decoration(BuildContext context, Size size) {
+    final cs = Theme.of(context).colorScheme;
+    final border = OutlineInputBorder(
+      borderSide: BorderSide(color: cs.outline),
+    );
     return InputDecoration(
       contentPadding: EdgeInsets.symmetric(
         vertical: size.height * 0.015,
         horizontal: size.width * 0.03,
       ),
-      border: const OutlineInputBorder(),
+      border: border,
+      enabledBorder: border,
       isDense: true,
-      focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: cs.primary, width: 2),
       ),
     );
   }
@@ -414,7 +435,8 @@ class CustomRadioBtn extends StatefulWidget {
 class _CustomRadioBtnState extends State<CustomRadioBtn> {
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
+    final outline = Theme.of(context).colorScheme.outline;
     return GestureDetector(
       onTap: () => widget.onChanged(widget.value),
       child: Container(
@@ -424,7 +446,7 @@ class _CustomRadioBtnState extends State<CustomRadioBtn> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(size.height * 0.125),
           border: Border.all(
-            color: const Color.fromARGB(23, 0, 0, 0),
+            color: outline.withValues(alpha: 0.55),
             width: 2,
           ),
         ),
@@ -489,7 +511,7 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
   }
 
   void _showDialog() {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     final searchController = TextEditingController();
 
     showDialog<void>(
@@ -498,6 +520,7 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
+            final cs = Theme.of(context).colorScheme;
             final q = searchController.text.toLowerCase();
             final filtered = widget.customDropDownModels
                 .where((e) => e.name.toLowerCase().contains(q))
@@ -512,10 +535,18 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
                   children: [
                     TextField(
                       controller: searchController,
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: cs.onSurface),
+                      decoration: InputDecoration(
                         hintText: 'Search profession',
-                        prefixIcon: Icon(Icons.search, size: 20),
-                        border: OutlineInputBorder(),
+                        hintStyle: TextStyle(color: cs.onSurfaceVariant),
+                        prefixIcon: Icon(Icons.search, size: 20, color: cs.onSurfaceVariant),
+                        border: const OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: cs.outline),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: cs.primary, width: 2),
+                        ),
                         isDense: true,
                       ),
                       onChanged: (_) => setDialogState(() {}),
@@ -532,19 +563,14 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
                             title: Text(
                               item.name,
                               style: TextStyle(
-                                color: isSel
-                                    ? const Color.fromRGBO(110, 182, 255, 1)
-                                    : Colors.black,
+                                color: isSel ? cs.primary : cs.onSurface,
                                 fontWeight: FontWeight.w400,
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontSize: 14,
                               ),
                             ),
                             trailing: isSel
-                                ? const Icon(
-                                    Icons.check,
-                                    color: Color.fromRGBO(110, 182, 255, 1),
-                                  )
+                                ? Icon(Icons.check, color: cs.primary)
                                 : null,
                             onTap: () {
                               _onTap(item.value);
@@ -572,17 +598,23 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
+    final cs = Theme.of(context).colorScheme;
+    final border = OutlineInputBorder(
+      borderSide: BorderSide(color: cs.outline),
+    );
     return TextFormField(
       controller: _textEditingController,
       readOnly: true,
+      style: TextStyle(color: cs.onSurface),
       decoration: InputDecoration(
         suffixIcon: GestureDetector(
           onTap: _showDialog,
-          child: const Icon(Icons.expand_more, size: 24),
+          child: Icon(Icons.expand_more, size: 24, color: cs.onSurface),
         ),
         hintText: 'Select doctor profession',
-        hintStyle: const TextStyle(
+        hintStyle: TextStyle(
+          color: cs.onSurfaceVariant,
           fontWeight: FontWeight.w400,
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 14,
@@ -591,10 +623,11 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
           vertical: size.height * 0.015,
           horizontal: size.width * 0.03,
         ),
-        border: const OutlineInputBorder(),
+        border: border,
+        enabledBorder: border,
         isDense: true,
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: cs.primary, width: 2),
         ),
       ),
     );

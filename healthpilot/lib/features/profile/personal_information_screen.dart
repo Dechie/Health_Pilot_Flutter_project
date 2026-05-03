@@ -22,11 +22,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:healthpilot/core/widgets/setup_promo_card.dart';
+import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
+import 'package:healthpilot/features/personal_doctor/setup_personal_doctor.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
-import 'package:healthpilot/features/profile/personal_doctor_personal_information.dart'
-    as doctor;
 import 'package:healthpilot/features/profile/emergency_contact_personal_information.dart'
     as contact;
 import 'package:image_picker/image_picker.dart';
@@ -44,8 +45,6 @@ class PersonalInformationScreen extends StatefulWidget {
 }
 
 class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
-  final bool _isPersonalDoctorSubscribed = false;
-
   String? _profileImagePath;
 
   Future<void> _pickProfilePhoto() async {
@@ -131,6 +130,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -182,6 +182,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                             fontSize: screenWidth * 0.05,
                             fontWeight: FontWeight.w600,
                             fontFamily: "PlusJakartaSans",
+                            color: cs.onSurface,
                           ),
                         ),
                       ),
@@ -194,8 +195,12 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                           width: screenWidth * 0.04,
                           height: screenWidth * 0.04,
                           child: SvgPicture.asset(
-                            'assets/images/Vector.svg',
-                            fit: BoxFit.cover,
+                            translateIcon,
+                            fit: BoxFit.contain,
+                            colorFilter: ColorFilter.mode(
+                              cs.onSurface,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                       ),
@@ -257,7 +262,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                         fontFamily: "PlusJakartaSans",
                         fontWeight: FontWeight.w400,
                         fontSize: screenWidth * 0.041,
-                        color: const Color.fromRGBO(42, 42, 42, 0.5),
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -297,64 +302,41 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     screenHeight: screenHeight,
                     keyboardType: TextInputType.phone,
                   ),
-                  SubscriptionCard(
+                  SetupPromoCard(
                     screenWidth: screenWidth,
                     title: "Set up your Emergency Contacts",
                     description:
-                        "Start setting up your personal doctor to send health reports and various features.",
+                        "Add trusted contacts so HealthPilot can reach them in an emergency.",
                     icon: null,
-                    buttontxt: "Start setup",
-                    subscription: () {
-                      // Navigator.of(context).push(MaterialPageRoute(
-                      //     builder: (context) =>
-                      //         const emergency.PersonalInformation()
-                      // ));
+                    buttonText: "Start setup",
+                    onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) =>
                               const contact.PersonalInformation()));
                     },
                   ),
-                  SubscriptionCard(
+                  SetupPromoCard(
                     screenWidth: screenWidth,
                     title: "Set up your  personal doctor",
-                    description: _isPersonalDoctorSubscribed
-                        ? "Start setting up your personal doctor to send health reports and various features."
-                        : "This feature is only available to premium subscribers. Subscribe to HealthPilot Premium to gain access.",
-                    icon: _isPersonalDoctorSubscribed
-                        ? null
-                        : Icons.lock_outlined,
-                    buttontxt: _isPersonalDoctorSubscribed
-                        ? "Start setup"
-                        : "Subscribe",
-                    subscription: () {
-                      // _isPersonalDoctorSubscribed == true
-                      //     ? Navigator.of(context).push(MaterialPageRoute(
-                      //         builder: (context) =>
-                      //             const doctor.PersonalInformation()))
-                      //     : setState(() {
-                      //         _isPersonalDoctorSubscribed =
-                      //             !_isPersonalDoctorSubscribed;
-                      //         Navigator.of(context).push(MaterialPageRoute(
-                      //             builder: (context) =>
-                      //                 const PaymentMethodScreen()));
-                      //       });
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const doctor.PersonalInformation(),
+                    description:
+                        "Add your doctor’s details so HealthPilot can include them in reports and care coordination.",
+                    icon: null,
+                    buttonText: "Start setup",
+                    onPressed: () {
+                      Navigator.of(context).push<void>(
+                        MaterialPageRoute<void>(
+                          builder: (context) => const SetupPersonalDoctor(),
                         ),
                       );
                     },
                   ),
-                  SubscriptionCard(
+                  SetupPromoCard(
                     screenWidth: screenWidth,
-                    title: "Set up food and nutrition tracking",
-                    description:
-                        "Choose how often you get reports, optional meal-time reminders on this device, and diets you follow. "
-                        "This screen does not require a subscription.",
+                    title: SetupPromoCardCopy.foodNutritionTitle,
+                    description: SetupPromoCardCopy.foodNutritionDescription,
                     icon: null,
-                    buttontxt: "Start setup",
-                    subscription: () {
+                    buttonText: "Start setup",
+                    onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (context) =>
@@ -456,6 +438,7 @@ class InputFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
       child: Column(
@@ -467,10 +450,12 @@ class InputFields extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text(
                   label,
-                  style: const TextStyle(
-                      fontFamily: "PlusJakartaSans",
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    fontFamily: "PlusJakartaSans",
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
@@ -532,6 +517,7 @@ class PhoneInputFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
       child: Column(
@@ -543,10 +529,12 @@ class PhoneInputFields extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text(
                   label,
-                  style: const TextStyle(
-                      fontFamily: "PlusJakartaSans",
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    fontFamily: "PlusJakartaSans",
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
@@ -568,138 +556,6 @@ class PhoneInputFields extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// SubscriptionCard
-///
-/// A widget for displaying subscription plan information in a card format.
-///
-/// This widget provides a card layout to showcase subscription plans. It
-/// displays the plan's title, description, an icon, and a subscription button.
-///
-/// Properties:
-/// - `screenWidth` (required): The screen width to calculate the card width.
-/// - `title` (required): The title of the subscription plan.
-/// - `description` (required): The description of the subscription plan.
-/// - `icon` (required): The icon representing the subscription plan.
-/// - `buttontxt` (required): The text for the subscription button.
-/// - `subscription` (required): The callback function when the button is pressed.
-///
-/// Usage:
-/// This widget can be used in different parts of the app to display various
-/// subscription plans available to users. It provides a visual representation
-/// of the plan along with its details and a button for users to subscribe.
-
-class SubscriptionCard extends StatefulWidget {
-  final double screenWidth;
-  final String title; // Add explicit type
-  final String description; // Add explicit type
-  final IconData? icon; // Add explicit type
-  final String buttontxt;
-  final VoidCallback subscription;
-
-  const SubscriptionCard(
-      {super.key,
-      required this.screenWidth,
-      required this.title,
-      required this.description,
-      required this.icon,
-      required this.buttontxt,
-      required this.subscription});
-
-  @override
-  State<SubscriptionCard> createState() => _SubscriptionCardState();
-}
-
-class _SubscriptionCardState extends State<SubscriptionCard> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30, left: 7, right: 8),
-      child: Container(
-        width: widget.screenWidth * 0.9,
-        height: 167,
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(110, 182, 255, 0.3),
-              Color.fromRGBO(110, 182, 255, 0.26),
-              Color.fromRGBO(110, 182, 255, 0.08),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 13, left: 9),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.title,
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(
-                      fontFamily: "PlusJakartaSans",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(right: 16), // Add right padding
-                    child: Icon(widget.icon),
-                  ), // Removed unnecessary 'as IconData?'
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 13,
-                left: 9,
-              ),
-              child: Text(
-                widget.description,
-                style: const TextStyle(
-                  fontFamily: "PlusJakartaSans",
-                  color: Color.fromARGB(132, 0, 0, 0),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const Spacer(),
-            Container(
-              width: widget.screenWidth * 0.3,
-              height: widget.screenWidth * 0.08,
-              margin: EdgeInsets.only(bottom: widget.screenWidth * 0.02),
-              child: ElevatedButton(
-                onPressed: widget.subscription,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(110, 182, 255, 1),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: widget.screenWidth * 0.01),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5))),
-                child: Text(
-                  widget.buttontxt,
-                  style: const TextStyle(
-                    fontFamily: "PlusJakartaSans",
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -855,7 +711,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         screenHeight: screenHeight,
                         isChecked: isChappaChecked,
                         icons: null,
-                        pngAssetPath: "assets/Icons/chapa.png",
+                        pngAssetPath: "assets/Icons/chapa.svg",
                         checker: () {
                           setState(() {
                             isPaymentChecked = false;
@@ -1258,6 +1114,7 @@ class PaymentMethodButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: checker,
       child: Padding(
@@ -1271,11 +1128,11 @@ class PaymentMethodButtons extends StatelessWidget {
             border: Border.all(
                 color: isChecked
                     ? const Color.fromRGBO(110, 182, 255, 1)
-                    : const Color.fromRGBO(42, 42, 42, 0.25),
+                    : cs.outline.withValues(alpha: 0.5),
                 width: 1),
             color: isChecked
                 ? const Color.fromRGBO(110, 182, 255, 1)
-                : Colors.white,
+                : cs.surfaceContainerHighest,
             boxShadow: const [
               BoxShadow(
                 color: Colors.white,
@@ -1285,21 +1142,32 @@ class PaymentMethodButtons extends StatelessWidget {
           ),
           child: Center(
             child: pngAssetPath != null
-                ? ColorFiltered(
-                    colorFilter: isChecked
-                        ? const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          )
-                        : const ColorFilter.mode(
-                            Color.fromRGBO(110, 182, 255, 1),
-                            BlendMode.srcIn,
-                          ),
-                    child: Image.asset(
-                      pngAssetPath!,
-                      // fit: BoxFit.cover,
-                    ), // Replace with your image asset
-                  )
+                ? (pngAssetPath!.toLowerCase().endsWith('.svg')
+                    ? SvgPicture.asset(
+                        pngAssetPath!,
+                        width: screenWidth * 0.09,
+                        height: screenWidth * 0.09,
+                        colorFilter: ColorFilter.mode(
+                          isChecked
+                              ? Colors.white
+                              : const Color.fromRGBO(110, 182, 255, 1),
+                          BlendMode.srcIn,
+                        ),
+                      )
+                    : ColorFiltered(
+                        colorFilter: isChecked
+                            ? const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
+                              )
+                            : const ColorFilter.mode(
+                                Color.fromRGBO(110, 182, 255, 1),
+                                BlendMode.srcIn,
+                              ),
+                        child: Image.asset(
+                          pngAssetPath!,
+                        ),
+                      ))
                 : Icon(
                     icons,
                     color: isChecked
