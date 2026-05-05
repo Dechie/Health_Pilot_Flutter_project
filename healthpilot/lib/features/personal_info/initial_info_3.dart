@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_4.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 
 class InitialInfoThird extends StatefulWidget {
@@ -135,14 +136,17 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                         ),
                       ],
                     ),
-                    SvgPicture.asset(
-                      translateIcon,
-                      width: size.width * 0.045,
-                      height: size.width * 0.045,
-                      fit: BoxFit.contain,
-                      colorFilter: ColorFilter.mode(
-                        cs.onSurface,
-                        BlendMode.srcIn,
+                    GestureDetector(
+                      onTap: () => openLanguageScreen(context),
+                      child: SvgPicture.asset(
+                        translateIcon,
+                        width: size.width * 0.045,
+                        height: size.width * 0.045,
+                        fit: BoxFit.contain,
+                        colorFilter: ColorFilter.mode(
+                          cs.onSurface,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ],

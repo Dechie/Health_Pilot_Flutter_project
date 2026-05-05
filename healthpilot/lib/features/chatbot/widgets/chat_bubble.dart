@@ -1,12 +1,14 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:healthpilot/theme/app_theme.dart';
 
 class ChatBubble extends StatelessWidget {
   final String body;
   final String time;
-  ///choose BubbleNip.leftBottom or BubbleNip.rightBottom
+  /// Choose BubbleNip.leftBottom (bot) or BubbleNip.rightBottom (user).
   final BubbleNip nipPosition;
+
   const ChatBubble({
     super.key,
     required this.body,
@@ -16,78 +18,53 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 25),
-      child: Bubble(
-        radius: Radius.circular(5),
-        nip:nipPosition,
-        margin: BubbleEdges.all(0),
-        padding: BubbleEdges.all(0),
-        showNip: true,
-        color: nipPosition == BubbleNip.leftBottom ? Color.fromRGBO(110, 182, 255, 0.30) : Color.fromRGBO(110, 182, 255, 0.08),
-        shadowColor: Colors.transparent,
-        child: Stack(
+    final cs = Theme.of(context).colorScheme;
+    final isBot = nipPosition == BubbleNip.leftBottom;
+
+    final decoration = isBot
+        ? BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(10),
+          )
+        : BoxDecoration(
+            gradient: AppTheme.chatBubbleGradient(context),
+            borderRadius: BorderRadius.circular(10),
+          );
+
+    final textColor = isBot ? cs.onSurface : cs.onPrimary;
+
+    return Bubble(
+      radius: const Radius.circular(10),
+      nip: nipPosition,
+      margin: const BubbleEdges.symmetric(vertical: 5),
+      padding: const BubbleEdges.all(0),
+      showNip: true,
+      color: Colors.transparent,
+      shadowColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        decoration: decoration,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.white,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    body,
-                    style: GoogleFonts.plusJakartaSans(
-                        color: Colors.transparent,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        time,
-                        style: GoogleFonts.plusJakartaSans(
-                            fontSize: 8, fontWeight: FontWeight.w400),
-                      ),
-                    ],
-                  ),
-                ],
+            Text(
+              body,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: textColor,
               ),
             ),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  gradient: LinearGradient(colors: [
-                    Color.fromRGBO(110, 182, 255, 0.30),
-                    Color.fromRGBO(110, 182, 255, 0.26),
-                    Color.fromRGBO(110, 182, 255, 0.08),
-                  ], stops: [
-                    0.17,
-                    0.75,
-                    1
-                  ])),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(body,
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12, fontWeight: FontWeight.w400),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        time,
-                        style: GoogleFonts.plusJakartaSans(
-                            fontSize: 8, fontWeight: FontWeight.w400),
-                      ),
-                    ],
-                  ),
-                ],
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Text(
+                time,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w400,
+                  color: textColor.withValues(alpha: 0.6),
+                ),
               ),
             ),
           ],

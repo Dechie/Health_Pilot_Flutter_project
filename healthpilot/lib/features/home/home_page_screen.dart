@@ -120,78 +120,76 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   void _showAlertAiBot(BuildContext ctx) {
     final size = MediaQuery.of(ctx).size;
-    setState(
-      () {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 10),
-            padding: const EdgeInsets.all(0),
-            content: Container(
-                height: size.height * 0.1,
-                padding: const EdgeInsets.only(bottom: 12, right: 5, top: 5),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Theme.of(ctx).colorScheme.surface,
-                          border: Border.all(
-                              color: Theme.of(ctx).colorScheme.primary),
-                          borderRadius:
-                              BorderRadius.circular(size.width * 0.04)),
-                      padding: EdgeInsets.all(size.height * 0.02),
-                      child: Text(
-                          'Hello! Feel free to ask me anything, How can I assist you?',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: AppTheme.snackbarAssistiveText(ctx)),
+    final cs = Theme.of(ctx).colorScheme;
+    // Keep the tooltip width reasonable across screen sizes: at least 180 px.
+    final rightMargin = size.width * 0.04;
+    final tooltipWidth = (size.width * 0.52).clamp(180.0, 260.0);
+    final leftMargin = size.width - tooltipWidth - rightMargin;
+
+    setState(() {
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 10),
+          padding: EdgeInsets.zero,
+          content: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  border: Border.all(color: cs.primary),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.fromLTRB(12, 10, 24, 10),
+                child: Text(
+                  'Hello! Feel free to ask me anything, How can I assist you?',
+                  style: TextStyle(fontSize: 13, color: cs.onSurface),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Positioned(
+                right: -6,
+                top: -6,
+                child: GestureDetector(
+                  onTap: () =>
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: cs.primary,
                     ),
-                    Positioned(
-                      right: size.width * -0.01,
-                      top: size.width * -0.01,
-                      child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        },
-                        child: Container(
-                          width: 15,
-                          height: 15,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.close,
-                              size: size.width * 0.02,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: size.width * -0.09,
-                      left: size.width * 0.35,
-                      child: Icon(
-                        Icons.arrow_drop_down,
-                        size: size.width * 0.15,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                )),
-            backgroundColor: Colors.transparent,
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(
-                left: size.width * 0.45,
-                right: size.width * 0.05,
-                bottom: size.height * 0.02),
-            elevation: 0,
+                    child: const Icon(Icons.close, size: 12, color: Colors.white),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -20,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Icon(
+                    Icons.arrow_drop_down,
+                    size: 28,
+                    color: cs.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
-        );
-      },
-    );
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            left: leftMargin,
+            right: rightMargin,
+            bottom: size.height * 0.025,
+          ),
+          elevation: 0,
+        ),
+      );
+    });
   }
 
   @override
@@ -308,11 +306,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     children: [
                       InkWell(
                         splashColor: const Color.fromARGB(100, 0, 0, 0),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const LanguageTranslation(),
-                          ),
-                        ),
+                        onTap: () => openLanguageScreen(context),
                         child: SafeSvgAsset(
                           translateIcon,
                           width: size.width * 0.06,
@@ -596,108 +590,60 @@ class _HomePageScreenState extends State<HomePageScreen> {
           if (isOnEmeregencyCalling)
             Dialog(
               backgroundColor: Colors.transparent,
-              child: SizedBox(
-                height: size.height * 0.3,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                        child: Container(
-                          color: Colors.transparent,
-                        ),
+              child: Card(
+                color: Theme.of(context).colorScheme.surface,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.06,
+                    vertical: size.height * 0.025,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SafeSvgAsset(
+                        triangeExclamationPic,
+                        height: size.height * 0.08,
                       ),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: size.width * 0.03),
-                      child: Card(
-                        color: Theme.of(context).colorScheme.surface,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: size.height * 0.02),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SafeSvgAsset(
-                                triangeExclamationPic,
-                                height: size.height * 0.08,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: size.width * 0.06,
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Text(
-                                      'Calling your emergency contacts',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    SizedBox(height: size.height * 0.015),
-                                    Text(
-                                      'Connecting in ${_formatEmergencyCountdown()}',
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.w700,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    SizedBox(height: size.height * 0.01),
-                                    Text(
-                                      'This is a demo flow—no real call is placed. Tap Cancel to stop the countdown.',
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.65),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w400,
-                                        height: 1.3,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: size.height * 0.01,
-                              ),
-                              SizedBox(
-                                width: size.width * 0.2,
-                                height: size.height * 0.04,
-                                child: MaterialButton(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          size.width * 0.02)),
-                                  color: Theme.of(context).colorScheme.primary,
-                                  onPressed: _cancelEmergencyCall,
-                                  child: Text(
-                                    'Cancel',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
+                      SizedBox(height: size.height * 0.015),
+                      const Text(
+                        'Calling your emergency contacts',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
+                      SizedBox(height: size.height * 0.015),
+                      Text(
+                        'Connecting in ${_formatEmergencyCountdown()}',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: size.height * 0.012),
+                      Text(
+                        'This is a demo flow—no real call is placed. Tap Cancel to stop the countdown.',
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.65),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          height: 1.3,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: size.height * 0.02),
+                      FilledButton(
+                        onPressed: _cancelEmergencyCall,
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

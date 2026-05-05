@@ -15,6 +15,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:healthpilot/features/personal_doctor/setup_personal_doctor.dart';
 import 'package:healthpilot/features/profile/personal_info_contact_models.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 class PersonalInformation extends StatefulWidget {
   const PersonalInformation({super.key});
@@ -142,14 +143,17 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   ),
                 ],
               ),
-              SvgPicture.asset(
-                translateIcon,
-                width: size.width * 0.045,
-                height: size.width * 0.045,
-                fit: BoxFit.contain,
-                colorFilter: ColorFilter.mode(
-                  cs.onSurface,
-                  BlendMode.srcIn,
+              GestureDetector(
+                onTap: () => openLanguageScreen(context),
+                child: SvgPicture.asset(
+                  translateIcon,
+                  width: size.width * 0.045,
+                  height: size.width * 0.045,
+                  fit: BoxFit.contain,
+                  colorFilter: ColorFilter.mode(
+                    cs.onSurface,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ],
@@ -347,6 +351,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         ),
                         IntlMobileField(
                           disableLengthCheck: true,
+                          disableLengthCounter: true,
                           dropdownIconPosition: Position.trailing,
                           decoration: InputDecoration(
                             // labelText: 'Phone Number',

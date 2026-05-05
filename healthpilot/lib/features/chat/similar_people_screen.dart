@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/features/chat/public_profile_screen.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 void _showCommunityFloatingSnackBar(
   BuildContext context, {
@@ -74,16 +75,14 @@ class SimilarPeopleScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: IconButton(
                 tooltip: 'Translate',
-                onPressed: () {
-                  _showCommunityFloatingSnackBar(
-                    context,
-                    backgroundColor: const Color.fromRGBO(252, 34, 34, 1),
-                    icon: Icons.translate_outlined,
-                    message:
-                        'Translation unavailable. Please try again later.',
-                  );
-                },
-                icon: SvgPicture.asset(translateIcon),
+                onPressed: () => openLanguageScreen(context),
+                icon: SvgPicture.asset(
+                  translateIcon,
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurface,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ),
             )
           ],
@@ -332,11 +331,11 @@ class PeopleLikeYouCard extends StatelessWidget {
                         padding: const EdgeInsets.all(10),
                         child: Text(
                           description,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
-                              color: Color.fromRGBO(42, 42, 42, 1),
+                              color: Theme.of(context).colorScheme.onSurface,
                               height: 1.08,
                               letterSpacing: -0.17),
                           textAlign: TextAlign.justify,
@@ -406,16 +405,18 @@ class CircularFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return SizedBox(
       height: 40,
       child: FloatingActionButton(
-        splashColor: const Color.fromRGBO(110, 182, 255, 0.5),
+        splashColor: cs.primary.withValues(alpha: 0.3),
         onPressed: onPress,
-        backgroundColor: Colors.white,
+        backgroundColor: cs.surfaceContainerHighest,
         elevation: 0,
         child: SvgPicture.asset(
           svgIcon,
           fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
         ),
       ),
     );
@@ -434,22 +435,22 @@ class RoundedRectFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return SizedBox(
       height: 40,
       width: 40,
       child: FloatingActionButton(
-        splashColor: const Color.fromRGBO(110, 182, 255, 0.5),
+        splashColor: cs.primary.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            10,
-          ),
+          borderRadius: BorderRadius.circular(10),
         ),
         onPressed: onPress,
-        backgroundColor: Colors.white,
+        backgroundColor: cs.surfaceContainerHighest,
         elevation: 0,
         child: SvgPicture.asset(
           svgIcon,
           fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
         ),
       ),
     );
@@ -465,12 +466,13 @@ class CustomeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         splashFactory: null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 0,
-        backgroundColor: const Color.fromRGBO(110, 182, 255, 1),
+        backgroundColor: cs.primary,
       ),
       onPressed: onPressed,
       child: Container(
@@ -479,11 +481,11 @@ class CustomeButton extends StatelessWidget {
         width: size.width * 0.5,
         child: Text(
           titleOfButton,
-          style: const TextStyle(
+          style: TextStyle(
               fontFamily: 'Plus Jakarta Sans',
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Colors.white),
+              color: cs.onPrimary),
         ),
       ),
     );

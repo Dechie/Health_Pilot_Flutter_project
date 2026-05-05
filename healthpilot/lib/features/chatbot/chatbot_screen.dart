@@ -90,7 +90,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         _ChatTurn(
           fromUser: false,
           body:
-              'Thanks for your message. I cannot diagnose or prescribe. For “$userText”, a reliable next step is to review trusted sources such as your national health service or speak with a clinician for personal advice.',
+              'Thanks for your message. I cannot diagnose or prescribe. For "$userText", a reliable next step is to review trusted sources such as your national health service or speak with a clinician for personal advice.',
           time: _formatNow(),
         ),
       ];
@@ -190,68 +190,37 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final primary = const Color.fromARGB(255, 110, 182, 255);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      bottomSheet: Container(
-        height: 48,
-        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black12),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _textController,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendFromField(),
-                decoration: const InputDecoration(
-                  hintText: 'Message',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            IconButton(
-              tooltip: 'Send',
-              onPressed: _sendFromField,
-              icon: Icon(
-                Icons.send,
-                color: primary,
-              ),
-            ),
-          ],
-        ),
-      ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-          child: Column(
-            children: [
-              Row(
+        child: Column(
+          children: [
+            // ── header ──────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              child: Row(
                 children: [
                   InkWell(
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       height: 40,
                       width: 40,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color.fromARGB(63, 110, 182, 255),
+                        color: cs.primary.withValues(alpha: 0.25),
                       ),
-                      child: const Icon(Icons.arrow_back),
+                      child: Icon(Icons.arrow_back, color: cs.onSurface),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(right: 9, left: 16),
                     height: 46,
                     width: 46,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color.fromARGB(255, 110, 182, 255),
+                      color: cs.primary,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -261,15 +230,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           width: 42,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color.fromARGB(255, 110, 182, 255),
+                            color: cs.primary,
                             border: Border.all(
-                              color: Colors.white,
+                              color: cs.onPrimary,
                               width: 2,
                             ),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             LineIcons.robot,
-                            color: Colors.white,
+                            color: cs.onPrimary,
                           ),
                         ),
                       ],
@@ -284,13 +253,14 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
                           ),
                         ),
                         Text(
                           'Online',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12,
-                            color: const Color.fromRGBO(42, 42, 42, 0.5),
+                            color: cs.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -327,54 +297,100 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   ),
                 ],
               ),
-              Expanded(
-                child: ListView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+            ),
+            // ── message list ─────────────────────────────────────────────────
+            Expanded(
+              child: ListView(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                children: [
+                  for (final t in _turns) _bubbleForTurn(t),
+                  if (_isBotTyping) _typingRow(),
+                ],
+              ),
+            ),
+            // ── suggestion chips ──────────────────────────────────────────────
+            if (_showSuggestionChips)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final t in _turns) _bubbleForTurn(t),
-                    if (_isBotTyping) _typingRow(),
+                    Text(
+                      'Try asking',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 42,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _kSuggestionLabels.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, i) {
+                          final label = _kSuggestionLabels[i];
+                          return ActionChip(
+                            label: Text(
+                              label,
+                              style: GoogleFonts.plusJakartaSans(fontSize: 12),
+                            ),
+                            onPressed: () => _onSuggestionTapped(label),
+                            visualDensity: VisualDensity.compact,
+                            side: BorderSide(
+                              color: cs.primary.withValues(alpha: 0.5),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
-              if (_showSuggestionChips) ...[
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Try asking',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: const Color.fromRGBO(42, 42, 42, 0.65),
+            // ── input bar ────────────────────────────────────────────────────
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      minLines: 1,
+                      maxLines: 4,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _sendFromField(),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                      decoration: InputDecoration(
+                        hintText: 'Ask a health question…',
+                        hintStyle: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          color: cs.onSurfaceVariant,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 42,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _kSuggestionLabels.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, i) {
-                      final label = _kSuggestionLabels[i];
-                      return ActionChip(
-                        label: Text(
-                          label,
-                          style: GoogleFonts.plusJakartaSans(fontSize: 12),
-                        ),
-                        onPressed: () => _onSuggestionTapped(label),
-                        visualDensity: VisualDensity.compact,
-                        side: BorderSide(color: primary.withValues(alpha: 0.5)),
-                      );
-                    },
+                  const SizedBox(width: 4),
+                  IconButton(
+                    onPressed: _sendFromField,
+                    icon: Icon(Icons.send_rounded, color: cs.primary),
+                    tooltip: 'Send',
                   ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              const SizedBox(height: 64),
-            ],
-          ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -402,18 +418,19 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   Widget _typingRow() {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Row(
         children: [
-          Icon(LineIcons.robot, size: 18, color: Colors.grey.shade600),
+          Icon(LineIcons.robot, size: 18, color: cs.onSurfaceVariant),
           const SizedBox(width: 8),
           Text(
             'HealthBot is typing…',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 12,
               fontStyle: FontStyle.italic,
-              color: Colors.grey.shade700,
+              color: cs.onSurfaceVariant,
             ),
           ),
         ],

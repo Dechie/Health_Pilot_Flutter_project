@@ -8,6 +8,7 @@ import 'package:healthpilot/features/medication/medication_history_screen.dart';
 import 'package:healthpilot/features/medication/medication_reminders_screen.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
 
+import 'package:healthpilot/features/profile/language_translation.dart';
 import 'symptom_tracking_screen.dart';
 
 class HealthProfile extends StatefulWidget {
@@ -101,7 +102,7 @@ class _HealthProfileState extends State<HealthProfile> {
                     children: [
                       InkWell(
                         splashColor: const Color.fromARGB(100, 0, 0, 0),
-                        onTap: () => {},
+                        onTap: () => openLanguageScreen(context),
                         child: SvgPicture.asset(
                           translateIcon,
                           colorFilter: ColorFilter.mode(

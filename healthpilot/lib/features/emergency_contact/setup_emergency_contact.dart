@@ -4,6 +4,7 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/profile/personal_info_contact_models.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:intl_mobile_field/mobile_number.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 /// Add or edit one emergency contact. Pops [EmergencyContactEntry] on successful save.
 class SetupEmergencyContact extends StatefulWidget {
@@ -170,14 +171,17 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                   ),
                 ],
               ),
-              SvgPicture.asset(
-                translateIcon,
-                width: size.width * 0.045,
-                height: size.width * 0.045,
-                fit: BoxFit.contain,
-                colorFilter: ColorFilter.mode(
-                  cs.onSurface,
-                  BlendMode.srcIn,
+              GestureDetector(
+                onTap: () => openLanguageScreen(context),
+                child: SvgPicture.asset(
+                  translateIcon,
+                  width: size.width * 0.045,
+                  height: size.width * 0.045,
+                  fit: BoxFit.contain,
+                  colorFilter: ColorFilter.mode(
+                    cs.onSurface,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ],
@@ -236,6 +240,8 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                     decoration: _inputDecoration(context, size),
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
+                    readOnly: false,
+                    enabled: true,
                     validator: validateEmail,
                   ),
                 ),
@@ -254,6 +260,7 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                   controller: _phoneController,
                   initialCountryCode: 'ET',
                   disableLengthCheck: false,
+                  disableLengthCounter: true,
                   dropdownIconPosition: Position.trailing,
                   decoration: _inputDecoration(context, size),
                   keyboardType: TextInputType.phone,
@@ -294,12 +301,11 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
     );
     return InputDecoration(
       contentPadding: EdgeInsets.symmetric(
-        vertical: size.height * 0.015,
+        vertical: size.height * 0.018,
         horizontal: size.width * 0.03,
       ),
       border: border,
       enabledBorder: border,
-      isDense: true,
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: cs.primary, width: 2),
       ),

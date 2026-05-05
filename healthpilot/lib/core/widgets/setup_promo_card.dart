@@ -24,7 +24,7 @@ class SetupPromoCard extends StatelessWidget {
     this.icon,
     this.width,
     this.height = 167,
-    this.expandVertically = false,
+    this.expandVertically = true,
     this.margin = const EdgeInsets.only(top: 30, left: 7, right: 8),
     this.buttonBorderRadius = 5,
   });

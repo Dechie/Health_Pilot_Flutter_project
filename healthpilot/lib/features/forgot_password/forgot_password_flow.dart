@@ -27,14 +27,6 @@ class ForgotPasswordScreen extends StatelessWidget {
 class _ForgotPasswordScaffold extends StatelessWidget {
   const _ForgotPasswordScaffold();
 
-  void _openLanguage(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) => const LanguageTranslation(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ForgotPasswordController>(
@@ -55,13 +47,13 @@ class _ForgotPasswordScaffold extends StatelessWidget {
                           key: const ValueKey('email'),
                           screenWidth: w,
                           screenHeight: h,
-                          onTranslate: () => _openLanguage(context),
+                          onTranslate: () => openLanguageScreen(context),
                         )
                       : _CheckEmailStep(
                           key: const ValueKey('check'),
                           screenWidth: w,
                           screenHeight: h,
-                          onTranslate: () => _openLanguage(context),
+                          onTranslate: () => openLanguageScreen(context),
                         ),
                 );
               },
