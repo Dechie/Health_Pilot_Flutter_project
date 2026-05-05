@@ -6,6 +6,23 @@ This file tracks **temporary product/engineering decisions** and **follow-up wor
 
 ## Decision log
 
+### 2026-05-05 — Backend integration plan revised: 14 branches, feature flags, mock repositories
+
+- **Decision**: Revised integration roadmap to 14 branches (`docs/BACKEND_INTEGRATION_PLAN.md`), incorporating:
+  1. **Correct API surface** from the backend team's Postman collection + API reference text. Base URL `http://<host>:9000`, all endpoints under `/api/v1/`. Backend is complete — no prerequisites; implement against the reference docs and fix deltas as they arise.
+  2. **Per-feature data-source flags** (`lib/core/flags/feature_flags.dart`): each domain (`FF_AUTH`, `FF_ARTICLES`, etc.) defaults to `false` (static/mock data). Set via `--dart-define` per build. Flags flip to `true` default only after the corresponding branch is merged and stable.
+  3. **Abstract repository interfaces + mock implementations**: every feature domain has an `IXRepository` interface, a `RemoteXRepository` (calls API), and a `MockXRepository` (wraps existing static/seed data). `main.dart` injects the correct implementation based on the feature flag. Tests always inject the mock — backend availability is never a test dependency.
+  4. **Static data preservation rule**: do not delete any hardcoded seed, `_kSample` constant, or in-memory provider — move it into the corresponding `MockXRepository`. UI always talks to the interface.
+- **Why**: Allows Flutter-side development and testing to proceed independently of backend availability; isolates Flutter failures from backend failures; preserves existing UI behaviour when a feature is not yet integrated.
+- **New domains vs original plan**: added community/peers (`FF_COMMUNITY`), nutrition API (`FF_NUTRITION`), notifications (`FF_NOTIFICATIONS`); health data expanded to include vitals, goals, and dashboard. Assessment is now AI-powered (returns ranked possible causes + `seek_emergency_care` flag).
+- **Execution order**: Branch 1 (network + flag + mock infrastructure) → Branch 2 (auth) → Branches 3–13 in parallel → Branch 14 (payment, after Branch D merges).
+- **Dev base URL**: Android emulator `http://10.0.2.2:9000`, iOS simulator `http://localhost:9000`. Set via `--dart-define=APP_BASE_URL=http://...`.
+- **Key constraints**:
+  - All `flutter test` runs must pass with all flags `false` (mock mode only).
+  - No new premium gating in Branches 1–13; premium owned by Branch D + Branch 14.
+  - Feature-owned repositories only; no monolithic `api_service.dart`.
+  - Keep `InMemoryAssessmentHistory` as the cache layer for Branch 6 (per 2026-04-18 decision).
+
 ### 2026-04-25 — Figma parity branches J–Q before subscription Branch D
 
 - **Decision**: Add **Branches J–Q** to `docs/FEATURE_BRANCH_PLAN.md` (and table in `docs/FEATURE_BRANCH_WORKTREE_PLAN.md` §4) for design-board gaps documented from `docs/design-mockups/`. Execute **J → Q** on current `main`, **then** **Branch D** (`refactor/subscription-feature`).
