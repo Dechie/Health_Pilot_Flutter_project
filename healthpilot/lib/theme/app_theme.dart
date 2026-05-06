@@ -27,8 +27,8 @@ abstract final class AppTheme {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0x406EB6FF), // 25%
-          Color(0xD96EB6FF), // 85%
+          Color(0x406EB6FF), // 25% opacity
+          Color(0xD96EB6FF), // 85% opacity
         ],
         stops: [0.25, 0.85],
       );

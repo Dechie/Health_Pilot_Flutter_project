@@ -19,6 +19,7 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isBot = nipPosition == BubbleNip.leftBottom;
 
     final decoration = isBot
@@ -31,7 +32,9 @@ class ChatBubble extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           );
 
-    final textColor = isBot ? cs.onSurface : cs.onPrimary;
+    final textColor = isBot
+        ? cs.onSurface
+        : (isDark ? cs.onPrimary : cs.onSurface);
 
     return Bubble(
       radius: const Radius.circular(10),
