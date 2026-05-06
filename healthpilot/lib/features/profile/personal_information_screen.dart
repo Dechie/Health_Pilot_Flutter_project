@@ -22,11 +22,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:healthpilot/core/network/api_error.dart';
 import 'package:healthpilot/core/widgets/setup_promo_card.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
 import 'package:healthpilot/features/personal_doctor/setup_personal_doctor.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
 import 'package:healthpilot/features/profile/emergency_contact_personal_information.dart'
     as contact;
@@ -34,6 +36,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
+import 'package:provider/provider.dart';
 // import 'package:healthpilot/features/personal_doctor/personal_information.dart' as doctor;
 // import 'package:healthpilot/features/emergency_contact/personal_information.dart' as emergency;
 
@@ -47,11 +50,60 @@ class PersonalInformationScreen extends StatefulWidget {
 
 class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   String? _profileImagePath;
+  bool _saving = false;
+
+  late final TextEditingController _firstNameCtrl;
+  late final TextEditingController _lastNameCtrl;
+  late final TextEditingController _emailCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = context.read<ProfileProvider>().profile;
+    _firstNameCtrl = TextEditingController(text: profile.firstName ?? '');
+    _lastNameCtrl  = TextEditingController(text: profile.lastName  ?? '');
+    _emailCtrl     = TextEditingController(text: profile.email     ?? '');
+  }
+
+  @override
+  void dispose() {
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _emailCtrl.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickProfilePhoto() async {
     final file = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file != null && mounted) {
       setState(() => _profileImagePath = file.path);
+    }
+  }
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    try {
+      final updated = context.read<ProfileProvider>().profile.copyWith(
+            firstName: _firstNameCtrl.text.trim(),
+            lastName: _lastNameCtrl.text.trim(),
+            email: _emailCtrl.text.trim(),
+            avatarAssetPath: _profileImagePath,
+          );
+      await context.read<ProfileProvider>().save(updated);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated.')),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      final msg = switch (e) {
+        ServerError(:final message) => message,
+        NetworkError() => 'No internet connection.',
+        _ => 'Update failed.',
+      };
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -274,19 +326,21 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     height: screenHeight * 0.05,
                   ),
                   InputFields(
-                    label: "FirstName",
+                    label: "First Name",
                     screenWidth: screenWidth,
                     screenHeight: screenHeight,
                     keyboardType: TextInputType.name,
+                    controller: _firstNameCtrl,
                   ),
                   SizedBox(
                     height: screenHeight * 0.02,
                   ),
                   InputFields(
-                    label: "LastName",
+                    label: "Last Name",
                     screenWidth: screenWidth,
                     screenHeight: screenHeight,
                     keyboardType: TextInputType.name,
+                    controller: _lastNameCtrl,
                   ),
                   SizedBox(
                     height: screenHeight * 0.02,
@@ -296,6 +350,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     screenWidth: screenWidth,
                     screenHeight: screenHeight,
                     keyboardType: TextInputType.emailAddress,
+                    controller: _emailCtrl,
                   ),
                   SizedBox(
                     height: screenHeight * 0.02,
@@ -372,9 +427,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     ),
                   ),
                   InkWell(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
+                    onTap: _saving ? null : _save,
                     child: Container(
                       width: 231,
                       height: 47,
@@ -384,16 +437,25 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                         borderRadius: BorderRadius.circular(10),
                         color: const Color.fromRGBO(110, 182, 255, 1),
                       ),
-                      child: const Center(
-                        child: Text(
-                          'Finish',
-                          style: TextStyle(
-                            fontFamily: "PlusJakartaSans",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
+                      child: Center(
+                        child: _saving
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Save',
+                                style: TextStyle(
+                                  fontFamily: "PlusJakartaSans",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -432,13 +494,15 @@ class InputFields extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
   final TextInputType keyboardType;
+  final TextEditingController? controller;
 
   const InputFields(
       {super.key,
       required this.label,
       required this.screenWidth,
       required this.screenHeight,
-      required this.keyboardType});
+      required this.keyboardType,
+      this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -469,12 +533,14 @@ class InputFields extends StatelessWidget {
             child: SizedBox(
               height: 45,
               child: TextFormField(
+                controller: controller,
+                keyboardType: keyboardType,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5),
                       borderSide: const BorderSide()),
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 0, // No vertical padding
+                    vertical: 0,
                     horizontal: screenWidth * 0.04,
                   ),
                 ),

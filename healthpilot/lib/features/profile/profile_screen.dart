@@ -3,9 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
 import 'package:healthpilot/features/profile/allergies_screen.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:healthpilot/features/profile/settings_screen.dart';
-import 'package:healthpilot/features/profile/user_profile.dart';
 import 'package:healthpilot/features/profile/widgets/profile_settings_shared.dart';
+import 'package:provider/provider.dart';
 
 /// Profile tab entry: identity + health information. Settings live in [SettingsScreen].
 class ProfileScreen extends StatefulWidget {
@@ -65,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                kDemoUserProfile.displayName ?? 'Profile',
+                                context.watch<ProfileProvider>().profile.displayName ?? 'Profile',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)

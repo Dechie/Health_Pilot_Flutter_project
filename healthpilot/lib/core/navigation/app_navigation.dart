@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
+import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 
 /// Shared navigation helpers for major app surfaces.
 ///
@@ -26,6 +27,14 @@ abstract final class AppNavigation {
       MaterialPageRoute<void>(
         builder: (_) => HomePageScreen(isHelpPressed: isHelpPressed),
       ),
+    );
+  }
+
+  /// Replaces the current route with the login/signup screen.
+  static void replaceWithLogin(BuildContext context, {bool useRootNavigator = true}) {
+    Navigator.of(context, rootNavigator: useRootNavigator).pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (_) => const SignupAndLoginScreen()),
+      (_) => false,
     );
   }
 }
