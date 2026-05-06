@@ -33,6 +33,7 @@ import 'package:healthpilot/features/profile/emergency_contact_personal_informat
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 // import 'package:healthpilot/features/personal_doctor/personal_information.dart' as doctor;
 // import 'package:healthpilot/features/emergency_contact/personal_information.dart' as emergency;
 
@@ -191,15 +192,18 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                           top: screenHeight * 0.04,
                           left: screenWidth * 0.2,
                         ),
-                        child: SizedBox(
-                          width: screenWidth * 0.04,
-                          height: screenWidth * 0.04,
-                          child: SvgPicture.asset(
-                            translateIcon,
-                            fit: BoxFit.contain,
-                            colorFilter: ColorFilter.mode(
-                              cs.onSurface,
-                              BlendMode.srcIn,
+                        child: GestureDetector(
+                          onTap: () => openLanguageScreen(context),
+                          child: SizedBox(
+                            width: screenWidth * 0.04,
+                            height: screenWidth * 0.04,
+                            child: SvgPicture.asset(
+                              translateIcon,
+                              fit: BoxFit.contain,
+                              colorFilter: ColorFilter.mode(
+                                cs.onSurface,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
@@ -544,6 +548,7 @@ class PhoneInputFields extends StatelessWidget {
             child: IntlMobileField(
               dropdownIconPosition: Position.trailing,
               disableLengthCheck: true,
+              disableLengthCounter: true,
               initialCountryCode: 'ET',
               decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -665,15 +670,18 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         top: screenHeight * 0.04,
                         left: screenWidth * 0.37,
                       ),
-                      child: SizedBox(
-                        width: screenWidth * 0.045,
-                        height: screenWidth * 0.045,
-                        child: SvgPicture.asset(
-                          translateIcon,
-                          fit: BoxFit.contain,
-                          colorFilter: ColorFilter.mode(
-                            cs.onSurface,
-                            BlendMode.srcIn,
+                      child: GestureDetector(
+                        onTap: () => openLanguageScreen(context),
+                        child: SizedBox(
+                          width: screenWidth * 0.045,
+                          height: screenWidth * 0.045,
+                          child: SvgPicture.asset(
+                            translateIcon,
+                            fit: BoxFit.contain,
+                            colorFilter: ColorFilter.mode(
+                              cs.onSurface,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                       ),

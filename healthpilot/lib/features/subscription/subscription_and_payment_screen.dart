@@ -31,6 +31,7 @@ import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/profile/personal_doctor_personal_information.dart'
     as doctor;
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 class SubscriptionAndPaymentScreen extends StatelessWidget {
   const SubscriptionAndPaymentScreen({super.key});
@@ -523,15 +524,18 @@ class PaymentReviewScreen extends StatelessWidget {
                         top: screenHeight * 0.04,
                         left: screenWidth * 0.32,
                       ),
-                      child: SizedBox(
-                        width: screenWidth * 0.04,
-                        height: screenWidth * 0.04,
-                        child: SvgPicture.asset(
-                          translateIcon,
-                          fit: BoxFit.contain,
-                          colorFilter: ColorFilter.mode(
-                            cs.onSurface,
-                            BlendMode.srcIn,
+                      child: GestureDetector(
+                        onTap: () => openLanguageScreen(context),
+                        child: SizedBox(
+                          width: screenWidth * 0.04,
+                          height: screenWidth * 0.04,
+                          child: SvgPicture.asset(
+                            translateIcon,
+                            fit: BoxFit.contain,
+                            colorFilter: ColorFilter.mode(
+                              cs.onSurface,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                       ),

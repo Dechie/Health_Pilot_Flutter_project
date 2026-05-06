@@ -3,6 +3,15 @@ import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:provider/provider.dart';
 
+/// Pushes [LanguageTranslation] onto the navigator. Safe to call from any
+/// screen: uses [Navigator.maybePop] on return so nothing crashes if the
+/// language screen ends up as a root route.
+void openLanguageScreen(BuildContext context) {
+  Navigator.of(context).push<void>(
+    MaterialPageRoute(builder: (_) => const LanguageTranslation()),
+  );
+}
+
 /// Language picker owned by **profile/settings** (Branch F). Updates [AppState.locale]
 /// for [MaterialApp]; persistence can be added later (e.g. `shared_preferences`).
 class LanguageTranslation extends StatefulWidget {
@@ -75,16 +84,14 @@ class _LanguageTranslationState extends State<LanguageTranslation> {
                           width: screenWidth * 0.1,
                           height: screenWidth * 0.1,
                           decoration: BoxDecoration(
-                            color: const Color.fromRGBO(110, 182, 255, 0.25),
+                            color: Theme.of(context).colorScheme.primaryContainer,
                             borderRadius:
                                 BorderRadius.circular(screenWidth * 0.05),
                           ),
                           child: IconButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
+                            onPressed: () => Navigator.of(context).maybePop(),
                             icon: const Icon(Icons.arrow_back),
-                            color: const Color.fromRGBO(110, 182, 255, 1),
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
                             iconSize: screenWidth * 0.055,
                           ),
                         ),

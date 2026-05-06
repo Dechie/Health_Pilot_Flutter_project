@@ -4,6 +4,7 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/profile/personal_info_contact_models.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:intl_mobile_field/mobile_number.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 /// Add or edit a personal doctor. Pops [DoctorSetupResult] on save or remove.
 class SetupPersonalDoctor extends StatefulWidget {
@@ -216,14 +217,17 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                         ),
                       ],
                     ),
-                    SvgPicture.asset(
-                      translateIcon,
-                      width: size.width * 0.045,
-                      height: size.width * 0.045,
-                      fit: BoxFit.contain,
-                      colorFilter: ColorFilter.mode(
-                        cs.onSurface,
-                        BlendMode.srcIn,
+                    GestureDetector(
+                      onTap: () => openLanguageScreen(context),
+                      child: SvgPicture.asset(
+                        translateIcon,
+                        width: size.width * 0.045,
+                        height: size.width * 0.045,
+                        fit: BoxFit.contain,
+                        colorFilter: ColorFilter.mode(
+                          cs.onSurface,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ],
@@ -281,6 +285,7 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                   controller: _phoneController,
                   initialCountryCode: 'ET',
                   disableLengthCheck: false,
+                  disableLengthCounter: true,
                   dropdownIconPosition: Position.trailing,
                   decoration: _decoration(context, size),
                   keyboardType: TextInputType.phone,

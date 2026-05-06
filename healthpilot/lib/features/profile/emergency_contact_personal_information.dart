@@ -15,6 +15,7 @@ import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';
 
 import 'package:healthpilot/theme/app_theme.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 class PersonalInformation extends StatefulWidget {
   const PersonalInformation({super.key});
@@ -188,14 +189,17 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   ),
                 ],
               ),
-              SvgPicture.asset(
-                translateIcon,
-                width: size.width * 0.045,
-                height: size.width * 0.045,
-                fit: BoxFit.contain,
-                colorFilter: ColorFilter.mode(
-                  cs.onSurface,
-                  BlendMode.srcIn,
+              GestureDetector(
+                onTap: () => openLanguageScreen(context),
+                child: SvgPicture.asset(
+                  translateIcon,
+                  width: size.width * 0.045,
+                  height: size.width * 0.045,
+                  fit: BoxFit.contain,
+                  colorFilter: ColorFilter.mode(
+                    cs.onSurface,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ],
@@ -405,6 +409,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         ),
                         IntlMobileField(
                           disableLengthCheck: true,
+                          disableLengthCounter: true,
                           dropdownIconPosition: Position.trailing,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.symmetric(

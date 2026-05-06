@@ -4,6 +4,7 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_3.dart';
 
 import '../../theme/app_theme.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 
 class InitialInfoSecond extends StatefulWidget {
   const InitialInfoSecond({super.key});
@@ -43,10 +44,16 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
             maxLines: 2,
           ),
           actions: [
-            SvgPicture.asset(translateIcon),
-            const SizedBox(
-              width: 30,
-            )
+            IconButton(
+              onPressed: () => openLanguageScreen(context),
+              icon: SvgPicture.asset(
+                translateIcon,
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.onSurface,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
           ],
         ),
         body: SingleChildScrollView(

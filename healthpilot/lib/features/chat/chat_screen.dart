@@ -309,6 +309,7 @@ class ChatList extends StatelessWidget {
           itemBuilder: (context, chat) {
             final isIncoming = int.parse(chat.senderId) != int.parse(userId);
             final cs = Theme.of(context).colorScheme;
+            final isDark = Theme.of(context).brightness == Brightness.dark;
 
             final bubbleDecoration = isIncoming
                 ? BoxDecoration(
@@ -342,7 +343,9 @@ class ChatList extends StatelessWidget {
                       child: Text(
                         chat.content,
                         style: GoogleFonts.plusJakartaSans(
-                          color: isIncoming ? cs.onSurface : cs.onPrimary,
+                          color: isIncoming
+                              ? cs.onSurface
+                              : (isDark ? cs.onPrimary : cs.onSurface),
                           fontSize: 12,
                           fontWeight: isIncoming ? FontWeight.w400 : FontWeight.w500,
                         ),
@@ -354,7 +357,9 @@ class ChatList extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 8,
                         fontWeight: FontWeight.w400,
-                        color: (isIncoming ? cs.onSurface : cs.onPrimary)
+                        color: (isIncoming
+                                ? cs.onSurface
+                                : (isDark ? cs.onPrimary : cs.onSurface))
                             .withValues(alpha: 0.8),
                       ),
                     ),

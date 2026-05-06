@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_models.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
 /// Preferences for food and nutrition reports (Figma-style setup).
@@ -97,7 +98,7 @@ class _FoodNutritionTrackingScreenState
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => openLanguageScreen(context),
                     icon: SafeSvgAsset(
                       translateIcon,
                       width: 24,

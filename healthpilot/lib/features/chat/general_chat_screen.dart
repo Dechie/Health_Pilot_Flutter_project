@@ -311,15 +311,17 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
   }
 
   Widget _buildFloatingActionButton() {
+    final cs = Theme.of(context).colorScheme;
     return FloatingActionButton(
       onPressed: () {
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
       },
-      backgroundColor: const Color.fromRGBO(110, 182, 255, 1),
-      child: const Icon(
+      backgroundColor: cs.primary,
+      child: Icon(
         Icons.person_search_outlined,
         size: 30,
+        color: cs.onPrimary,
       ),
     );
   }
@@ -328,7 +330,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     final cs = Theme.of(context).colorScheme;
     return TabBar(
         isScrollable: true,
-        tabAlignment: TabAlignment.start,
+        tabAlignment: TabAlignment.center,
         labelPadding: const EdgeInsets.symmetric(horizontal: 14),
         indicatorSize: TabBarIndicatorSize.label,
         labelColor: cs.primary,
