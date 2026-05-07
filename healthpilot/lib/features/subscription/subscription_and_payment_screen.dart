@@ -26,6 +26,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/features/profile/personal_information_screen.dart';
+import 'package:healthpilot/features/subscription/subscription_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/profile/personal_doctor_personal_information.dart'
@@ -39,6 +41,8 @@ class SubscriptionAndPaymentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final subProvider = context.watch<SubscriptionProvider>();
+    final premiumPlan = subProvider.premiumPlan;
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
@@ -86,6 +90,8 @@ class SubscriptionAndPaymentScreen extends StatelessWidget {
                       screenHeight: screenHeight,
                       screenWidth: screenWidth,
                       color: cs.primary,
+                      planId: premiumPlan?.id ?? 'premium',
+                      price: premiumPlan?.formattedPrice ?? '25.99\$/month',
                     ),
                   ),
                   FreeFeatureContainer(
@@ -131,12 +137,16 @@ class PremiumFeatureContainer extends StatelessWidget {
   final Color color;
   final double screenHeight;
   final double screenWidth;
+  final String planId;
+  final String price;
 
   const PremiumFeatureContainer(
       {super.key,
       required this.color,
       required this.screenHeight,
-      required this.screenWidth});
+      required this.screenWidth,
+      required this.planId,
+      required this.price});
 
   @override
   Widget build(BuildContext context) {
@@ -187,17 +197,20 @@ class PremiumFeatureContainer extends StatelessWidget {
                   textColor: onPrimary),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                child: Button(
-                  screenWidth: screenWidth * 0.87,
-                  screenHeight: screenHeight * 0.8,
-                  buttonText: "25.99\$/month",
-                  buttoncolor: Colors.yellow,
-                  textColor: Colors.black,
-                  fontsize: 12,
-                  buttonAction: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: ((context) => const PaymentMethodScreen())));
-                  },
+                child: Builder(
+                  builder: (ctx) => Button(
+                    screenWidth: screenWidth * 0.87,
+                    screenHeight: screenHeight * 0.8,
+                    buttonText: price,
+                    buttoncolor: Colors.yellow,
+                    textColor: Colors.black,
+                    fontsize: 12,
+                    buttonAction: () {
+                      ctx.read<SubscriptionProvider>().selectPlan(planId);
+                      Navigator.of(ctx).push(MaterialPageRoute(
+                          builder: ((context) => const PaymentMethodScreen())));
+                    },
+                  ),
                 ),
               )
             ],
@@ -672,6 +685,9 @@ class PaymentReviewScreen extends StatelessWidget {
                       screenHeight: screenHeight,
                       buttonText: "Next",
                       buttonAction: () {
+                        context
+                            .read<SubscriptionProvider>()
+                            .confirmSubscription();
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) =>
                                 const SubscriptionFinishScreen()));
