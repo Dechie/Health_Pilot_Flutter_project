@@ -6,11 +6,15 @@ import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/network/api_client.dart';
 import 'package:healthpilot/core/repositories/i_ai_assistant_repository.dart';
 import 'package:healthpilot/core/repositories/i_assessment_repository.dart';
+import 'package:healthpilot/core/repositories/i_chat_repository.dart';
 import 'package:healthpilot/core/repositories/i_contacts_repository.dart';
 import 'package:healthpilot/core/repositories/i_health_repository.dart';
 import 'package:healthpilot/core/repositories/i_medication_repository.dart';
 import 'package:healthpilot/core/repositories/i_profile_repository.dart';
 import 'package:healthpilot/core/storage/secure_token_store.dart';
+import 'package:healthpilot/features/chat/chat_provider.dart';
+import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart';
+import 'package:healthpilot/features/chat/repositories/remote_chat_repository.dart';
 import 'package:healthpilot/features/health/health_provider.dart';
 import 'package:healthpilot/features/chatbot/ai_assistant_provider.dart';
 import 'package:healthpilot/features/profile/contacts_provider.dart';
@@ -133,6 +137,21 @@ abstract final class RepositoryLocator {
             FeatureFlags.contacts
                 ? RemoteContactsRepository(apiClient) as IContactsRepository
                 : MockContactsRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 10 — Chat; auto-loads users and groups when AuthState becomes authenticated.
+        ChangeNotifierProxyProvider<AuthState, ChatProvider>(
+          create: (_) => ChatProvider(
+            FeatureFlags.chat
+                ? RemoteChatRepository(apiClient) as IChatRepository
+                : MockChatRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {

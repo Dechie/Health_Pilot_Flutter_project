@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
+import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/constants.dart';
 import 'vidoe_call_screen.dart';
@@ -32,7 +34,7 @@ class UserDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final user = Users.findById(id);
+    final user = context.read<ChatProvider>().findUser(id);
     return Scaffold(
         floatingActionButton: Padding(
           padding: EdgeInsets.only(bottom: size.height * 0.65),
@@ -68,8 +70,9 @@ class UserDetailScreen extends StatelessWidget {
                         )));
               },
               more: () {},
-              subTitle:
-                  DateFormat.MMMMd().format(user.chatHistory.last.timestamp),
+              subTitle: user.chatHistory.isNotEmpty
+                  ? DateFormat.MMMMd().format(user.chatHistory.last.timestamp)
+                  : '',
             )),
         body: SafeArea(
           bottom: true,
