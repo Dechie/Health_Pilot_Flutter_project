@@ -242,7 +242,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 4 — Articles feed
+### Integration Branch 13 — Articles feed
 - **Branch**: `feat/api-articles`
 - **Type**: A+B
 - **Goal**: Replace hardcoded article seeds with live articles. Wire likes, bookmarks, and comments to the backend.
@@ -271,7 +271,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 5 — Medications
+### Integration Branch 4 — Medications
 - **Branch**: `feat/api-medications`
 - **Type**: A+B
 - **Goal**: Replace local medication list with backend-persisted data. Add reminder scheduling and dose logging.
@@ -331,7 +331,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 7 — Emergency contacts & personal doctors
+### Integration Branch 9 — Emergency contacts & personal doctors
 - **Branch**: `feat/api-contacts`
 - **Type**: A+B
 - **Goal**: Sync emergency contacts and personal doctor entries to the backend instead of keeping them in-memory per session.
@@ -360,7 +360,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 8 — Health tracking (symptoms, vitals, goals, dashboard)
+### Integration Branch 5 — Health tracking (symptoms, vitals, goals, dashboard)
 - **Branch**: `feat/api-health-data`
 - **Type**: A+B
 - **Goal**: Wire symptom logging, vital signs, health goals, dashboard stats, and AI-generated health summaries to the backend. These are entirely new features on the Flutter side (currently stub/empty).
@@ -395,7 +395,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 9 — Real-time chat
+### Integration Branch 10 — Real-time chat
 - **Branch**: `feat/api-chat`
 - **Type**: A+B
 - **Goal**: Replace stub/seed chat data with real private and group chats. Wire WebSocket for real-time delivery.
@@ -430,7 +430,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 10 — AI Assistant (HealthBot)
+### Integration Branch 7 — AI Assistant (HealthBot)
 - **Branch**: `feat/api-chatbot`
 - **Type**: A+B
 - **Goal**: Replace stub bot replies with the real AI assistant backend endpoint.
@@ -457,7 +457,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 11 — Community / Peers
+### Integration Branch 12 — Community / Peers
 - **Branch**: `feat/api-community`
 - **Type**: A+B
 - **Goal**: Wire the "similar people" / peer discovery, connection requests, and community groups to the backend. Replace the stub `SimilarPeopleScreen` actions.
@@ -487,7 +487,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 12 — Nutrition tracking
+### Integration Branch 11 — Nutrition tracking
 - **Branch**: `feat/api-nutrition`
 - **Type**: A+B
 - **Goal**: Replace `SharedPreferences`-backed food tracking with the backend nutrition API. Connect food search, meal logging, nutrition goals, and daily summary.
@@ -516,7 +516,7 @@ Mock implementations return the **existing hardcoded static data** that currentl
 
 ---
 
-### Integration Branch 13 — Notifications
+### Integration Branch 8 — Notifications
 - **Branch**: `feat/api-notifications`
 - **Type**: A+B
 - **Goal**: Register the device for push notifications and wire the in-app notification list to the backend.
