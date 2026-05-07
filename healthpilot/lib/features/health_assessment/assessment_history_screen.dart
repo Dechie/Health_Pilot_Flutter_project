@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:healthpilot/features/health_assessment/assessment_history_stepper_screen.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_models.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_subject.dart';
+import 'package:healthpilot/features/health_assessment/assessment_provider.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_flow_screen.dart';
-import 'package:healthpilot/features/health_assessment/in_memory_assessment_history.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -119,7 +119,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Assessment History')),
       body: SafeArea(
-        child: Consumer<InMemoryAssessmentHistory>(
+        child: Consumer<AssessmentProvider>(
           builder: (context, store, _) {
             final t = Theme.of(context).textTheme;
             final assessmentEntries = store.entries;

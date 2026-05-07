@@ -4,11 +4,15 @@ import 'package:healthpilot/core/auth/mock_auth_repository.dart';
 import 'package:healthpilot/core/auth/remote_auth_repository.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/network/api_client.dart';
+import 'package:healthpilot/core/repositories/i_assessment_repository.dart';
 import 'package:healthpilot/core/repositories/i_health_repository.dart';
 import 'package:healthpilot/core/repositories/i_medication_repository.dart';
 import 'package:healthpilot/core/repositories/i_profile_repository.dart';
 import 'package:healthpilot/core/storage/secure_token_store.dart';
 import 'package:healthpilot/features/health/health_provider.dart';
+import 'package:healthpilot/features/health_assessment/assessment_provider.dart';
+import 'package:healthpilot/features/health_assessment/repositories/mock_assessment_repository.dart';
+import 'package:healthpilot/features/health_assessment/repositories/remote_assessment_repository.dart';
 import 'package:healthpilot/features/health/repositories/mock_health_repository.dart';
 import 'package:healthpilot/features/health/repositories/remote_health_repository.dart';
 import 'package:healthpilot/features/medication/medication_provider.dart';
@@ -90,6 +94,21 @@ abstract final class RepositoryLocator {
             FeatureFlags.healthData
                 ? RemoteHealthRepository(apiClient) as IHealthRepository
                 : MockHealthRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 6 — Assessment; auto-loads history when AuthState becomes authenticated.
+        ChangeNotifierProxyProvider<AuthState, AssessmentProvider>(
+          create: (_) => AssessmentProvider(
+            FeatureFlags.assessment
+                ? RemoteAssessmentRepository(apiClient) as IAssessmentRepository
+                : MockAssessmentRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
