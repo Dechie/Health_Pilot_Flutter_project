@@ -4,7 +4,7 @@ import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/health_assessment/assessment_history_stepper_screen.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_models.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_subject.dart';
-import 'package:healthpilot/features/health_assessment/in_memory_assessment_history.dart';
+import 'package:healthpilot/features/health_assessment/assessment_provider.dart';
 import 'package:healthpilot/features/health_assessment/result_back_to_home_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -77,7 +77,7 @@ class SummaryScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 44,
                 child: FilledButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final summary = AssessmentSummary(
                       subject: subject,
                       bloodType: bloodType,
@@ -87,9 +87,10 @@ class SummaryScreen extends StatelessWidget {
                       hasOtherSymptoms: hasOtherSymptoms,
                       symptomsTrend: symptomsTrend,
                     );
-                    context.read<InMemoryAssessmentHistory>().recordCompleted(
-                          summary,
-                        );
+                    await context
+                        .read<AssessmentProvider>()
+                        .submit(summary);
+                    if (!context.mounted) return;
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute<void>(
                         builder: (_) => const ResultBackToHomeScreen(),

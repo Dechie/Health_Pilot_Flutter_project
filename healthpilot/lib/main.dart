@@ -8,7 +8,6 @@ import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
-import 'package:healthpilot/features/health_assessment/in_memory_assessment_history.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:healthpilot/features/onboarding/onboarding_flow_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
@@ -22,9 +21,6 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AppState>(create: (_) => AppState()),
-        ChangeNotifierProvider<InMemoryAssessmentHistory>(
-          create: (_) => InMemoryAssessmentHistory(),
-        ),
         ...RepositoryLocator.providers,
       ],
       child: const HealthPilotApp(),

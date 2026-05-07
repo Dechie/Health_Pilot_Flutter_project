@@ -1,25 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_models.dart';
 
-/// One completed run through the health assessment flow (in-memory only).
-@immutable
-class CompletedAssessmentEntry {
-  const CompletedAssessmentEntry({
-    required this.id,
-    required this.completedAt,
-    required this.summary,
-  });
+export 'package:healthpilot/features/health_assessment/health_assessment_models.dart'
+    show CompletedAssessmentEntry;
 
-  final String id;
-  final DateTime completedAt;
-  final AssessmentSummary summary;
-}
-
-/// Ephemeral store until persistence is added.
+/// Ephemeral store kept for reference — feature screens now use AssessmentProvider.
 class InMemoryAssessmentHistory extends ChangeNotifier {
   final List<CompletedAssessmentEntry> _entries = [];
 
-  /// Newest first.
   List<CompletedAssessmentEntry> get entries => List.unmodifiable(_entries);
 
   void recordCompleted(AssessmentSummary summary) {
