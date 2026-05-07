@@ -8,6 +8,7 @@ import 'package:healthpilot/core/repositories/i_ai_assistant_repository.dart';
 import 'package:healthpilot/core/repositories/i_assessment_repository.dart';
 import 'package:healthpilot/core/repositories/i_chat_repository.dart';
 import 'package:healthpilot/core/repositories/i_contacts_repository.dart';
+import 'package:healthpilot/core/repositories/i_nutrition_repository.dart';
 import 'package:healthpilot/core/repositories/i_health_repository.dart';
 import 'package:healthpilot/core/repositories/i_medication_repository.dart';
 import 'package:healthpilot/core/repositories/i_profile_repository.dart';
@@ -15,6 +16,9 @@ import 'package:healthpilot/core/storage/secure_token_store.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart';
 import 'package:healthpilot/features/chat/repositories/remote_chat_repository.dart';
+import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
+import 'package:healthpilot/features/food_nutrition/repositories/mock_nutrition_repository.dart';
+import 'package:healthpilot/features/food_nutrition/repositories/remote_nutrition_repository.dart';
 import 'package:healthpilot/features/health/health_provider.dart';
 import 'package:healthpilot/features/chatbot/ai_assistant_provider.dart';
 import 'package:healthpilot/features/profile/contacts_provider.dart';
@@ -137,6 +141,21 @@ abstract final class RepositoryLocator {
             FeatureFlags.contacts
                 ? RemoteContactsRepository(apiClient) as IContactsRepository
                 : MockContactsRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 11 — Nutrition; auto-loads history and settings when AuthState becomes authenticated.
+        ChangeNotifierProxyProvider<AuthState, NutritionProvider>(
+          create: (_) => NutritionProvider(
+            FeatureFlags.nutrition
+                ? RemoteNutritionRepository(apiClient) as INutritionRepository
+                : MockNutritionRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {

@@ -99,7 +99,7 @@ class FoodDayLog {
   }
 }
 
-/// Editable food & nutrition tracking preferences (no backend).
+/// Editable food & nutrition tracking preferences.
 class FoodNutritionSettings {
   const FoodNutritionSettings({
     required this.frequency,
@@ -123,6 +123,22 @@ class FoodNutritionSettings {
       diets: diets ?? this.diets,
     );
   }
+
+  factory FoodNutritionSettings.fromJson(Map<String, dynamic> json) =>
+      FoodNutritionSettings(
+        frequency: parseFoodReportFrequency(json['frequency'] as String?),
+        pushNotificationsEnabled:
+            json['push_notifications'] as bool? ?? true,
+        diets: (json['diets'] as List<dynamic>? ?? [])
+            .map((e) => e as String)
+            .toSet(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'frequency': foodReportFrequencyToStorage(frequency),
+        'push_notifications': pushNotificationsEnabled,
+        'diets': (diets.toList()..sort()),
+      };
 }
 
 /// Load/save nutrition UI state via [SharedPreferences].

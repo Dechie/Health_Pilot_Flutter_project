@@ -1,88 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
-import 'package:healthpilot/features/food_nutrition/food_nutrition_models.dart';
-import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
+import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
+import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
 /// Log of tracked meals with a vertical timeline (Figma-style history).
-class FoodNutritionHistoryScreen extends StatefulWidget {
+class FoodNutritionHistoryScreen extends StatelessWidget {
   const FoodNutritionHistoryScreen({super.key});
 
   @override
-  State<FoodNutritionHistoryScreen> createState() =>
-      _FoodNutritionHistoryScreenState();
-}
-
-class _FoodNutritionHistoryScreenState extends State<FoodNutritionHistoryScreen> {
-  late Future<List<FoodDayLog>> _historyFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _historyFuture = FoodNutritionPrefs.loadHistory();
-  }
-
-  void _reload() {
-    setState(() {
-      _historyFuture = FoodNutritionPrefs.loadHistory();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<FoodDayLog>>(
-      future: _historyFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(
-            body: SafeArea(
-              child: Center(child: CircularProgressIndicator()),
+    final provider = context.watch<NutritionProvider>();
+
+    if (provider.status == NutritionLoadStatus.idle ||
+        provider.status == NutritionLoadStatus.loading) {
+      return const Scaffold(
+        body: SafeArea(
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    final days = provider.history;
+    if (days.isEmpty) {
+      return _HistoryScaffold(
+        body: _EmptyHistoryBody(
+          onSetUp: () => Navigator.of(context).push<void>(
+            MaterialPageRoute<void>(
+              builder: (context) => const FoodNutritionTrackingScreen(),
             ),
-          );
-        }
-        final days = snapshot.data ?? [];
-        if (days.isEmpty) {
-          return _HistoryScaffold(
-            body: _EmptyHistoryBody(onSetUp: () async {
-              await Navigator.of(context).push<void>(
-                MaterialPageRoute<void>(
-                  builder: (context) => const FoodNutritionTrackingScreen(),
-                ),
-              );
-              if (mounted) {
-                _reload();
-              }
-            }),
-          );
-        }
-        return _HistoryScaffold(
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            children: [
-              for (var d = 0; d < days.length; d++) ...[
-                if (d > 0) const SizedBox(height: 20),
-                Text(
-                  days[d].dayStamp,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                for (var i = 0; i < days[d].meals.length; i++)
-                  _TimelineMealRow(
-                    mealName: days[d].meals[i].name,
-                    calories: days[d].meals[i].calories,
-                    showLineBelow: i < days[d].meals.length - 1,
-                  ),
-              ],
-            ],
           ),
-        );
-      },
+        ),
+      );
+    }
+
+    return _HistoryScaffold(
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        children: [
+          for (var d = 0; d < days.length; d++) ...[
+            if (d > 0) const SizedBox(height: 20),
+            Text(
+              days[d].dayStamp,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            for (var i = 0; i < days[d].meals.length; i++)
+              _TimelineMealRow(
+                mealName: days[d].meals[i].name,
+                calories: days[d].meals[i].calories,
+                showLineBelow: i < days[d].meals.length - 1,
+              ),
+          ],
+        ],
+      ),
     );
   }
 }

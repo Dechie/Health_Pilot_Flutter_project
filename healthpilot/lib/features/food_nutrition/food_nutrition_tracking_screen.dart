@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_models.dart';
+import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
@@ -17,47 +19,30 @@ class FoodNutritionTrackingScreen extends StatefulWidget {
 
 class _FoodNutritionTrackingScreenState
     extends State<FoodNutritionTrackingScreen> {
-  bool _prefsLoaded = false;
-  FoodReportFrequency _frequency = FoodReportFrequency.biWeekly;
-  bool _pushNotifications = true;
-  final Set<String> _diets = {};
+  late FoodReportFrequency _frequency;
+  late bool _pushNotifications;
+  late Set<String> _diets;
 
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
-  }
-
-  Future<void> _loadPrefs() async {
-    final s = await FoodNutritionPrefs.loadSettings();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _frequency = s.frequency;
-      _pushNotifications = s.pushNotificationsEnabled;
-      _diets
-        ..clear()
-        ..addAll(s.diets.where(kFoodNutritionDietChoices.contains));
-      if (_diets.isEmpty) {
-        _diets.addAll({'Vegetarian', 'Vegan'});
-      }
-      _prefsLoaded = true;
-    });
+    final s = context.read<NutritionProvider>().settings;
+    _frequency = s.frequency;
+    _pushNotifications = s.pushNotificationsEnabled;
+    _diets = Set<String>.from(
+        s.diets.where(kFoodNutritionDietChoices.contains));
+    if (_diets.isEmpty) _diets.addAll({'Vegetarian', 'Vegan'});
   }
 
   Future<void> _onFinish() async {
-    await FoodNutritionPrefs.saveSettings(
-      FoodNutritionSettings(
-        frequency: _frequency,
-        pushNotificationsEnabled: _pushNotifications,
-        diets: Set<String>.from(_diets),
-      ),
-    );
-    await FoodNutritionPrefs.seedHistoryIfEmpty();
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
+    await context.read<NutritionProvider>().updateSettings(
+          FoodNutritionSettings(
+            frequency: _frequency,
+            pushNotificationsEnabled: _pushNotifications,
+            diets: Set<String>.from(_diets),
+          ),
+        );
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -65,14 +50,6 @@ class _FoodNutritionTrackingScreenState
     final size = MediaQuery.sizeOf(context);
     final scheme = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleMedium;
-
-    if (!_prefsLoaded) {
-      return const Scaffold(
-        body: SafeArea(
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      );
-    }
 
     return Scaffold(
       body: SafeArea(
