@@ -41,6 +41,10 @@ import 'package:healthpilot/features/medication/repositories/remote_medication_r
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:healthpilot/features/profile/repositories/mock_profile_repository.dart';
 import 'package:healthpilot/features/profile/repositories/remote_profile_repository.dart';
+import 'package:healthpilot/core/repositories/i_subscription_repository.dart';
+import 'package:healthpilot/features/subscription/subscription_provider.dart';
+import 'package:healthpilot/features/subscription/repositories/mock_subscription_repository.dart';
+import 'package:healthpilot/features/subscription/repositories/remote_subscription_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -205,6 +209,22 @@ abstract final class RepositoryLocator {
             FeatureFlags.assessment
                 ? RemoteAssessmentRepository(apiClient) as IAssessmentRepository
                 : MockAssessmentRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 14 — Subscriptions; auto-loads plans and status when AuthState becomes authenticated.
+        ChangeNotifierProxyProvider<AuthState, SubscriptionProvider>(
+          create: (_) => SubscriptionProvider(
+            FeatureFlags.subscriptions
+                ? RemoteSubscriptionRepository(apiClient)
+                    as ISubscriptionRepository
+                : MockSubscriptionRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
