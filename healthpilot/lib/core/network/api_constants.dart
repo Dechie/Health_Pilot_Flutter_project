@@ -2,6 +2,7 @@ abstract final class ApiConstants {
   static const String authBase          = '/api/v1/auth';
   static const String profileBase       = '/api/v1/profile';
   static const String articlesBase      = '/api/v1/articles';
+  static const String contactsBase       = '/api/v1/contacts';
   static const String medicationsBase   = '/api/v1/medications';
   static const String assessmentsBase   = '/api/v1/assessments';
   static const String healthBase        = '/api/v1/health';

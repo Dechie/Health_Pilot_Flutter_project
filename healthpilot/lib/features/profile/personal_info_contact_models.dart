@@ -32,7 +32,7 @@ String? validateMobileNumber(MobileNumber? m) {
   return null;
 }
 
-/// Saved emergency contact row (in-memory on hub screen).
+/// Saved emergency contact row.
 class EmergencyContactEntry {
   EmergencyContactEntry({
     required this.id,
@@ -51,6 +51,24 @@ class EmergencyContactEntry {
   final String? relationship;
 
   String get displayName => '$firstName $lastName'.trim();
+
+  factory EmergencyContactEntry.fromJson(Map<String, dynamic> json) =>
+      EmergencyContactEntry(
+        id: json['id'] as String,
+        firstName: json['first_name'] as String,
+        lastName: json['last_name'] as String,
+        email: json['email'] as String,
+        phoneComplete: json['phone'] as String,
+        relationship: json['relationship'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'first_name': firstName,
+        'last_name': lastName,
+        'email': email,
+        'phone': phoneComplete,
+        if (relationship != null) 'relationship': relationship,
+      };
 
   EmergencyContactEntry copyWith({
     String? id,
@@ -71,7 +89,7 @@ class EmergencyContactEntry {
   }
 }
 
-/// Saved personal doctor row (in-memory on hub screen).
+/// Saved personal doctor row.
 class PersonalDoctorEntry {
   PersonalDoctorEntry({
     required this.id,
@@ -94,6 +112,26 @@ class PersonalDoctorEntry {
   final int reportFrequency;
 
   String get displayName => '$firstName $lastName'.trim();
+
+  factory PersonalDoctorEntry.fromJson(Map<String, dynamic> json) =>
+      PersonalDoctorEntry(
+        id: json['id'] as String,
+        firstName: json['first_name'] as String,
+        lastName: json['last_name'] as String,
+        profession: json['profession'] as String,
+        email: json['email'] as String,
+        phoneComplete: json['phone'] as String,
+        reportFrequency: json['report_frequency'] as int? ?? 1,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'first_name': firstName,
+        'last_name': lastName,
+        'profession': profession,
+        'email': email,
+        'phone': phoneComplete,
+        'report_frequency': reportFrequency,
+      };
 }
 
 /// Result when closing [SetupPersonalDoctor].
