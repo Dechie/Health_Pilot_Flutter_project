@@ -3,6 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/articles/article_detail_screen.dart';
 import 'package:healthpilot/features/articles/article_feed_item.dart';
+import 'package:healthpilot/features/articles/article_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ArticleScreen extends StatefulWidget {
@@ -15,60 +17,7 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   final TextEditingController _articleSearchController =
       TextEditingController();
-
-  static final List<ArticleFeedItem> _allArticles = [
-    ArticleFeedItem(
-      id: '1',
-      title: 'Why are we growing old?',
-      body:
-          "Lorem ipsum dolor sit amet consectetur. Donec ultrices enim purus at nisl morbi pretium elit. Sit aliquam tempus felis porttitor arcu. Placerat viverra feugiat tristique etiam volutpat. Mi faucibus in arcu integer ipsum. Iaculis cursus orci nunc laoreet sed et tortor mollis id. Dolor pulvinar turpis aenean facilisi dignissim. Proin mi nullam nibh adipiscing mauris facilisi aliquam urna adipiscing. Orci sagittis velit amet elit condimentum enim purus. Dolor volutpat est facilisi enim sit pulvinar diam malesuada. Est pellentesque lorem laoreet sit blandit amet maecenas. Turpis ornare in nunc ornare. Sed tellus ut lorem enim morbi cursus sagittis. Nibh ipsum lacus lectus eros et pharetra pretium et porta. Arcu risus interdum tellus mattis. Mi mus sagittis adipiscing lectus nunc orci risus. Leo aliquet pellentesque adipiscing sit viverra morbi porttitor viverra et. Accumsan nisi nec dolor dictumst a faucibus. In id iaculis feugiat justo. Risus urna egestas adipiscing elementum. Gravida fringilla fermentum augue diam massa mauris imperdiet in. Eu ultricies aliquam nisl condimentum arcu viverra. Pretium enim sed faucibus mi. Vel sed in id vitae. Duis ultrices leo tortor nisi libero maecenas.",
-      imageUrl: 'assets/images/old_woman.png',
-      author: 'HealthPilot Team',
-      publishedAt: DateTime(2022, 10, 23),
-      readMinutes: 5,
-      likes: 23,
-      commentsCount: 12,
-    ),
-    ArticleFeedItem(
-      id: '2',
-      title: 'Why old',
-      body:
-          "Lorem ipsum dolor sit amet consectetur. Donec ultrices enim purus at nisl morbi pretium elit. Sit aliquam tempus felis porttitor arcu. Placerat viverra feugiat tristique etiam volutpat. Mi faucibus in arcu integer ipsum. Iaculis cursus orci nunc laoreet sed et tortor mollis id.",
-      imageUrl: 'assets/images/old_woman.png',
-      author: 'HealthPilot Team',
-      publishedAt: DateTime(2023, 1, 8),
-      readMinutes: 4,
-      likes: 18,
-      commentsCount: 6,
-    ),
-    ArticleFeedItem(
-      id: '3',
-      title: 'Why get old',
-      body:
-          "Lorem ipsum dolor sit amet consectetur. Donec ultrices enim purus at nisl morbi pretium elit. Sit aliquam tempus felis porttitor arcu. Placerat viverra feugiat tristique etiam volutpat. Mi faucibus in arcu integer ipsum. Iaculis cursus orci nunc laoreet sed et tortor mollis id. Dolor pulvinar turpis aenean facilisi dignissim.",
-      imageUrl: 'assets/images/old_woman.png',
-      author: 'Contributor',
-      publishedAt: DateTime(2023, 3, 15),
-      readMinutes: 7,
-      likes: 41,
-      commentsCount: 9,
-    ),
-  ];
-
-  List<ArticleFeedItem> _visible = List.of(_allArticles);
-
-  void _applyFilter() {
-    final q = _articleSearchController.text.trim().toLowerCase();
-    setState(() {
-      if (q.isEmpty) {
-        _visible = List.of(_allArticles);
-      } else {
-        _visible = _allArticles
-            .where((a) => a.title.toLowerCase().contains(q))
-            .toList();
-      }
-    });
-  }
+  String _query = '';
 
   @override
   void dispose() {
@@ -114,6 +63,12 @@ class _ArticleScreenState extends State<ArticleScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final provider = context.watch<ArticleProvider>();
+    final visible = _query.isEmpty
+        ? provider.articles
+        : provider.articles
+            .where((a) => a.title.toLowerCase().contains(_query.toLowerCase()))
+            .toList();
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -193,18 +148,18 @@ class _ArticleScreenState extends State<ArticleScreen> {
                   controller: _articleSearchController,
                   inputAction: TextInputAction.search,
                   hintText: 'Search For Articles',
-                  onChanged: (_) => _applyFilter(),
+                  onChanged: (v) => setState(() => _query = v.trim()),
                   suffixIcon: 'assets/Icons/setting.svg',
                   onSuffixTap: _showFilterShell,
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _visible.length,
+                    itemCount: visible.length,
                     itemBuilder: (context, index) {
                       return ArticleCard(
                         screenWidth: screenWidth,
                         screenHeight: screenHeight,
-                        item: _visible[index],
+                        item: visible[index],
                         onOpen: _openDetail,
                         onShare: (item) {
                           Share.share(
