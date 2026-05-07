@@ -6,6 +6,7 @@ import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/network/api_client.dart';
 import 'package:healthpilot/core/repositories/i_ai_assistant_repository.dart';
 import 'package:healthpilot/core/repositories/i_assessment_repository.dart';
+import 'package:healthpilot/core/repositories/i_article_repository.dart';
 import 'package:healthpilot/core/repositories/i_chat_repository.dart';
 import 'package:healthpilot/core/repositories/i_contacts_repository.dart';
 import 'package:healthpilot/core/repositories/i_nutrition_repository.dart';
@@ -13,6 +14,9 @@ import 'package:healthpilot/core/repositories/i_health_repository.dart';
 import 'package:healthpilot/core/repositories/i_medication_repository.dart';
 import 'package:healthpilot/core/repositories/i_profile_repository.dart';
 import 'package:healthpilot/core/storage/secure_token_store.dart';
+import 'package:healthpilot/features/articles/article_provider.dart';
+import 'package:healthpilot/features/articles/repositories/mock_article_repository.dart';
+import 'package:healthpilot/features/articles/repositories/remote_article_repository.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart';
 import 'package:healthpilot/features/chat/repositories/remote_chat_repository.dart';
@@ -141,6 +145,21 @@ abstract final class RepositoryLocator {
             FeatureFlags.contacts
                 ? RemoteContactsRepository(apiClient) as IContactsRepository
                 : MockContactsRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 13 — Articles; auto-loads feed when AuthState becomes authenticated.
+        ChangeNotifierProxyProvider<AuthState, ArticleProvider>(
+          create: (_) => ArticleProvider(
+            FeatureFlags.articles
+                ? RemoteArticleRepository(apiClient) as IArticleRepository
+                : MockArticleRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
