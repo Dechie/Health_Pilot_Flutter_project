@@ -1,9 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
+import 'package:healthpilot/core/network/api_error.dart';
+import 'package:healthpilot/features/auth/activation_screen.dart';
 import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
-import 'package:healthpilot/features/get_started/get_started_screen.dart';
+import 'package:provider/provider.dart';
 
 import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
 
@@ -20,7 +24,10 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
   bool? _isChecked = false;
   bool _isLogin = false;
   bool _isObscured = true;
+  bool _isLoading = false;
   final emailController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -33,10 +40,84 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
   @override
   void dispose() {
     emailController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
   }
+
+  Future<void> _login() async {
+    if (!FeatureFlags.auth) {
+      AppNavigation.replaceWithHome(context);
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await context.read<AuthState>().login(
+            emailController.text.trim(),
+            passwordController.text,
+          );
+      if (!mounted) return;
+      AppNavigation.replaceWithHome(context);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showError(_apiErrorMessage(e));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showError('Login failed. Please try again.');
+    }
+  }
+
+  Future<void> _register() async {
+    if (passwordController.text != confirmPasswordController.text) {
+      _showError('Passwords do not match.');
+      return;
+    }
+    if (!FeatureFlags.auth) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => const ConfirmEmailScreen()),
+      );
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await context.read<AuthState>().register(
+            email: emailController.text.trim(),
+            firstName: firstNameController.text.trim(),
+            lastName: lastNameController.text.trim(),
+            password: passwordController.text,
+          );
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => const ActivationScreen()),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showError(_apiErrorMessage(e));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showError('Registration failed. Please try again.');
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  String _apiErrorMessage(ApiException e) => switch (e) {
+        ServerError(:final message) => message,
+        NetworkError() => 'No internet connection.',
+        AuthExpired() => 'Session expired. Please log in again.',
+        UnknownError() => 'Something went wrong. Please try again.',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +195,34 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                         controller: emailController,
                         iconPressed: null,
                       ),
+                      if (!_isLogin) ...[
+                        SizedBox(height: screenHeight * 0.03),
+                        InputFields(
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          keyboardType: TextInputType.name,
+                          hintText: "First Name",
+                          suffixIcon: null,
+                          prefixIcon: Icons.person_outline,
+                          inputActiom: TextInputAction.next,
+                          isobscured: false,
+                          controller: firstNameController,
+                          iconPressed: null,
+                        ),
+                        SizedBox(height: screenHeight * 0.03),
+                        InputFields(
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          keyboardType: TextInputType.name,
+                          hintText: "Last Name",
+                          suffixIcon: null,
+                          prefixIcon: Icons.person_outline,
+                          inputActiom: TextInputAction.next,
+                          isobscured: false,
+                          controller: lastNameController,
+                          iconPressed: null,
+                        ),
+                      ],
                       SizedBox(height: screenHeight * 0.03),
                       InputFields(
                         screenWidth: screenWidth,
@@ -190,22 +299,11 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                         screenWidth: screenWidth,
                         screenHeight: screenHeight,
                         buttonText: _isLogin ? "Login" : "Sign Up",
-                        buttonAction: _isLogin
-                            ? () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const GetStartedScreen(),
-                                  ),
-                                );
-                              }
-                            : () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ConfirmEmailScreen(),
-                                ));
-                              },
+                        buttonAction: _isLoading
+                            ? null
+                            : (_isLogin ? _login : _register),
                         buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
+                        isLoading: _isLoading,
                       ),
                       SizedBox(
                         height: screenHeight * 0.03,
@@ -690,6 +788,7 @@ class Button extends StatelessWidget {
   final Color buttoncolor;
   final Color textColor;
   final double fontsize;
+  final bool isLoading;
   const Button(
       {super.key,
       required this.screenWidth,
@@ -699,7 +798,8 @@ class Button extends StatelessWidget {
       this.buttonAction,
       required this.buttoncolor,
       required this.textColor,
-      required this.fontsize});
+      required this.fontsize,
+      this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -708,22 +808,31 @@ class Button extends StatelessWidget {
       child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: Container(
-            width: screenWidth * 0.48, // 23.1% of screen width
-            height: screenHeight * 0.063, // 5% of screen height
+            width: screenWidth * 0.48,
+            height: screenHeight * 0.063,
             decoration: BoxDecoration(
               color: buttoncolor,
-            ), // Adjust the width as needed
+            ),
             child: Center(
-              child: Text(
-                buttonText,
-                style: TextStyle(
-                  color: textColor,
-                  fontFamily: "PlusJakartaSans",
-                  fontSize: fontsize,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.16,
-                ),
-              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      buttonText,
+                      style: TextStyle(
+                        color: textColor,
+                        fontFamily: "PlusJakartaSans",
+                        fontSize: fontsize,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.16,
+                      ),
+                    ),
             ),
           )),
     );

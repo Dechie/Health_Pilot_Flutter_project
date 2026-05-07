@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
@@ -8,10 +9,17 @@ import 'package:healthpilot/features/profile/terms_and_policy_dialog.dart';
 import 'package:healthpilot/features/profile/widgets/premium_feature_dialog.dart';
 import 'package:healthpilot/features/profile/widgets/profile_settings_shared.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
+import 'package:provider/provider.dart';
 
 /// App settings and account-related actions (split from profile for clearer ownership).
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
+  Future<void> _logout(BuildContext context) async {
+    await context.read<AuthState>().logout();
+    if (!context.mounted) return;
+    AppNavigation.replaceWithLogin(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +110,12 @@ class SettingsScreen extends StatelessWidget {
                       settingAdress: 'FAQ',
                       iconData: Icons.arrow_forward,
                       onpressed: null,
+                    ),
+                    HealthInformationSettings(
+                      imageAdress: 'assets/Icons/profile.svg',
+                      settingAdress: 'Log Out',
+                      iconData: Icons.logout,
+                      onpressed: () => _logout(context),
                     ),
                   ],
                 ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/di/repository_locator.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
@@ -8,11 +11,13 @@ import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/health_assessment/in_memory_assessment_history.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:healthpilot/features/onboarding/onboarding_flow_screen.dart';
+import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  RepositoryLocator.initialize();
   runApp(
     MultiProvider(
       providers: [
@@ -20,6 +25,7 @@ void main() {
         ChangeNotifierProvider<InMemoryAssessmentHistory>(
           create: (_) => InMemoryAssessmentHistory(),
         ),
+        ...RepositoryLocator.providers,
       ],
       child: const HealthPilotApp(),
     ),
@@ -67,24 +73,33 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  void goToNextScreen() {
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute<void>(
-          builder: (context) => kEnableOnboardingFlow
-              ? const OnboardingFlowScreen()
-              : const HomePageScreen(isHelpPressed: false),
-        ),
-      );
-    });
+  Future<void> _goToNextScreen() async {
+    final auth = context.read<AuthState>();
+    // Wait for auth init and a minimum splash display time in parallel.
+    await Future.wait([
+      auth.initialize(),
+      Future<void>.delayed(const Duration(seconds: 2)),
+    ]);
+    if (!mounted) return;
+
+    final Widget next;
+    if (!FeatureFlags.auth || auth.status == AuthStatus.authenticated) {
+      next = kEnableOnboardingFlow
+          ? const OnboardingFlowScreen()
+          : const HomePageScreen(isHelpPressed: false);
+    } else {
+      next = const SignupAndLoginScreen();
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute<void>(builder: (_) => next),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    goToNextScreen();
+    _goToNextScreen();
   }
 
   @override

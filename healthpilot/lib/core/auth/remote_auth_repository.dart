@@ -1,0 +1,85 @@
+import 'package:healthpilot/core/auth/auth_tokens.dart';
+import 'package:healthpilot/core/network/api_client.dart';
+import 'package:healthpilot/core/network/api_constants.dart';
+import 'package:healthpilot/core/repositories/i_auth_repository.dart';
+
+class RemoteAuthRepository implements IAuthRepository {
+  final ApiClient _client;
+
+  const RemoteAuthRepository(this._client);
+
+  @override
+  Future<void> register({
+    required String email,
+    required String firstName,
+    required String lastName,
+    required String password,
+  }) async {
+    await _client.post('${ApiConstants.authBase}/register/', data: {
+      'email': email,
+      'first_name': firstName,
+      'last_name': lastName,
+      'password': password,
+      'password2': password,
+    });
+  }
+
+  @override
+  Future<AuthTokens> activate({required String token}) async {
+    final data = await _client.post(
+      '${ApiConstants.authBase}/activate/',
+      data: {'token': token},
+    );
+    return AuthTokens.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<AuthTokens> login({
+    required String email,
+    required String password,
+  }) async {
+    final data = await _client.post(
+      '${ApiConstants.authBase}/login/',
+      data: {'email': email, 'password': password},
+    );
+    return AuthTokens.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<AuthTokens> refreshToken({required String refresh}) async {
+    final data = await _client.post(
+      '${ApiConstants.authBase}/token/refresh/',
+      data: {'refresh': refresh},
+    );
+    return AuthTokens.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> logout({required String refresh}) async {
+    await _client.post(
+      '${ApiConstants.authBase}/logout/',
+      data: {'refresh': refresh},
+    );
+  }
+
+  @override
+  Future<AuthTokens> guestLogin() async {
+    final data = await _client.post('${ApiConstants.authBase}/guest/');
+    return AuthTokens.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getMe() async {
+    final data = await _client.get('${ApiConstants.authBase}/me/');
+    return data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateMe(Map<String, dynamic> fields) async {
+    final data = await _client.patch(
+      '${ApiConstants.authBase}/me/',
+      data: fields,
+    );
+    return data as Map<String, dynamic>;
+  }
+}
