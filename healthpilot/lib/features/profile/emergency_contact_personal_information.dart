@@ -9,8 +9,10 @@ import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/widgets/setup_promo_card.dart';
 import 'package:healthpilot/features/emergency_contact/setup_emergency_contact.dart';
 import 'package:healthpilot/features/personal_doctor/setup_personal_doctor.dart';
+import 'package:healthpilot/features/profile/contacts_provider.dart';
 import 'package:healthpilot/features/profile/personal_info_contact_models.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
 import 'package:line_icons/line_icons.dart';
 
@@ -25,8 +27,6 @@ class PersonalInformation extends StatefulWidget {
 }
 
 class _PersonalInformationState extends State<PersonalInformation> {
-  final List<EmergencyContactEntry> _emergencyContacts = [];
-  final List<PersonalDoctorEntry> _doctors = [];
   String? _profileImagePath;
 
   Future<void> _pickProfilePhoto() async {
@@ -36,34 +36,30 @@ class _PersonalInformationState extends State<PersonalInformation> {
     }
   }
 
-  Future<void> _addOrEditEmergency({EmergencyContactEntry? existing, int? index}) async {
+  Future<void> _addOrEditEmergency({
+    EmergencyContactEntry? existing,
+  }) async {
     final created = await Navigator.of(context).push<EmergencyContactEntry>(
       MaterialPageRoute(
         builder: (context) => SetupEmergencyContact(initial: existing),
       ),
     );
-    if (!mounted || created == null) {
-      return;
+    if (!mounted || created == null) return;
+    final provider = context.read<ContactsProvider>();
+    if (existing != null) {
+      await provider.updateContact(created);
+    } else {
+      await provider.addContact(created);
     }
-    setState(() {
-      if (index != null) {
-        _emergencyContacts[index] = created;
-      } else {
-        if (_emergencyContacts.length < 3) {
-          _emergencyContacts.add(created);
-        }
-      }
-    });
   }
 
-  Future<void> _confirmRemoveEmergency(int index) async {
+  Future<void> _confirmRemoveEmergency(String id) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Remove emergency contact?'),
-        content: const Text(
-          'This contact will be removed from your list.',
-        ),
+        content:
+            const Text('This contact will be removed from your list.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -77,44 +73,37 @@ class _PersonalInformationState extends State<PersonalInformation> {
       ),
     );
     if (ok == true && mounted) {
-      setState(() => _emergencyContacts.removeAt(index));
+      await context.read<ContactsProvider>().deleteContact(id);
     }
   }
 
-  Future<void> _addOrEditDoctor({PersonalDoctorEntry? existing, int? index}) async {
+  Future<void> _addOrEditDoctor({PersonalDoctorEntry? existing}) async {
     final result = await Navigator.of(context).push<DoctorSetupResult>(
       MaterialPageRoute(
         builder: (context) => SetupPersonalDoctor(initial: existing),
       ),
     );
-    if (!mounted || result == null) {
-      return;
-    }
-    if (result.deleted && index != null) {
-      setState(() => _doctors.removeAt(index));
+    if (!mounted || result == null) return;
+    final provider = context.read<ContactsProvider>();
+    if (result.deleted && existing != null) {
+      await provider.deleteDoctor(existing.id);
       return;
     }
     final entry = result.entry;
-    if (entry == null) {
-      return;
+    if (entry == null) return;
+    if (existing != null) {
+      await provider.updateDoctor(entry);
+    } else {
+      await provider.addDoctor(entry);
     }
-    setState(() {
-      if (index != null) {
-        _doctors[index] = entry;
-      } else if (_doctors.length < 3) {
-        _doctors.add(entry);
-      }
-    });
   }
 
-  Future<void> _confirmRemoveDoctor(int index) async {
+  Future<void> _confirmRemoveDoctor(String id) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Remove personal doctor?'),
-        content: const Text(
-          'This doctor will be removed from your list.',
-        ),
+        content: const Text('This doctor will be removed from your list.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -128,7 +117,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
       ),
     );
     if (ok == true && mounted) {
-      setState(() => _doctors.removeAt(index));
+      await context.read<ContactsProvider>().deleteDoctor(id);
     }
   }
 
@@ -137,6 +126,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
     final size = MediaQuery.sizeOf(context);
     final cs = Theme.of(context).colorScheme;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final contactsProvider = context.watch<ContactsProvider>();
+    final emergencyContacts = contactsProvider.contacts;
+    final doctors = contactsProvider.doctors;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -448,7 +440,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         ),
                         IconButton(
                           onPressed: () {
-                            if (_emergencyContacts.length >= 3) {
+                            if (emergencyContacts.length >= 3) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -468,10 +460,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       ],
                     ),
                     SizedBox(
-                      height: _emergencyContacts.isEmpty
+                      height: emergencyContacts.isEmpty
                           ? size.height * 0.08
-                          : size.height * 0.11 * _emergencyContacts.length,
-                      child: _emergencyContacts.isEmpty
+                          : size.height * 0.11 * emergencyContacts.length,
+                      child: emergencyContacts.isEmpty
                           ? const Center(
                               child: Text(
                                 'No emergency contact found!',
@@ -485,9 +477,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                           : ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _emergencyContacts.length,
+                              itemCount: emergencyContacts.length,
                               itemBuilder: (context, index) {
-                                final e = _emergencyContacts[index];
+                                final e = emergencyContacts[index];
                                 return Padding(
                                   padding: EdgeInsets.only(
                                     bottom: size.height * 0.012,
@@ -577,7 +569,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                         tooltip: 'Edit',
                                         onPressed: () => _addOrEditEmergency(
                                           existing: e,
-                                          index: index,
                                         ),
                                         icon: const Icon(
                                           Icons.edit_outlined,
@@ -592,7 +583,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                       IconButton(
                                         tooltip: 'Remove',
                                         onPressed: () =>
-                                            _confirmRemoveEmergency(index),
+                                            _confirmRemoveEmergency(e.id),
                                         icon: const Icon(
                                           Icons.delete_outline,
                                           color: Color.fromRGBO(
@@ -622,7 +613,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         ),
                         IconButton(
                           onPressed: () {
-                            if (_doctors.length >= 3) {
+                            if (doctors.length >= 3) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -642,10 +633,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       ],
                     ),
                     SizedBox(
-                      height: _doctors.isEmpty
+                      height: doctors.isEmpty
                           ? size.height * 0.08
-                          : size.height * 0.11 * _doctors.length,
-                      child: _doctors.isEmpty
+                          : size.height * 0.11 * doctors.length,
+                      child: doctors.isEmpty
                           ? const Center(
                               child: Text(
                                 'You don\'t have a personal doctor!',
@@ -659,9 +650,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                           : ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _doctors.length,
+                              itemCount: doctors.length,
                               itemBuilder: (context, index) {
-                                final d = _doctors[index];
+                                final d = doctors[index];
                                 return Padding(
                                   padding: EdgeInsets.only(
                                     bottom: size.height * 0.012,
@@ -749,7 +740,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                         tooltip: 'Edit',
                                         onPressed: () => _addOrEditDoctor(
                                           existing: d,
-                                          index: index,
                                         ),
                                         icon: const Icon(
                                           Icons.edit_outlined,
@@ -764,7 +754,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                       IconButton(
                                         tooltip: 'Remove',
                                         onPressed: () =>
-                                            _confirmRemoveDoctor(index),
+                                            _confirmRemoveDoctor(d.id),
                                         icon: const Icon(
                                           Icons.delete_outline,
                                           color: Color.fromRGBO(
