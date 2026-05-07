@@ -1,65 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/network/api_error.dart';
+import 'package:healthpilot/features/medication/medication_models.dart';
+import 'package:healthpilot/features/medication/medication_provider.dart';
 import 'package:line_icons/line_icons.dart';
-
-/// Medication Class
-///
-/// A data model class in a Flutter health application representing medication information.
-/// Instances of this class store details about a specific medication, including its name,
-/// dosage frequency, and milligram dosage.
-///
-/// Properties:
-/// - `medicationName`: A string representing the name of the medication.
-/// - `noTimesPerDay`: An integer indicating how many times the medication should be taken per day.
-/// - `miligrams`: An integer specifying the milligram dosage of the medication.
-///
-/// Usage:
-/// The `Medication` class is used to create instances that encapsulate medication data.
-/// It is commonly used to represent individual medication records within the application.
-///
-/// Example:
-///
-/// ```dart
-/// final aspirin = Medication("Aspirin", 2, 100);
-/// ```
-
-class Medication {
-  final String medicationName;
-  final int noTimesPerDay;
-  final int miligrams;
-
-  Medication(this.medicationName, this.noTimesPerDay, this.miligrams);
-}
-
-/// MedicationListProvider Class
-///
-/// A utility class in a Flutter health application for managing a list of medications.
-/// This class provides methods to access and manipulate the list of medications,
-/// including adding new medications to the list.
-///
-/// Properties:
-/// - `medication`: A static list containing instances of the `Medication` class.
-///
-/// Usage:
-/// The `MedicationListProvider` class serves as a centralized data management tool
-/// for medications within a Flutter health application. It allows easy access to the
-/// list of medications and provides a method for adding new medications to the list.
-///
-/// Example:
-///
-/// ```dart
-/// MedicationListProvider.addMedication("Aspirin", 2, 100);
-/// ```
-
-class MedicationListProvider {
-  static List<Medication> medication = [Medication("medicationName", 1, 2)];
-
-  static void addMedication(
-      String medicationName, int noTimesperday, int miligrms) {
-    final newMedication = Medication(medicationName, noTimesperday, miligrms);
-    medication.add(newMedication);
-  }
-}
+import 'package:provider/provider.dart';
 
 /// MedicationScreen Widget
 ///
@@ -94,44 +39,52 @@ class MedicationScreen extends StatefulWidget {
 
 class _MedicationScreenState extends State<MedicationScreen> {
   final TextEditingController _searchText = TextEditingController();
-  List<Medication> filteredMedications = [];
 
-  void _editMedication(int index) {
-    final medicationToEdit = MedicationListProvider.medication[index];
+  void _editMedication(Medication medication) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => MedicationAddScreen(
-          existingMedication: medicationToEdit,
-        ),
+      MaterialPageRoute<void>(
+        builder: (context) => MedicationAddScreen(existingMedication: medication),
       ),
     );
   }
 
-  void _filterMedications(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        filteredMedications = MedicationListProvider.medication;
-      } else {
-        filteredMedications = MedicationListProvider.medication
-            .where((medication) => medication.medicationName
-                .toLowerCase()
-                .contains(query.toLowerCase()))
-            .toList();
-      }
-    });
+  void _openAddScreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => const MedicationAddScreen(),
+      ),
+    );
   }
 
   @override
   void initState() {
-    filteredMedications = MedicationListProvider.medication;
     super.initState();
+    _searchText.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _searchText.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final provider = context.watch<MedicationProvider>();
+    final q = _searchText.text.toLowerCase();
+    final filtered = q.isEmpty
+        ? provider.medications
+        : provider.medications
+            .where((m) => m.medicationName.toLowerCase().contains(q))
+            .toList();
+
     return Scaffold(
       backgroundColor: cs.surface,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openAddScreen,
+        child: const Icon(Icons.add),
+      ),
       body: SafeArea(child: LayoutBuilder(
         builder: (context, constraints) {
           final size = constraints.biggest;
@@ -214,96 +167,98 @@ class _MedicationScreenState extends State<MedicationScreen> {
                     inputAction: TextInputAction.search,
                     canONChangedUsed: true,
                     hintText: 'Search Medications',
-                    onChanged: (query) {
-                      _filterMedications(
-                          query); // Call _filterMedications when the text changes
-                    },
+                    onChanged: (_) {},
                   ),
                   SizedBox(
                     height: screenHeight * 0.03,
                   ),
-                  filteredMedications.isEmpty
-                      ? Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.topCenter,
-                              child: SvgPicture.asset(
-                                "assets/images/Medications.svg",
-                              ),
-                            ),
-                            SizedBox(
-                              height: screenHeight * 0.03,
-                            ),
-                            Align(
-                              alignment: Alignment.topCenter,
-                              child: Texts(
-                                fontSize: 16,
-                                color: cs.onSurface,
-                                fontWeight: FontWeight.w500,
-                                text: "No Medications Found",
-                                align: TextAlign.center,
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.12,
-                                vertical: screenHeight * 0.02,
-                              ),
-                              child: Align(
-                                alignment: Alignment.topCenter,
-                                child: Texts(
-                                  fontSize: 14,
-                                  color: cs.onSurfaceVariant,
-                                  fontWeight: FontWeight.w400,
-                                  text:
-                                      "Search for your medications from our database and add them to track your health better",
-                                  align: TextAlign.center,
-                                ),
-                              ),
-                            )
-                          ],
-                        )
-                      : Padding(
+                  if (provider.status == MedLoadStatus.loading &&
+                      provider.medications.isEmpty)
+                    const Center(child: CircularProgressIndicator())
+                  else if (provider.status == MedLoadStatus.error &&
+                      provider.medications.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.1),
+                        child: Text(
+                          provider.error ?? 'Failed to load medications.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  else if (filtered.isEmpty)
+                    Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: SvgPicture.asset(
+                            "assets/images/Medications.svg",
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.03),
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: Texts(
+                            fontSize: 16,
+                            color: cs.onSurface,
+                            fontWeight: FontWeight.w500,
+                            text: "No Medications Found",
+                            align: TextAlign.center,
+                          ),
+                        ),
+                        Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.05),
-                          child: Container(
-                            height: screenHeight * 0.55,
-                            color: Colors.transparent,
-                            child: ListView.separated(
-                              itemBuilder: (context, index) {
-                                return MedicationListTile(
-                                  onpressed: null,
-                                  medicationName:
-                                      filteredMedications[index].medicationName,
-                                  screenHeight: screenHeight,
-                                  screenWidth: screenWidth,
-                                  onTap: () {
-                                    setState(() {
-                                      MedicationListProvider.medication
-                                          .removeWhere(
-                                        (element) =>
-                                            element.medicationName ==
-                                            filteredMedications[index]
-                                                .medicationName,
-                                      );
-                                    });
-                                  },
-                                  edit: () {
-                                    return _editMedication(index);
-                                  },
-                                );
-                              },
-                              itemCount: filteredMedications.length,
-                              separatorBuilder:
-                                  (BuildContext context, int index) {
-                                return Divider(
-                                  height: 1,
-                                  color: cs.outline.withValues(alpha: 0.35),
-                                );
-                              },
+                            horizontal: screenWidth * 0.12,
+                            vertical: screenHeight * 0.02,
+                          ),
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: Texts(
+                              fontSize: 14,
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w400,
+                              text:
+                                  "Search for your medications from our database and add them to track your health better",
+                              align: TextAlign.center,
                             ),
                           ),
                         ),
+                      ],
+                    )
+                  else
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: screenWidth * 0.05),
+                      child: Container(
+                        height: screenHeight * 0.55,
+                        color: Colors.transparent,
+                        child: ListView.separated(
+                          itemBuilder: (context, index) {
+                            final med = filtered[index];
+                            return MedicationListTile(
+                              onpressed: null,
+                              medicationName: med.medicationName,
+                              screenHeight: screenHeight,
+                              screenWidth: screenWidth,
+                              onTap: () {
+                                if (med.id != null) {
+                                  context
+                                      .read<MedicationProvider>()
+                                      .delete(med.id!);
+                                }
+                              },
+                              edit: () => _editMedication(med),
+                            );
+                          },
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) => Divider(
+                            height: 1,
+                            color: cs.outline.withValues(alpha: 0.35),
+                          ),
+                        ),
+                      ),
+                    ),
                   Padding(
                       padding: EdgeInsets.only(
                           bottom: MediaQuery.of(context).viewInsets.bottom))
@@ -689,40 +644,52 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
   final TextEditingController _miligrams = TextEditingController();
   final TextEditingController _medicationName = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String _dosageUnit = 'mg';
+  bool _saving = false;
 
   @override
   void initState() {
-    if (widget.existingMedication != null) {
-      // Populate the controllers with existing data for editing
-      _medicationName.text = widget.existingMedication!.medicationName;
-      _noTimesPerDay.text = widget.existingMedication!.noTimesPerDay.toString();
-      _miligrams.text = widget.existingMedication!.miligrams.toString();
-    }
     super.initState();
+    final existing = widget.existingMedication;
+    if (existing != null) {
+      _medicationName.text = existing.medicationName;
+      _noTimesPerDay.text = existing.noTimesPerDay.toString();
+      _miligrams.text = existing.miligrams.toString();
+      _dosageUnit = existing.dosageUnit;
+    }
   }
 
-  void _saveMedication() {
-    if (widget.existingMedication != null) {
-      final editedMedication = Medication(
-        _medicationName.text,
-        int.parse(_noTimesPerDay.text),
-        int.parse(_miligrams.text),
-      );
-
-      final index =
-          MedicationListProvider.medication.indexOf(widget.existingMedication!);
-      if (index != -1) {
-        MedicationListProvider.medication[index] = editedMedication;
+  Future<void> _saveMedication() async {
+    if (!(_formKey.currentState?.validate() ?? true)) return;
+    setState(() => _saving = true);
+    try {
+      final provider = context.read<MedicationProvider>();
+      final existing = widget.existingMedication;
+      if (existing != null) {
+        await provider.update(existing.copyWith(
+          medicationName: _medicationName.text.trim(),
+          noTimesPerDay: int.tryParse(_noTimesPerDay.text) ?? 1,
+          miligrams: int.tryParse(_miligrams.text) ?? 0,
+          dosageUnit: _dosageUnit,
+        ));
+      } else {
+        await provider.add(Medication(
+          _medicationName.text.trim(),
+          int.tryParse(_noTimesPerDay.text) ?? 1,
+          int.tryParse(_miligrams.text) ?? 0,
+          dosageUnit: _dosageUnit,
+        ));
       }
-    } else {
-      MedicationListProvider.addMedication(
-        _medicationName.text,
-        int.parse(_noTimesPerDay.text),
-        int.parse(_miligrams.text),
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(MedicationProvider.errorMessage(e))),
       );
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
-
-    Navigator.of(context).pop();
   }
 
   @override
@@ -847,23 +814,56 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
                     Padding(
                       padding:
                           EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                      child: const InputLabels(
-                          label: "How many milligrams do you take"),
+                      child: const InputLabels(label: "Dosage amount"),
                     ),
-                    SizedBox(
-                      height: screenHeight * 0.02,
-                    ),
+                    SizedBox(height: screenHeight * 0.02),
                     IcreamentDecreamentInputField(
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                       controller: _miligrams,
                       inputAction: TextInputAction.done,
-                    )
+                    ),
                   ],
                 ),
-                SizedBox(
-                  height: screenHeight * 0.35,
+                SizedBox(height: screenHeight * 0.03),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                      child: const InputLabels(label: "Dosage unit"),
+                    ),
+                    SizedBox(height: screenHeight * 0.015),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _dosageUnit,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.04,
+                            vertical: screenHeight * 0.015,
+                          ),
+                        ),
+                        items: kDosageUnits
+                            .map((u) => DropdownMenuItem(
+                                  value: u,
+                                  child: Text(u,
+                                      style: const TextStyle(
+                                          fontFamily: 'PlusJakartaSans')),
+                                ))
+                            .toList(),
+                        onChanged: (v) =>
+                            setState(() => _dosageUnit = v ?? 'mg'),
+                      ),
+                    ),
+                  ],
                 ),
+                SizedBox(height: screenHeight * 0.05),
                 Align(
                     alignment: Alignment.bottomCenter,
                     child: SizedBox(
@@ -879,39 +879,27 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
                                     Theme.of(context).colorScheme.primary,
                                 foregroundColor:
                                     Theme.of(context).colorScheme.onPrimary),
-                            onPressed: widget.existingMedication == null
-                                ? () {
-                                    MedicationListProvider.addMedication(
-                                        _medicationName.text,
-                                        int.parse(_noTimesPerDay.text),
-                                        int.parse(_miligrams.text));
-
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                      builder: (context) =>
-                                          const MedicationScreen(),
-                                    ));
-                                  }
-                                : () {
-                                    setState(() {
-                                      _saveMedication();
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const MedicationScreen()));
-                                    });
-                                  },
-                            child: Text(
-                              widget.existingMedication == null
-                                  ? "Add Medication"
-                                  : "Save Changes",
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'PlusJakartaSans',
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: -0.17,
-                                  height: 1),
-                            )))),
+                            onPressed: _saving ? null : _saveMedication,
+                            child: _saving
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    widget.existingMedication == null
+                                        ? "Add Medication"
+                                        : "Save Changes",
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: 'PlusJakartaSans',
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: -0.17,
+                                        height: 1),
+                                  )))),
                 Padding(
                     padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom))
