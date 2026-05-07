@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/chat/chat_models.dart';
+import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/features/chat/group_chat_screen.dart';
 import 'package:healthpilot/features/chat/similar_people_screen.dart';
 import 'package:healthpilot/features/chat/widgets/custom_profile_tile.dart';
+import 'package:provider/provider.dart';
 
 class GeneralChatScreen extends StatefulWidget {
   const GeneralChatScreen({super.key, this.showBackButton = false});
@@ -19,76 +22,40 @@ class GeneralChatScreen extends StatefulWidget {
 }
 
 class _GeneralChatScreenState extends State<GeneralChatScreen> {
-  List<User> userList = [];
-  List<GroupChat> groupChat = [];
-
-  List<AllChat> allChatData = [];
-  List<AllChat> chatData = [
-    AllChat(
-      id: '1',
-      name: 'John Doe',
-      lastMessage: 'How are you today?',
-      isPro: true,
-      isGroupChat: false,
-    ),
-    AllChat(
-      id: '2',
-      name: 'Emma Smith',
-      lastMessage: 'Are you free for a call later?',
-      isPro: false,
-      isGroupChat: false,
-    ),
-    AllChat(
-      id: '3',
-      name: 'Alice Johnson',
-      lastMessage: 'Nice to meet you!',
-      isPro: true,
-      isGroupChat: false,
-    ),
-    // Add more individual chats as needed
-
-    // Group Chats
-    AllChat(
-      id: 'g1',
-      name: 'Schizophrenia Support',
-      lastMessage: 'By the way, have you seen the latest movie?',
-      isPro: true,
-      isGroupChat: true,
-    ),
-    AllChat(
-      id: 'g2',
-      name: 'Schizophrenia Support',
-      lastMessage: 'By the way, have you seen the latest movie?',
-      isPro: false,
-      isGroupChat: true,
-    ),
-    AllChat(
-      id: 'g3',
-      name: 'Schizophrenia Support',
-      lastMessage: 'By the way, have you seen the latest movie?',
-      isPro: false,
-      isGroupChat: true,
-    ),
-    // Add more group chats as needed
-  ];
-
-  @override
-  void initState() {
-    userList = Users.users;
-    groupChat = GroupChats.groupChats;
-    allChatData = chatData;
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-  // All chat list
+  String _query = '';
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+    final provider = context.watch<ChatProvider>();
+
+    final q = _query.toLowerCase();
+
+    final users = q.isEmpty
+        ? provider.users
+        : provider.users
+            .where((u) =>
+                u.displayName.toLowerCase().contains(q) ||
+                u.chatHistory.any((m) => m.content.toLowerCase().contains(q)))
+            .toList();
+
+    final groups = q.isEmpty
+        ? provider.groups
+        : provider.groups
+            .where((g) =>
+                g.groupName.toLowerCase().contains(q) ||
+                g.groupChatHistory
+                    .any((m) => m.content.toLowerCase().contains(q)))
+            .toList();
+
+    final conversations = q.isEmpty
+        ? provider.conversations
+        : provider.conversations
+            .where((c) =>
+                c.name.toLowerCase().contains(q) ||
+                c.lastMessage.toLowerCase().contains(q))
+            .toList();
+
     return SafeArea(
       child: DefaultTabController(
         length: 3,
@@ -106,7 +73,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             _buildSearchBar(context),
             Expanded(
               child: TabBarView(children: [
-                //All chats
+                // All chats
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: Padding(
@@ -114,45 +81,41 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                     child: Column(
                       children: [
                         Flexible(
-                          child: GroupedListView(
-                            elements: allChatData,
-                            groupBy: (chatData) => chatData.isPro.toString(),
+                          child: GroupedListView<ChatThread, String>(
+                            elements: conversations,
+                            groupBy: (c) => c.isPro.toString(),
                             order: GroupedListOrder.DESC,
-                            itemBuilder: (context, chatData) {
+                            itemBuilder: (context, c) {
                               return CustomChatProfileTile(
-                                name: chatData.name,
-                                isPro: chatData.isPro,
+                                name: c.name,
+                                isPro: c.isPro,
                                 unreadMessage: 3,
                                 profilePic: devsImage,
-                                chat: chatData.lastMessage,
+                                chat: c.lastMessage,
                                 onPressed: () {
-                                  if (!chatData.isGroupChat) {
+                                  if (!c.isGroupChat) {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => ChatScreen(
-                                            senderId: chatData.id,
-                                            userId: '123'),
+                                            senderId: c.id, userId: '123'),
                                       ),
                                     );
                                   } else {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => GroupChatScreen(
-                                            groupId: chatData.id, userId: '1'),
+                                            groupId: c.id, userId: '1'),
                                       ),
                                     );
                                   }
                                 },
                               );
                             },
-                            // useStickyGroupSeparators: true,
                             groupHeaderBuilder: (element) => Container(
                               height: size.height * 0.05,
                             ),
-                            itemComparator: (item1, item2) =>
-                                item1.name.compareTo(item2.name),
-                            groupComparator: (value1, value2) =>
-                                value1.compareTo(value2),
+                            itemComparator: (a, b) => a.name.compareTo(b.name),
+                            groupComparator: (v1, v2) => v1.compareTo(v2),
                             groupSeparatorBuilder: (value) => SizedBox(
                               height: size.height * 0.2,
                             ),
@@ -163,48 +126,45 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                   ),
                 ),
 
-                //People chats
+                // People chats
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: GroupedListView(
-                    elements: userList,
-                    groupBy: (user) => user.isPro.toString(),
+                  child: GroupedListView<ChatUser, String>(
+                    elements: users,
+                    groupBy: (u) => u.isPro.toString(),
                     order: GroupedListOrder.DESC,
-                    itemBuilder: (context, user) {
+                    itemBuilder: (context, u) {
                       return CustomChatProfileTile(
-                        name: user.displayName,
-                        isPro: user.isPro,
-                        unreadMessage: user.chatHistory.length,
+                        name: u.displayName,
+                        isPro: u.isPro,
+                        unreadMessage: u.chatHistory.length,
                         profilePic: devsImage,
-                        chat: user.chatHistory.isNotEmpty
-                            ? user.chatHistory.last.content
+                        chat: u.chatHistory.isNotEmpty
+                            ? u.chatHistory.last.content
                             : '',
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                  senderId: user.userId, userId: '123'),
+                              builder: (context) =>
+                                  ChatScreen(senderId: u.userId, userId: '123'),
                             ),
                           );
                         },
                       );
                     },
-
-                    // useStickyGroupSeparators: true,
                     groupHeaderBuilder: (element) => Container(
                       height: size.height * 0.05,
                     ),
-                    itemComparator: (item1, item2) =>
-                        item1.displayName.compareTo(item2.displayName),
-                    groupComparator: (value1, value2) =>
-                        value1.toString().compareTo(value2.toString()),
+                    itemComparator: (a, b) =>
+                        a.displayName.compareTo(b.displayName),
+                    groupComparator: (v1, v2) => v1.compareTo(v2),
                     groupSeparatorBuilder: (value) => SizedBox(
                       height: size.height * 0.2,
                     ),
                   ),
                 ),
 
-                // group chats
+                // Group chats
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: Padding(
@@ -212,35 +172,32 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                     child: Column(
                       children: [
                         Flexible(
-                          child: GroupedListView(
-                            elements: groupChat,
-                            groupBy: (chatData) => chatData.isPro.toString(),
+                          child: GroupedListView<ChatGroup, String>(
+                            elements: groups,
+                            groupBy: (g) => g.isPro.toString(),
                             order: GroupedListOrder.DESC,
-                            itemBuilder: (context, groupChatData) {
+                            itemBuilder: (context, g) {
                               return CustomChatProfileTile(
-                                name: groupChatData.groupName,
-                                isPro: groupChatData.isPro,
-                                unreadMessage:
-                                    groupChatData.groupChatHistory.length,
+                                name: g.groupName,
+                                isPro: g.isPro,
+                                unreadMessage: g.groupChatHistory.length,
                                 profilePic: devsImage,
-                                chat:
-                                    groupChatData.groupChatHistory.last.content,
+                                chat: g.groupChatHistory.isNotEmpty
+                                    ? g.groupChatHistory.last.content
+                                    : '',
                                 onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => GroupChatScreen(
-                                          groupId: groupChatData.groupId,
-                                          userId: '1')));
+                                          groupId: g.groupId, userId: '1')));
                                 },
                               );
                             },
-                            // useStickyGroupSeparators: true,
                             groupHeaderBuilder: (element) => Container(
                               height: size.height * 0.05,
                             ),
-                            itemComparator: (item1, item2) =>
-                                item1.groupName.compareTo(item2.groupName),
-                            groupComparator: (value1, value2) =>
-                                value1.compareTo(value2),
+                            itemComparator: (a, b) =>
+                                a.groupName.compareTo(b.groupName),
+                            groupComparator: (v1, v2) => v1.compareTo(v2),
                             groupSeparatorBuilder: (value) => SizedBox(
                               height: size.height * 0.2,
                             ),
@@ -264,30 +221,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
       child: SizedBox(
         height: 44,
         child: TextFormField(
-          onChanged: (value) {
-            final q = value.toLowerCase();
-            setState(() {
-              userList = Users.users
-                  .where((element) =>
-                      element.displayName.toLowerCase().contains(q) ||
-                      element.chatHistory.any(
-                        (m) => m.content.toLowerCase().contains(q),
-                      ))
-                  .toList();
-              allChatData = chatData
-                  .where((element) =>
-                      element.name.toLowerCase().contains(q) ||
-                      element.lastMessage.toLowerCase().contains(q))
-                  .toList();
-              groupChat = GroupChats.groupChats
-                  .where((element) =>
-                      element.groupName.toLowerCase().contains(q) ||
-                      element.groupChatHistory.any(
-                        (m) => m.content.toLowerCase().contains(q),
-                      ))
-                  .toList();
-            });
-          },
+          onChanged: (value) => setState(() => _query = value),
           decoration: InputDecoration(
               prefixIcon: const Icon(
                 Icons.search,
@@ -314,8 +248,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     final cs = Theme.of(context).colorScheme;
     return FloatingActionButton(
       onPressed: () {
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
       },
       backgroundColor: cs.primary,
       child: Icon(
@@ -364,21 +298,4 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           ),
         ]);
   }
-}
-
-// dummy data
-class AllChat {
-  final String id;
-  final String name;
-  final String lastMessage;
-  final bool isPro;
-  final bool isGroupChat;
-
-  AllChat({
-    required this.isGroupChat,
-    required this.id,
-    required this.name,
-    required this.lastMessage,
-    required this.isPro,
-  });
 }

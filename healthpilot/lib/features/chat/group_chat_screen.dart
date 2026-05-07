@@ -4,50 +4,40 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/chat/chat_models.dart';
+import 'package:healthpilot/features/chat/chat_provider.dart';
+import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl/intl.dart';
-
-import 'chat_screen.dart';
+import 'package:provider/provider.dart';
 
 class GroupChatScreen extends StatefulWidget {
   final String groupId;
   final String userId;
 
-  const GroupChatScreen({super.key, required this.groupId, required this.userId});
+  const GroupChatScreen(
+      {super.key, required this.groupId, required this.userId});
 
   @override
   State<GroupChatScreen> createState() => _GroupChatScreenState();
 }
 
 class _GroupChatScreenState extends State<GroupChatScreen> {
-  late final List<ChatMessage> _messages;
-
-  @override
-  void initState() {
-    super.initState();
-    _messages = List.of(GroupChats.findGroupById(widget.groupId).groupChatHistory);
-  }
-
   void _onSend(String text) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
-    setState(() {
-      _messages.add(ChatMessage(
-        senderId: widget.userId,
-        content: trimmed,
-        timestamp: DateTime.now(),
-      ));
-    });
+    context.read<ChatProvider>().sendGroup(widget.groupId, widget.userId, trimmed);
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final group = GroupChats.findGroupById(widget.groupId);
+    final provider = context.watch<ChatProvider>();
+    final group = provider.findGroup(widget.groupId);
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size(size.width, size.height * 0.15),
-          child: CustomeAppBarForChatScreen(
+          child: _GroupAppBar(
             title: group.groupName,
             subTitle: ' ${group.membersId.length} members',
             profileImageUrl: devsImage,
@@ -60,12 +50,12 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
-              _messages.isEmpty
+              group.groupChatHistory.isEmpty
                   ? const EmptyChat()
-                  : ChatList(
+                  : _GroupChatList(
                       senderId: widget.groupId,
                       userId: widget.userId,
-                      chatList: _messages),
+                      chatList: group.groupChatHistory),
               SendMessage(
                 attach: () {},
                 sendMessage: _onSend,
@@ -78,15 +68,14 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   }
 }
 
-class CustomeAppBarForChatScreen extends StatelessWidget {
+class _GroupAppBar extends StatelessWidget {
   final String title;
   final String subTitle;
   final String profileImageUrl;
   final bool isMuted;
   final VoidCallback more;
-  const CustomeAppBarForChatScreen(
-      {super.key,
-      required this.title,
+  const _GroupAppBar(
+      {required this.title,
       required this.subTitle,
       required this.profileImageUrl,
       required this.isMuted,
@@ -206,42 +195,12 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
   }
 }
 
-class EmptyChat extends StatelessWidget {
-  const EmptyChat({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return Expanded(
-      child: Center(
-        child: SizedBox(
-          height: size.height * 0.4,
-          child: Column(
-            children: [
-              SvgPicture.asset(voiceChatIcon),
-              const Text(
-                'Be the first to say hello',
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ChatList extends StatelessWidget {
-  final List<ChatMessage> chatList;
+class _GroupChatList extends StatelessWidget {
+  final List<DirectMessage> chatList;
   final String senderId;
   final String userId;
 
-  const ChatList({
-    super.key,
+  const _GroupChatList({
     required this.chatList,
     required this.senderId,
     required this.userId,
@@ -249,6 +208,7 @@ class ChatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<ChatProvider>();
     final size = MediaQuery.of(context).size;
     return Expanded(
       child: GroupedListView(
@@ -310,6 +270,15 @@ class ChatList extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   );
 
+            String senderName = '';
+            if (isIncoming) {
+              try {
+                senderName = provider.findUser(chat.senderId).displayName;
+              } catch (_) {
+                senderName = chat.senderId;
+              }
+            }
+
             return Bubble(
               alignment:
                   isIncoming ? Alignment.centerLeft : Alignment.centerRight,
@@ -326,14 +295,15 @@ class ChatList extends StatelessWidget {
                 decoration: bubbleDecoration,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment:
-                      isIncoming ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                  crossAxisAlignment: isIncoming
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.end,
                   children: [
                     if (isIncoming)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
-                          Users.findById(chat.senderId).displayName,
+                          senderName,
                           style: TextStyle(
                             fontFamily: 'Plus Jakarta Sans',
                             fontWeight: FontWeight.w500,
@@ -354,8 +324,9 @@ class ChatList extends StatelessWidget {
                                   ? cs.onSurface
                                   : (isDark ? cs.onPrimary : cs.onSurface),
                               fontSize: 12,
-                              fontWeight:
-                                  isIncoming ? FontWeight.w400 : FontWeight.w500,
+                              fontWeight: isIncoming
+                                  ? FontWeight.w400
+                                  : FontWeight.w500,
                             ),
                           ),
                         ),
@@ -383,88 +354,7 @@ class ChatList extends StatelessWidget {
   }
 }
 
-class SendMessage extends StatefulWidget {
-  final Function sendMessage;
-  final VoidCallback attach;
-  const SendMessage(
-      {super.key, required this.sendMessage, required this.attach});
-
-  @override
-  State<SendMessage> createState() => _SendMessageState();
-}
-
-class _SendMessageState extends State<SendMessage> {
-  final _controller = TextEditingController();
-  String _message = '';
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _send() {
-    if (_message.trim().isEmpty) return;
-    widget.sendMessage(_message.trim());
-    _controller.clear();
-    setState(() => _message = '');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final cs = Theme.of(context).colorScheme;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        InkWell(
-          onTap: widget.attach,
-          child: Icon(Icons.add_outlined, color: cs.onSurface),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.01, horizontal: size.width * 0.04),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: cs.outline, width: 1),
-              color: cs.surfaceContainerHighest),
-          height: size.height * 0.06,
-          width: size.width * 0.72,
-          child: TextField(
-            controller: _controller,
-            onChanged: (value) => setState(() => _message = value),
-            onSubmitted: (_) => _send(),
-            maxLines: 1,
-            style: TextStyle(color: cs.onSurface),
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Message',
-                hintStyle: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w400,
-                  color: cs.onSurfaceVariant,
-                  fontSize: 12,
-                )),
-          ),
-        ),
-        InkWell(
-          onTap: _send,
-          child: Icon(
-            _message.trim().isEmpty
-                ? Icons.keyboard_voice_outlined
-                : Icons.send_outlined,
-            color: cs.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// Scrolls its text like a news ticker when the content overflows its box.
-/// Stays static when the text fits.
 class _TickerText extends StatefulWidget {
   final String text;
   final TextStyle style;
@@ -494,12 +384,11 @@ class _TickerTextState extends State<_TickerText> {
   }
 
   Future<void> _loop() async {
-    // Wait for first scroll metrics to settle.
     await Future<void>.delayed(const Duration(seconds: 2));
     while (mounted) {
       if (!_controller.hasClients) return;
       final max = _controller.position.maxScrollExtent;
-      if (max <= 0) return; // text fits — nothing to do
+      if (max <= 0) return;
       await _controller.animateTo(
         max,
         duration: Duration(milliseconds: (max * 30).round().clamp(1200, 9000)),
@@ -527,136 +416,5 @@ class _TickerTextState extends State<_TickerText> {
       physics: const NeverScrollableScrollPhysics(),
       child: Text(widget.text, style: widget.style, maxLines: 1),
     );
-  }
-}
-
-// dummy data
-class GroupChat {
-  final String groupId;
-  final bool isMuted;
-  final bool isPro;
-  final String groupName;
-  final List<String> membersId;
-  final List<ChatMessage> groupChatHistory;
-
-  GroupChat({
-    required this.isPro,
-    required this.isMuted,
-    required this.groupId,
-    required this.groupName,
-    required this.membersId,
-    required this.groupChatHistory,
-  });
-}
-
-class GroupChats {
-  static final _groupChats = [
-    GroupChat(
-      isPro: true,
-      isMuted: false,
-      groupId: 'g1',
-      groupName: 'Schizophrenia Support',
-      membersId: ['1', '2', '3'],
-      groupChatHistory: [
-        ChatMessage(
-          senderId: '1',
-          content: 'Hello John Doe!',
-          timestamp: DateTime.now().subtract(Duration(days: 2)),
-        ),
-        ChatMessage(
-          senderId: '2',
-          content: 'How are you today?',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 23)),
-        ),
-        ChatMessage(
-          senderId: '3',
-          content: 'Hi! I\'m doing well, thanks!',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 22)),
-        ),
-        ChatMessage(
-          senderId: '1',
-          content: 'That\'s great to hear!',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 21)),
-        ),
-        ChatMessage(
-          senderId: '2',
-          content: 'By the way, have you seen the latest movie?',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 20)),
-        ),
-      ],
-    ),
-    GroupChat(
-      isMuted: true,
-      isPro: false,
-      groupId: 'g2',
-      groupName: 'Schizophrenia Support',
-      membersId: ['4', '2', '5'],
-      groupChatHistory: [
-        ChatMessage(
-          senderId: '4',
-          content: 'Hello John Doe!',
-          timestamp: DateTime.now().subtract(Duration(days: 2)),
-        ),
-        ChatMessage(
-          senderId: '5',
-          content: 'How are you today?',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 23)),
-        ),
-        ChatMessage(
-          senderId: '1',
-          content: 'Hi! I\'m doing well, thanks!',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 22)),
-        ),
-        ChatMessage(
-          senderId: '2',
-          content: 'That\'s great to hear!',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 21)),
-        ),
-        ChatMessage(
-          senderId: '2',
-          content: 'By the way, have you seen the latest movie?',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 20)),
-        ),
-      ],
-    ),
-    GroupChat(
-      isMuted: true,
-      isPro: false,
-      groupId: 'g3',
-      groupName: 'Schizophrenia Support',
-      membersId: ['1', '3', '5'],
-      groupChatHistory: [
-        ChatMessage(
-          senderId: '1',
-          content: 'Hello John Doe!',
-          timestamp: DateTime.now().subtract(Duration(days: 2)),
-        ),
-        ChatMessage(
-          senderId: '3',
-          content: 'How are you today?',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 23)),
-        ),
-        ChatMessage(
-          senderId: '5',
-          content: 'Hi! I\'m doing well, thanks!',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 22)),
-        ),
-        ChatMessage(
-          senderId: '1',
-          content: 'That\'s great to hear!',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 21)),
-        ),
-        ChatMessage(
-          senderId: '1',
-          content: 'By the way, have you seen the latest movie?',
-          timestamp: DateTime.now().subtract(Duration(days: 2, hours: 20)),
-        ),
-      ],
-    ),
-  ];
-
-  static List<GroupChat> get groupChats => _groupChats;
-  static GroupChat findGroupById(String id) {
-    return _groupChats.firstWhere((element) => element.groupId == id);
   }
 }

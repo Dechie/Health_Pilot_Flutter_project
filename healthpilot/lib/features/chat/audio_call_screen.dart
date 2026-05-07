@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/vidoe_call_screen.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/constants.dart';
 import 'chat_screen.dart';
@@ -28,7 +30,7 @@ class AudioCallScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final user = Users.findById(id);
+    final user = context.read<ChatProvider>().findUser(id);
     return Scaffold(
       // appBar: AppBar(),
       body: Stack(
