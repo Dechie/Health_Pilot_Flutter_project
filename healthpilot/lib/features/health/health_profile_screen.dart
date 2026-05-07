@@ -3,8 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/health/health_provider.dart';
 import 'package:healthpilot/features/health/health_tracking_screen.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
+import 'package:provider/provider.dart';
 
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'symptom_tracking_screen.dart';
@@ -17,59 +19,18 @@ class HealthProfile extends StatefulWidget {
 }
 
 class _HealthProfileState extends State<HealthProfile> {
-  List<Map<String, String>> disorders = [
-    {
-      'name': 'Schizophrenia',
-      'dateTime': '11:30 AM, May 13, 2023',
-    },
-    {
-      'name': 'Bipolar Disorder',
-      'dateTime': '11:30 AM, May 13, 2023',
-    },
-    {
-      'name': 'Major Depressive Disorder',
-      'dateTime': '11:30 AM, May 13, 2023',
-    },
-    {
-      'name': 'Post-Traumatic Stress Disorder (PTSD)',
-      'dateTime': '11:30 AM, May 13, 2023',
-    },
-    {
-      'name': 'Obsessive-Compulsive Disorder (OCD)',
-      'dateTime': '11:30 AM, May 13, 2023',
-    },
-    {
-      'name': 'Generalized Anxiety Disorder (GAD)',
-      'dateTime': '11:30 AM, May 13, 2023',
-    },
-    {
-      'name': 'Borderline Personality Disorder (BPD)',
-      'dateTime': '11:30 AM, May 13, 2023',
-    },
-  ];
-  List<String> diseaseSymptoms = [
-    "Fever",
-    "Cough",
-    "Shortness of breath",
-    "Fatigue",
-    "Loss of taste or smell",
-    "Muscle or body aches",
-    "Headache",
-    "Sore throat",
-    "Congestion or runny nose",
-    "Nausea or vomiting",
-    "Diarrhea",
-  ];
-
-  List<String> peoples = [
-    "Yaikob zeray",
-    "Abel sisay",
-    "Kirubel hailu",
+  final List<String> peoples = [
+    'Yaikob zeray',
+    'Abel sisay',
+    'Kirubel hailu',
   ];
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final cs = Theme.of(context).colorScheme;
+    final healthProvider = context.watch<HealthProvider>();
+    final conditions = healthProvider.conditions;
+    final symptoms = healthProvider.symptoms;
     return Scaffold(
       body: SingleChildScrollView(
         child: SafeArea(
@@ -201,8 +162,8 @@ class _HealthProfileState extends State<HealthProfile> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => HealthTrackingScreen(
-                                healthTrakingList: disorders),
+                            builder: (context) =>
+                                const HealthTrackingScreen(),
                           ),
                         );
                       },
@@ -212,11 +173,11 @@ class _HealthProfileState extends State<HealthProfile> {
               SizedBox(
                 height: size.height * 0.3,
                 child: ListView.builder(
-                  itemCount: disorders.length,
+                  itemCount: conditions.length,
                   itemBuilder: (context, index) {
                     return HealthTracking(
-                      disorder: disorders[index]['name']!,
-                      date: disorders[index]['dateTime']!,
+                      disorder: conditions[index].name,
+                      date: conditions[index].loggedAt,
                     );
                   },
                 ),
@@ -242,8 +203,8 @@ class _HealthProfileState extends State<HealthProfile> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => SymptomTrackingScreen(
-                              diseaseSymptoms: diseaseSymptoms),
+                          builder: (context) =>
+                              const SymptomTrackingScreen(),
                         ),
                       );
                     },
@@ -255,10 +216,10 @@ class _HealthProfileState extends State<HealthProfile> {
                 width: double.infinity,
                 height: size.height * 0.3,
                 child: ListView.builder(
-                  itemCount: diseaseSymptoms.length,
+                  itemCount: symptoms.length,
                   itemBuilder: (context, index) {
                     return SymptomTracking(
-                      disorder: diseaseSymptoms[index],
+                      disorder: symptoms[index].name,
                       onTap: () {},
                     );
                   },
