@@ -144,16 +144,16 @@ Branches 3–13 may be opened **simultaneously** with `main` as the base once Br
 | 1 | `feat/api-network-layer` | `main` | Dio, interceptors, FeatureFlags, abstract IRepository interfaces, MockRepositories, AppEnv |
 | 2 | `feat/api-auth` | `feat/api-network-layer` (or `main` after 1 merges) | JWT login/register/email-activation, AuthState, guest login, mock-always-auth |
 | 3 | `feat/api-user-profile` | `feat/api-auth` (or `main`) | Profile + public profile fetch/update via `/api/v1/auth/me/` + `/api/v1/profile/me/` |
-| 4 | `feat/api-articles` | `feat/api-auth` (or `main`) | Article feed, likes, bookmarks, comments — `/api/v1/articles/` |
-| 5 | `feat/api-medications` | `feat/api-auth` (or `main`) | Medication CRUD + reminders + dose log — `/api/v1/medications/` |
-| 6 | `feat/api-assessment` | `feat/api-auth` (or `main`) | AI assessment POST + history — `/api/v1/assessments/` |
-| 7 | `feat/api-contacts` | `feat/api-auth` (or `main`) | Emergency contacts + doctors — `/api/v1/profile/emergency-contacts/` + `/api/v1/profile/doctors/` |
-| 8 | `feat/api-health-data` | `feat/api-auth` (or `main`) | Symptoms, vitals, goals, dashboard — `/api/v1/health/` |
-| 9 | `feat/api-chat` | `feat/api-auth` (or `main`) | Private + group chat (REST + WebSocket) — `/api/v1/chat/private/` + WS |
-| 10 | `feat/api-chatbot` | `feat/api-auth` (or `main`) | AI assistant send/history/clear — `/api/v1/chat/ai/` |
-| 11 | `feat/api-community` | `feat/api-auth` (or `main`) | Peer discovery, connections, community groups — `/api/v1/community/` |
-| 12 | `feat/api-nutrition` | `feat/api-auth` (or `main`) | Meal logging, food search, nutrition goals — `/api/v1/nutrition/` |
-| 13 | `feat/api-notifications` | `feat/api-auth` (or `main`) | Device registration, notification list, mark-read — `/api/v1/notifications/` |
+| 4 | `feat/api-medications` | `main` | Medication CRUD + reminders + dose log — `/api/v1/medications/` |
+| 5 | `feat/api-health-data` | `main` | Symptoms, vitals, goals, dashboard — `/api/v1/health/` |
+| 6 | `feat/api-assessment` | `main` | AI assessment POST + history — `/api/v1/assessments/` |
+| 7 | `feat/api-chatbot` | `main` | AI assistant send/history/clear — `/api/v1/chat/ai/` |
+| 8 | `feat/api-notifications` | `main` | Device registration, notification list, mark-read — `/api/v1/notifications/` |
+| 9 | `feat/api-contacts` | `main` | Emergency contacts + doctors — `/api/v1/profile/emergency-contacts/` + `/api/v1/profile/doctors/` |
+| 10 | `feat/api-chat` | `main` | Private + group chat (REST + WebSocket) — `/api/v1/chat/private/` + WS |
+| 11 | `feat/api-nutrition` | `main` | Meal logging, food search, nutrition goals — `/api/v1/nutrition/` |
+| 12 | `feat/api-community` | `main` | Peer discovery, connections, community groups — `/api/v1/community/` |
+| 13 | `feat/api-articles` | `main` | Article feed, likes, bookmarks, comments — `/api/v1/articles/` |
 | 14 | `feat/api-payment` | `main` **after** `refactor/subscription-feature` (Branch D) | Two-step payment + subscription status — `/api/v1/subscriptions/` |
 
 ---

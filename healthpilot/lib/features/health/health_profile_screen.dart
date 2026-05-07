@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/health/health_tracking_screen.dart';
-import 'package:healthpilot/features/medication/medication_history_screen.dart';
-import 'package:healthpilot/features/medication/medication_reminders_screen.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
 
 import 'package:healthpilot/features/profile/language_translation.dart';
@@ -302,13 +300,12 @@ class _HealthProfileState extends State<HealthProfile> {
                     ListTile(
                       leading: const Icon(Icons.notifications_active_outlined),
                       title: const Text('Reminders'),
-                      subtitle: const Text('Coming soon'),
+                      subtitle: const Text('Select a medication to manage reminders'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (context) =>
-                                const MedicationRemindersScreen(),
+                            builder: (context) => const MedicationScreen(),
                           ),
                         );
                       },
@@ -317,12 +314,12 @@ class _HealthProfileState extends State<HealthProfile> {
                     ListTile(
                       leading: const Icon(Icons.history),
                       title: const Text('History'),
-                      subtitle: const Text('Coming soon'),
+                      subtitle: const Text('Select a medication to view history'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (context) => const MedicationHistoryScreen(),
+                            builder: (context) => const MedicationScreen(),
                           ),
                         );
                       },
