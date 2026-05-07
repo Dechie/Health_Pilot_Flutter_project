@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/features/health/health_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
 import 'health_profile_screen.dart';
 
-// ignore: must_be_immutable
-class HealthTrackingScreen extends StatefulWidget {
-  late List<Map<String, String>> healthTrakingList;
-  HealthTrackingScreen({super.key, required this.healthTrakingList});
-
-  @override
-  State<HealthTrackingScreen> createState() => _HealthTrackingScreenState();
-}
-
-class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
-  void _clearHistory() {
-    setState(() {
-      widget.healthTrakingList = [];
-    });
-  }
+class HealthTrackingScreen extends StatelessWidget {
+  const HealthTrackingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final conditions = context.watch<HealthProvider>().conditions;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
           style: AppTheme.circleBackButtonStyle(context),
         ),
         title: const Text(
-          "Health Tracking",
+          'Health Tracking',
           style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontWeight: FontWeight.w600,
@@ -54,47 +41,44 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                   borderRadius: BorderRadius.circular(size.width * 0.015),
                 ),
               ),
-              onPressed: () {
-                _clearHistory();
-              },
+              onPressed: () =>
+                  context.read<HealthProvider>().clearConditions(),
               child: const Text(
-                "Clear History",
+                'Clear History',
                 style: TextStyle(
                   color: Color.fromRGBO(252, 34, 34, 1),
                   fontSize: 10,
-                  fontFamily: "PlusJakartaSans",
+                  fontFamily: 'PlusJakartaSans',
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
           ),
-          SizedBox(
-            width: size.width * 0.04,
-          )
+          SizedBox(width: size.width * 0.04),
         ],
       ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
               horizontal: size.width * 0.07, vertical: size.height * 0.02),
-          child: widget.healthTrakingList.isEmpty
+          child: conditions.isEmpty
               ? const Center(
                   child: Text(
-                    "No health tracking added",
+                    'No health tracking added',
                     style: TextStyle(
                       color: Color.fromRGBO(110, 182, 255, 1),
                       fontSize: 20,
-                      fontFamily: "PlusJakartaSans",
+                      fontFamily: 'PlusJakartaSans',
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 )
               : ListView.builder(
-                  itemCount: widget.healthTrakingList.length,
+                  itemCount: conditions.length,
                   itemBuilder: (context, index) {
                     return HealthTracking(
-                      disorder: widget.healthTrakingList[index]['name']!,
-                      date: widget.healthTrakingList[index]['dateTime']!,
+                      disorder: conditions[index].name,
+                      date: conditions[index].loggedAt,
                     );
                   },
                 ),
