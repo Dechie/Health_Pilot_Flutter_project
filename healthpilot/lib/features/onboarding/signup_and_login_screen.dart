@@ -282,10 +282,12 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                                     isChecked: _isChecked!,
                                     screenWidth: screenWidth,
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        left: screenWidth * 0.01),
-                                    child: const TermsPolicyText(),
+                                  Flexible(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          left: screenWidth * 0.01),
+                                      child: const TermsPolicyText(),
+                                    ),
                                   ),
                                 ],
                               ),

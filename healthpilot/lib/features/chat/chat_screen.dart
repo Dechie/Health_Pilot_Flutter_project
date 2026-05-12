@@ -405,7 +405,8 @@ class _SendMessageState extends State<SendMessage> {
             color: cs.onSurface,
           ),
         ),
-        Container(
+        Expanded(
+          child: Container(
           padding: EdgeInsets.symmetric(
               vertical: size.height * 0.01, horizontal: size.width * 0.04),
           alignment: Alignment.center,
@@ -414,7 +415,6 @@ class _SendMessageState extends State<SendMessage> {
               border: Border.all(color: cs.outline, width: 1),
               color: cs.surfaceContainerHighest),
           height: size.height * 0.06,
-          width: size.width * 0.72,
           child: TextField(
             onChanged: (value) {
               setState(() {
@@ -433,6 +433,7 @@ class _SendMessageState extends State<SendMessage> {
                   fontSize: 12,
                 )),
           ),
+        ),
         ),
         InkWell(
           onTap: () => widget.sendMessage(message),

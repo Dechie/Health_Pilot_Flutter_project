@@ -482,42 +482,38 @@ class SymptomTracking extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final cs = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: size.width * 1,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: size.width * 0.003,
-                height: size.height * 0.08,
+    return Row(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: size.width * 0.003,
+              height: size.height * 0.08,
+              color: const Color.fromRGBO(110, 182, 255, 0.25),
+            ),
+            Container(
+              width: size.width * 0.03,
+              height: size.width * 0.03,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(size.width * 0.015),
                 color: const Color.fromRGBO(110, 182, 255, 0.25),
               ),
-              Container(
-                width: size.width * 0.03,
-                height: size.width * 0.03,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(size.width * 0.015),
-                  color: const Color.fromRGBO(110, 182, 255, 0.25),
-                ),
+            ),
+            Container(
+              width: size.width * 0.03,
+              height: size.width * 0.03,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(size.width * 0.015),
+                color: const Color.fromRGBO(110, 182, 255, 0.25),
               ),
-              Container(
-                width: size.width * 0.03,
-                height: size.width * 0.03,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(size.width * 0.015),
-                  color: const Color.fromRGBO(110, 182, 255, 0.25),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+          ],
+        ),
+        Expanded(
+          child: Row(
             children: [
-              SizedBox(
-                width: size.width * 0.73,
+              Expanded(
                 child: Text(
                   disorder,
                   style: const TextStyle(
@@ -534,8 +530,8 @@ class SymptomTracking extends StatelessWidget {
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -553,42 +549,38 @@ class HealthProfileModel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return SizedBox(
-      width: size.width * 1,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: size.width * 0.003,
-                height: size.height * 0.08,
+    return Row(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: size.width * 0.003,
+              height: size.height * 0.08,
+              color: const Color.fromRGBO(110, 182, 255, 0.25),
+            ),
+            Container(
+              width: size.width * 0.03,
+              height: size.width * 0.03,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(size.width * 0.015),
                 color: const Color.fromRGBO(110, 182, 255, 0.25),
               ),
-              Container(
-                width: size.width * 0.03,
-                height: size.width * 0.03,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(size.width * 0.015),
-                  color: const Color.fromRGBO(110, 182, 255, 0.25),
-                ),
+            ),
+            Container(
+              width: size.width * 0.03,
+              height: size.width * 0.03,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(size.width * 0.015),
+                color: const Color.fromRGBO(110, 182, 255, 0.25),
               ),
-              Container(
-                width: size.width * 0.03,
-                height: size.width * 0.03,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(size.width * 0.015),
-                  color: const Color.fromRGBO(110, 182, 255, 0.25),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+          ],
+        ),
+        Expanded(
+          child: Row(
             children: [
-              SizedBox(
-                width: size.width * 0.6,
+              Expanded(
                 child: Text(
                   disorder,
                   style: const TextStyle(
@@ -624,13 +616,11 @@ class HealthProfileModel extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
-                width: size.width * 0.04,
-              )
+              SizedBox(width: size.width * 0.04),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
