@@ -261,9 +261,9 @@ class FreeFeatureContainer extends StatelessWidget {
               : null,
         ),
         child: SizedBox(
-          height: screenHeight * 0.3,
           width: screenWidth * 0.85,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(
@@ -366,17 +366,19 @@ class FeaturesText extends StatelessWidget {
             color: Colors.yellow,
             size: 18,
           ),
-          Padding(
-            padding: EdgeInsets.only(left: screenWidth * 0.03),
-            child: Text(
-              text,
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                color: textColor,
-                fontSize: 12.0,
-                fontWeight: FontWeight.w500,
-                height: 1.25, // line height of 20px with 16px font size
-                letterSpacing: -0.165,
+          Flexible(
+            child: Padding(
+              padding: EdgeInsets.only(left: screenWidth * 0.03),
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  color: textColor,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w500,
+                  height: 1.25, // line height of 20px with 16px font size
+                  letterSpacing: -0.165,
+                ),
               ),
             ),
           )

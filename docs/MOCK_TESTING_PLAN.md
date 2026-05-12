@@ -1,202 +1,181 @@
 # Mock Testing Plan
 
-Run all tests with **no `--dart-define` flags** — all feature flags default to `false`, which means every repository uses its mock implementation. The goal is to confirm the UI, state management, navigation, and provider wiring are all correct before touching the live backend.
+Run all tests with **no `--dart-define` flags** — all feature flags default to `false`, meaning every repository uses its mock implementation.
 
 ```bash
 flutter run
 ```
 
-Report failures with: which test number, what you did, what happened, and whether the app crashed or just looked wrong.
+Two sessions, done back to back or on the same run:
+- **Session 1** — Read path: open every screen, verify data loads and navigation works.
+- **Session 2** — Write path: perform every mutation and verify state flows correctly back to the UI.
+
+Report failures with: session number, test number, what you did, what happened, and whether the app crashed.
 
 ---
 
-## Known mock behaviour (not bugs — do not report these)
+## Known mock behaviour (not bugs)
 
-- **Chat messages do not survive a full app restart.** The mock doesn't persist to disk. Within a session they appear correctly; after a kill/reopen they're gone. This is expected.
-- **Contacts and Assessment start empty.** No seed data. Add entries first, then test editing/deleting them.
-- **Nutrition history persists across restarts.** The mock delegates to SharedPreferences, so it survives kills.
-- **Auth accepts any email and password.** No credentials are validated in mock mode.
-
----
-
-## Tier 1 — Auth
-
-No flags needed. The mock auto-accepts any input.
-
-| # | Action | Expected | Notes |
-|---|--------|----------|-------|
-| 1 | Open app fresh | Login/onboarding screen shown | No crash, no blank screen |
-| 2 | Register with any email + password | Proceeds without error | Mock ignores actual values |
-| 3 | Login with any email + password | Lands on home screen, "Demo User" identity loaded | |
-| 4 | Kill app, reopen | Still logged in — home screen shown directly | Token was stored in secure storage |
-| 5 | Navigate to logout | Returns to login screen | No residual state from previous session |
-| 6 | Login again after logout | Home screen loads cleanly | No stale data visible |
+| Behaviour | Reason |
+|-----------|--------|
+| Auth accepts any email and password | Mock skips validation |
+| Chat messages disappear after app restart | Mock doesn't persist messages to disk |
+| Contacts and Assessment start empty | No seed data — add entries first |
+| Nutrition history survives restarts | Mock delegates to SharedPreferences |
+| Profile edits revert after restart | Mock doesn't persist to disk |
 
 ---
 
-## Tier 2 — Profile
+## Session 1 — Read path
 
-Seed data: `kDemoUserProfile` (a pre-built demo profile object).
+**Goal:** walk through every screen in a single continuous run. You are only navigating and reading — no creating, editing, or deleting yet. Check that data loads, the right seed data appears, loading states don't hang, and every navigation gesture works.
 
-| # | Action | Expected | Notes |
-|---|--------|----------|-------|
-| 1 | Open profile screen | Demo profile data displayed — name, fields populated | Not blank |
-| 2 | Edit any field (e.g. name), save | Updated value shown on profile screen | Mock returns whatever you saved |
-| 3 | Navigate away, come back to profile | Edited value still shown | Provider holds state in memory |
-| 4 | Kill app, reopen, check profile | Reverts to original demo data | Mock doesn't persist edits — expected |
+Do these in order — each one assumes you're logged in from the previous step.
+
+| # | Where | Action | Expected |
+|---|-------|--------|----------|
+| 1 | App launch | Open app cold | Login / onboarding screen shown — no crash, no blank screen |
+| 2 | Login | Enter any email + any password, tap login | Lands on home screen, "Demo User" shown |
+| 3 | Home | Observe home screen | No loading spinner stuck indefinitely; widgets render |
+| 4 | Profile | Navigate to profile | Demo profile fields populated — name, bio, etc. — not blank |
+| 5 | Health | Navigate to health screen | Seeded conditions and symptoms listed — screen not empty |
+| 6 | Medications | Navigate to medications | Seeded medication list shown |
+| 7 | Medication detail | Tap any medication | Detail screen opens with correct name, dosage, schedule |
+| 8 | Back | Back from medication detail | Returns to medication list cleanly |
+| 9 | Assessment | Navigate to assessment history | Empty state shown without crash (no seed data) |
+| 10 | AI Chatbot | Navigate to chatbot | Screen loads — empty history or greeting, no crash |
+| 11 | Nutrition history | Navigate to nutrition history | Sample day log shown (auto-seeded on first launch) |
+| 12 | Nutrition settings | Navigate to nutrition settings/tracking | Current frequency and diet tags displayed |
+| 13 | Articles | Navigate to articles screen | All 3 seeded articles listed |
+| 14 | Article detail | Tap any article card | Detail screen opens with full article body |
+| 15 | Back | Back from article detail | Returns to articles list |
+| 16 | Contacts | Navigate to contacts/emergency screen | Empty state shown without crash (no seed data) |
+| 17 | Chat | Navigate to general chat | 5 users and 3 groups listed |
+| 18 | Direct message | Tap any user in chat list | DM screen opens with that user's chat history (empty or seeded) |
+| 19 | Back | Back from DM screen | Returns to chat list cleanly |
+| 20 | Group chat | Tap any group | Group chat screen opens with group history |
+| 21 | Back | Back from group chat | Returns to chat list cleanly |
+| 22 | User detail | Tap a user's avatar or name | User detail screen opens with profile info |
+| 23 | Back | Back from user detail | Returns without crash |
+| 24 | Subscriptions | Navigate to subscription screen | Premium ($25.99/month) and free plan cards both shown |
+| 25 | Kill app | Force-close and reopen | Lands directly on home — still logged in, token persisted |
+| 26 | Nutrition history (after restart) | Open nutrition history | Sample log still there (SharedPrefs persisted) |
+| 27 | Profile (after restart) | Open profile | Demo profile data back (edits from session not persisted — expected) |
 
 ---
 
-## Tier 3 — Health Data & Medications
+## Session 2 — Write path
 
-Run both in the same session — they don't interfere.
+**Goal:** perform every mutation the app supports. For each one, verify the UI reflects the new state immediately (optimistic update via provider), and that navigation after the action works correctly.
+
+Start fresh from home — still logged in.
+
+### Auth
+
+| # | Action | Expected |
+|---|--------|----------|
+| W1 | Logout | Returns to login screen, no residual state |
+| W2 | Login again | Home screen loads cleanly with demo user |
+
+### Profile
+
+| # | Action | Expected |
+|---|--------|----------|
+| W3 | Edit a profile field (e.g. name), save | Updated value immediately visible on profile screen |
+| W4 | Navigate away from profile, navigate back | Edited value still shown — provider held state |
 
 ### Health Data
 
-Seed data: pre-built list of conditions and symptoms (`kSeedConditions`, `kSeedSymptoms`).
-
 | # | Action | Expected |
 |---|--------|----------|
-| 1 | Open health screen | Seeded conditions and symptoms listed — not empty |
-| 2 | Add a new condition | Appears at top of list immediately |
-| 3 | Add a new symptom | Appears in symptoms list immediately |
-| 4 | Delete a condition | Removed from list, no crash |
-| 5 | Navigate away and back to health screen | Added items still present (in-memory) |
+| W5 | Add a new condition | Appears at top of conditions list immediately |
+| W6 | Add a new symptom | Appears in symptoms list immediately |
+| W7 | Delete the condition you just added | Removed from list, no crash, no reappearance |
 
 ### Medications
 
-Seed data: `kSeedMedications` (pre-built medication list).
-
 | # | Action | Expected |
 |---|--------|----------|
-| 1 | Open medications screen | Seeded medications listed |
-| 2 | Add a new medication | Appears in list with the details you entered |
-| 3 | Edit an existing medication | Changes reflected in list |
-| 4 | Add a reminder to a medication | Reminder saved, visible on medication detail |
-| 5 | Log a dose (mark as taken) | Dose appears in dose log for that medication |
-| 6 | Delete a medication | Removed from list |
-| 7 | Navigate away and back | All in-session changes still present |
-
----
-
-## Tier 4 — Assessment, AI Assistant, Nutrition
-
-Test all three in the same session.
+| W8 | Add a new medication with all fields filled | Appears in medications list |
+| W9 | Edit that medication (change dosage or name) | Updated details shown in list and detail screen |
+| W10 | Add a reminder to that medication | Reminder visible in medication detail |
+| W11 | Log a dose (mark as taken) | Dose log updated — status reflects taken |
+| W12 | Delete the medication | Removed from list, reminders and logs gone with it |
 
 ### Assessment
 
-Seed data: **none** — starts empty.
+| # | Action | Expected |
+|---|--------|----------|
+| W13 | Complete a full assessment | Submits without error, navigates to confirmation or history |
+| W14 | Open assessment history | Submitted entry visible |
+| W15 | Submit a second assessment | Both entries in history, newest first |
+| W16 | Delete one entry | Removed, other entry remains untouched |
+
+### AI Chatbot
 
 | # | Action | Expected |
 |---|--------|----------|
-| 1 | Open assessment history screen before submitting | Empty state shown — no crash |
-| 2 | Complete a full assessment (answer all questions) | Submits without error, confirmation shown |
-| 3 | Open assessment history screen | Just-submitted entry visible |
-| 4 | Submit a second assessment | Both entries visible in history, newest first |
-| 5 | Delete one entry | Entry removed, other remains |
-
-### AI Assistant (Chatbot)
-
-Seed data: varies by mock implementation — history may start empty or with a greeting.
-
-| # | Action | Expected |
-|---|--------|----------|
-| 1 | Open chatbot screen | Loads without crash; history shown (or empty state) |
-| 2 | Type and send a message | Response appears in the chat thread |
-| 3 | Send several messages in a row | All messages and responses appear in order, no overlap |
-| 4 | Scroll up through history | No layout overflow or rendering errors |
-| 5 | Send an empty message (if the UI allows it) | Either blocked by the input field, or graceful error — no crash |
+| W17 | Send a message | Message appears in thread, mock response follows |
+| W18 | Send 3 more messages in a row | All appear in correct order, no overlap or missing messages |
+| W19 | Scroll up through thread | Layout holds — no overflow, no blank gaps |
+| W20 | Try sending an empty message | Input blocked or graceful error — no crash |
 
 ### Nutrition
 
-Seed data: if history is empty on first launch, `FoodDayLog.sampleFirstDay()` is seeded automatically. Persists via SharedPreferences.
-
 | # | Action | Expected |
 |---|--------|----------|
-| 1 | Open nutrition history on first launch | Sample day log shown — not blank |
-| 2 | Add a new food day log | Appears in history list |
-| 3 | Kill app, reopen nutrition history | Both the seeded entry and added entry still present (SharedPrefs) |
-| 4 | Open nutrition tracking/settings screen | Current settings loaded (frequency, diet tags) |
-| 5 | Change diet tags and frequency, save | Settings screen reflects changes |
-| 6 | Kill app, reopen settings | Changes still applied |
-
----
-
-## Tier 5 — Articles & Contacts
+| W21 | Add a new food day log | Appears in history list immediately |
+| W22 | Change diet tags in settings | Tags updated in settings screen |
+| W23 | Change report frequency | Frequency updated — no crash |
+| W24 | Kill app, reopen nutrition | Added log and settings changes still present (SharedPrefs) |
 
 ### Articles
 
-Seed data: 3 articles ("Why are we growing old?", "Why old", "Why get old").
-
 | # | Action | Expected |
 |---|--------|----------|
-| 1 | Open articles screen | All 3 seeded articles visible |
-| 2 | Search for "old" | All 3 results shown (all titles contain "old") |
-| 3 | Search for "growing" | Only "Why are we growing old?" shown |
-| 4 | Search for "xyz" | Empty results — no crash, no leftover items |
-| 5 | Clear search | All 3 articles return |
-| 6 | Tap like on an article | Like count increments by 1 in the list |
-| 7 | Tap like again | Count increments again (mock allows re-liking) |
-| 8 | Tap an article card | Opens article detail screen with full body |
-| 9 | Tap "Read more" link in card snippet | Also opens article detail |
-| 10 | Tap share icon | System share sheet appears |
+| W25 | Like the first article | Like count increments by 1 in the list |
+| W26 | Like the same article again | Count increments again (mock allows re-liking) |
+| W27 | Search "growing" | Only "Why are we growing old?" shown |
+| W28 | Search "xyz" | Empty results — list clears cleanly, no crash |
+| W29 | Clear search | All 3 articles return |
+| W30 | Tap share on any article | System share sheet opens |
 
 ### Contacts
 
-Seed data: **none** — starts empty.
+| # | Action | Expected |
+|---|--------|----------|
+| W31 | Add an emergency contact | Appears in emergency contacts list |
+| W32 | Add a personal doctor | Appears in doctors list |
+| W33 | Edit the emergency contact | Changes reflected immediately |
+| W34 | Delete the emergency contact | Removed, doctor entry untouched |
+
+### Chat
 
 | # | Action | Expected |
 |---|--------|----------|
-| 1 | Open contacts screen before adding anything | Empty state — no crash |
-| 2 | Add an emergency contact | Appears in emergency contacts list |
-| 3 | Add a personal doctor | Appears in doctors list |
-| 4 | Edit the emergency contact | Changes reflected |
-| 5 | Delete the emergency contact | Removed from list |
-| 6 | Navigate away and back | Doctor entry still present (in-memory) |
+| W35 | Search for a user by name | Filtered to matching users only |
+| W36 | Clear search | Full list returns |
+| W37 | Send a direct message to a user | Message appears in thread immediately |
+| W38 | Go back, reopen that same user's DM | Message still visible (in-memory, same session) |
+| W39 | Send a message in a group chat | Message appears with your sender name |
+| W40 | Go back, reopen that group | Message still visible (same session) |
 
----
-
-## Tier 6 — Chat
-
-Seed data: `kSeedUsers` (5 users), `kSeedGroups` (3 groups). Messages do not survive app restarts.
+### Subscriptions
 
 | # | Action | Expected |
 |---|--------|----------|
-| 1 | Open general chat screen | 5 users and 3 groups listed |
-| 2 | Search for a user by name | Filtered results shown |
-| 3 | Search for a group | Filtered results shown |
-| 4 | Clear search | Full list returns |
-| 5 | Tap a user | Opens direct message screen, chat history shown |
-| 6 | Send a message in direct chat | Message appears in the thread immediately |
-| 7 | Go back, reopen the same user's chat | Message still visible (in-memory, same session) |
-| 8 | Tap a group | Opens group chat screen |
-| 9 | Send a message in group chat | Message appears with your name as sender |
-| 10 | Tap a user's avatar or name | Opens user detail screen with profile info |
-| 11 | Kill app, reopen chat | Messages gone — users and groups still listed (expected) |
-
----
-
-## Tier 7 — Subscriptions
-
-Seed data: premium plan ($25.99/month) and free plan ($0). Status starts as inactive (free).
-
-| # | Action | Expected |
-|---|--------|----------|
-| 1 | Open subscription screen | Both premium and free plan cards shown with correct pricing |
-| 2 | Verify premium price displayed | Shows "$25.99/month" — sourced from mock, not hardcoded |
-| 3 | Tap the "$25.99/month" button | `selectPlan()` fires, navigates to payment method screen |
-| 4 | Complete the payment method screen | Navigates to payment review (checkout) screen |
-| 5 | Review screen shows correct card/payment info | Fields populated from `PersonalPaymentInformations` |
-| 6 | Tap "Next" on review screen | `confirmSubscription()` fires, navigates to "Purchase Successful" screen |
-| 7 | "Finish" on success screen | Navigates to next onboarding step without crash |
-| 8 | Navigate back to subscription screen | Status now shows as active/subscribed |
+| W41 | Tap "$25.99/month" button | `selectPlan()` fires — navigates to payment method screen |
+| W42 | Fill payment method, proceed | Navigates to payment review (checkout) screen |
+| W43 | Tap "Next" on review screen | `confirmSubscription()` fires — navigates to "Purchase Successful" |
+| W44 | Tap "Finish" on success screen | Navigates forward without crash |
+| W45 | Navigate back to subscription screen | Status reflects active subscription |
 
 ---
 
 ## Reporting format
 
 ```
-Feature:  <name>
+Session:  1 or 2
 Test #:   <number>
 Action:   <exactly what you did>
 Expected: <what should have happened>
@@ -204,4 +183,4 @@ Actual:   <what actually happened>
 Crash:    yes / no
 ```
 
-If the app crashes, include the error printed in the terminal where `flutter run` is active.
+If the app crashed, paste the error from the terminal where `flutter run` is running.

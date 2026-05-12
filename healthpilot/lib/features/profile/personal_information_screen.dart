@@ -714,20 +714,23 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.05,
-                        screenHeight * 0.03,
-                        0,
-                        0,
-                      ),
-                      child: Text(
-                        "Checkout",
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: "PlusJakartaSans",
-                          color: cs.onSurface,
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.05,
+                          screenHeight * 0.03,
+                          0,
+                          0,
+                        ),
+                        child: Text(
+                          "Checkout",
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: "PlusJakartaSans",
+                            color: cs.onSurface,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),

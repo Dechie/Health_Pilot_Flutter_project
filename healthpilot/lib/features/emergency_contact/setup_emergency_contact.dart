@@ -136,40 +136,42 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: size.width * 0.1,
-                    height: size.width * 0.1,
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(110, 182, 255, 0.25),
-                      borderRadius: BorderRadius.circular(size.width * 0.05),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: size.width * 0.1,
+                      height: size.width * 0.1,
+                      decoration: BoxDecoration(
+                        color: const Color.fromRGBO(110, 182, 255, 0.25),
+                        borderRadius: BorderRadius.circular(size.width * 0.05),
+                      ),
+                      child: IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.arrow_back),
+                        color: const Color.fromRGBO(110, 182, 255, 1),
+                        iconSize: size.width * 0.055,
+                      ),
                     ),
-                    child: IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back),
-                      color: const Color.fromRGBO(110, 182, 255, 1),
-                      iconSize: size.width * 0.055,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
-                    child: SizedBox(
-                      width: size.width * 0.6,
-                      child: Text(
-                        initial == null
-                            ? 'Setup Emergency Contact'
-                            : 'Edit Emergency Contact',
-                        style: TextStyle(
-                          fontSize: size.width * 0.05,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'PlusJakartaSans',
-                          color: cs.onSurface,
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
+                        child: Text(
+                          initial == null
+                              ? 'Setup Emergency Contact'
+                              : 'Edit Emergency Contact',
+                          style: TextStyle(
+                            fontSize: size.width * 0.05,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'PlusJakartaSans',
+                            color: cs.onSurface,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               GestureDetector(
                 onTap: () => openLanguageScreen(context),
