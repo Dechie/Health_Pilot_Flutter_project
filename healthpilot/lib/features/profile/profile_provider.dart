@@ -34,7 +34,7 @@ class ProfileProvider extends ChangeNotifier {
       _error = null;
     } on ApiException catch (e) {
       _status = ProfileLoadStatus.error;
-      _error = _messageFor(e);
+      _error = e.userMessage;
     } catch (e) {
       _status = ProfileLoadStatus.error;
       _error = 'Failed to load profile.';
@@ -66,9 +66,4 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  static String _messageFor(ApiException e) => switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        _ => 'Something went wrong.',
-      };
 }

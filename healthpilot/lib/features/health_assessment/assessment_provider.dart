@@ -29,7 +29,7 @@ class AssessmentProvider extends ChangeNotifier {
       _entries = await _repo.fetchHistory();
       _status = AssessmentLoadStatus.loaded;
     } on ApiException catch (e) {
-      _error = _msg(e);
+      _error = e.userMessage;
       _status = AssessmentLoadStatus.error;
     } finally {
       notifyListeners();
@@ -48,9 +48,4 @@ class AssessmentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  static String _msg(ApiException e) => switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        _ => 'Something went wrong.',
-      };
 }

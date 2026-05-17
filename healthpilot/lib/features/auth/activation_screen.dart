@@ -36,15 +36,10 @@ class _ActivationScreenState extends State<ActivationScreen> {
       await context.read<AuthState>().activate(token);
       if (!mounted) return;
       AppNavigation.replaceWithHome(context);
-    } on ServerError catch (e) {
+    } on ApiException catch (e) {
       setState(() {
         _loading = false;
-        _error = e.message;
-      });
-    } on NetworkError {
-      setState(() {
-        _loading = false;
-        _error = 'No internet connection. Please try again.';
+        _error = e.userMessage;
       });
     } catch (_) {
       setState(() {

@@ -5,6 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "healthpilot (live backend)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define=APP_BASE_URL=https://healthpilot-gqhs3op4.b4a.run",
+                "--dart-define=APP_ENV=prod",
+                "--dart-define=FF_AUTH=true",
+                "--dart-define=FF_PROFILE=false",
+                "--dart-define=FF_ARTICLES=false",
+                "--dart-define=FF_MEDICATIONS=false",
+                "--dart-define=FF_ASSESSMENT=false",
+                "--dart-define=FF_CONTACTS=false",
+                "--dart-define=FF_HEALTH_DATA=false",
+                "--dart-define=FF_CHAT=false",
+                "--dart-define=FF_AI_ASSISTANT=false",
+                "--dart-define=FF_COMMUNITY=false",
+                "--dart-define=FF_NUTRITION=false",
+                "--dart-define=FF_NOTIFICATIONS=false",
+                "--dart-define=FF_SUBSCRIPTIONS=false"
+            ]
+        },
+        {
             "name": "healthpilot",
             "request": "launch",
             "type": "dart"

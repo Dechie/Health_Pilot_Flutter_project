@@ -100,9 +100,8 @@ class ApiClient {
         final response = e.response;
         if (response?.statusCode == 401) return const AuthExpired();
         final body = response?.data;
-        final message = e.message ??
-            (body is Map ? body['message'] as String? : null) ??
-            'Unknown server error';
+        final message = (body is Map ? body['message'] as String? : null) ??
+            'Unexpected error (${response?.statusCode ?? 0})';
         final code = body is Map ? body['code'] as String? : null;
         return ServerError(
           statusCode: response?.statusCode ?? 0,

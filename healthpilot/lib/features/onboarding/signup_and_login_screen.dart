@@ -112,12 +112,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
     );
   }
 
-  String _apiErrorMessage(ApiException e) => switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        AuthExpired() => 'Session expired. Please log in again.',
-        UnknownError() => 'Something went wrong. Please try again.',
-      };
+  String _apiErrorMessage(ApiException e) => e.userMessage;
 
   @override
   Widget build(BuildContext context) {

@@ -96,12 +96,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
       );
     } on ApiException catch (e) {
       if (!mounted) return;
-      final msg = switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        _ => 'Update failed.',
-      };
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.userMessage)));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
