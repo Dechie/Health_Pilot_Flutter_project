@@ -12,7 +12,7 @@
                 "--dart-define=APP_BASE_URL=https://healthpilot-gqhs3op4.b4a.run",
                 "--dart-define=APP_ENV=prod",
                 "--dart-define=FF_AUTH=true",
-                "--dart-define=FF_PROFILE=false",
+                "--dart-define=FF_PROFILE=true",
                 "--dart-define=FF_ARTICLES=false",
                 "--dart-define=FF_MEDICATIONS=false",
                 "--dart-define=FF_ASSESSMENT=false",

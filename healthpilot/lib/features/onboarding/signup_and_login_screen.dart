@@ -24,6 +24,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
   bool? _isChecked = false;
   bool _isLogin = false;
   bool _isObscured = true;
+  bool _isConfirmObscured = true;
   bool _isLoading = false;
   final emailController = TextEditingController();
   final firstNameController = TextEditingController();
@@ -186,7 +187,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                         suffixIcon: null,
                         prefixIcon: Icons.email_outlined,
                         inputActiom: TextInputAction.next,
-                        isobscured: !_isObscured,
+                        isobscured: false,
                         controller: emailController,
                         iconPressed: null,
                       ),
@@ -242,15 +243,15 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                           screenHeight: screenHeight,
                           keyboardType: TextInputType.visiblePassword,
                           hintText: "Confirm Password",
-                          suffixIcon: _isObscured
+                          suffixIcon: _isConfirmObscured
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           prefixIcon: Icons.key,
                           inputActiom: TextInputAction.done,
-                          isobscured: _isObscured,
+                          isobscured: _isConfirmObscured,
                           controller: confirmPasswordController,
                           iconPressed: () => setState(() {
-                            _isObscured = !_isObscured;
+                            _isConfirmObscured = !_isConfirmObscured;
                           }),
                         ),
                       SizedBox(height: screenHeight * 0.03),
@@ -662,17 +663,23 @@ class InputFields extends StatelessWidget {
               obscureText: isobscured,
               textInputAction: inputActiom,
               keyboardType: keyboardType,
-              textAlignVertical: TextAlignVertical.bottom,
+              textAlignVertical: TextAlignVertical.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+                letterSpacing: -0.165,
+              ),
               decoration: InputDecoration(
                 hintText: hintText,
                 hintStyle: const TextStyle(
                   color: Color.fromRGBO(42, 42, 42, 0.5),
-
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
                   fontWeight: FontWeight.w300,
                   letterSpacing: -0.165,
-                  height: 18 / 14, // line-height / font-size
+                  height: 18 / 14,
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(suffixIcon),
@@ -689,7 +696,7 @@ class InputFields extends StatelessWidget {
                     borderRadius: BorderRadius.circular(5),
                     borderSide: const BorderSide()),
                 contentPadding: EdgeInsets.symmetric(
-                  vertical: 53, // No vertical padding
+                  vertical: 14,
                   horizontal: prefixIcon == null
                       ? screenWidth * 0.05
                       : screenWidth * 0.07,

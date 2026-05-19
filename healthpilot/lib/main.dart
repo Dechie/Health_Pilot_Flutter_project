@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/di/repository_locator.dart';
+import 'package:healthpilot/core/network/api_interceptors.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
@@ -14,8 +15,9 @@ import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LoggingInterceptor.init();
   RepositoryLocator.initialize();
   runApp(
     MultiProvider(

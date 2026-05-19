@@ -13,6 +13,14 @@ class AuthState extends ChangeNotifier {
   AuthStatus _status = AuthStatus.unknown;
   AuthStatus get status => _status;
 
+  String _firstName = '';
+  String _lastName = '';
+  String get firstName => _firstName;
+  String get lastName => _lastName;
+  String get fullName => [_firstName, _lastName]
+      .where((s) => s.isNotEmpty)
+      .join(' ');
+
   AuthState({
     required IAuthRepository repo,
     required SecureTokenStore tokenStore,
@@ -29,6 +37,8 @@ class AuthState extends ChangeNotifier {
     }
     final token = await _tokenStore.getAccessToken();
     _status = token != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
+    _firstName = await _tokenStore.getFirstName() ?? '';
+    _lastName  = await _tokenStore.getLastName()  ?? '';
     notifyListeners();
   }
 
@@ -83,5 +93,13 @@ class AuthState extends ChangeNotifier {
   Future<void> _storeTokens(AuthTokens tokens) async {
     await _tokenStore.setAccessToken(tokens.access);
     await _tokenStore.setRefreshToken(tokens.refresh);
+    if (tokens.firstName.isNotEmpty) {
+      await _tokenStore.setFirstName(tokens.firstName);
+      _firstName = tokens.firstName;
+    }
+    if (tokens.lastName.isNotEmpty) {
+      await _tokenStore.setLastName(tokens.lastName);
+      _lastName = tokens.lastName;
+    }
   }
 }

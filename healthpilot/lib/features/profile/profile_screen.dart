@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
 import 'package:healthpilot/features/profile/allergies_screen.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
@@ -66,7 +68,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                context.watch<ProfileProvider>().profile.displayName ?? 'Profile',
+                                FeatureFlags.userProfile
+                                    ? context.watch<ProfileProvider>().profile.displayName ?? 'Profile'
+                                    : context.watch<AuthState>().fullName.isEmpty
+                                        ? 'Profile'
+                                        : context.watch<AuthState>().fullName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)

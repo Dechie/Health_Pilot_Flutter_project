@@ -22,6 +22,8 @@ import 'package:healthpilot/features/profile/profile_screen.dart';
 import 'package:healthpilot/features/tutorials/tutorials_entry_screen.dart';
 import 'package:healthpilot/features/home/overview_card.dart';
 import 'package:healthpilot/theme/app_theme.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../../data/contants.dart';
@@ -71,7 +73,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     },
   ];
 
-  final userName = "Mohammed";
   // showAiAlert is true if the screen is only at home page
 
   bool showAiAlert = true;
@@ -295,7 +296,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Hello, $userName',
+                      'Hello, ${context.watch<AuthState>().firstName}',
                       style: AppTheme.userGreeting(context),
                       overflow: TextOverflow.ellipsis,
                     ),
