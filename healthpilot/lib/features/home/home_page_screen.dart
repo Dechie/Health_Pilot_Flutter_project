@@ -18,6 +18,7 @@ import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
+import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/profile/profile_screen.dart';
 import 'package:healthpilot/features/tutorials/tutorials_entry_screen.dart';
 import 'package:healthpilot/features/home/overview_card.dart';
@@ -295,11 +296,37 @@ class _HomePageScreenState extends State<HomePageScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      'Hello, ${context.watch<AuthState>().firstName}',
-                      style: AppTheme.userGreeting(context),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: Builder(builder: (context) {
+                      final auth = context.watch<AuthState>();
+                      final greeting = auth.isGuest
+                          ? 'Hello, Guest'
+                          : 'Hello, ${auth.firstName}';
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            greeting,
+                            style: AppTheme.userGreeting(context),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (auth.isGuest)
+                            GestureDetector(
+                              onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
+                                SignupAndLoginScreen.routeName,
+                                (_) => false,
+                              ),
+                              child: Text(
+                                'Sign up for full access →',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontFamily: 'PlusJakartaSans',
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
                   ),
                   const SizedBox(width: 10),
                   Row(

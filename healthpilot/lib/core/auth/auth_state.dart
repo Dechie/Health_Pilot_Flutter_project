@@ -15,8 +15,10 @@ class AuthState extends ChangeNotifier {
 
   String _firstName = '';
   String _lastName = '';
+  bool _isGuest = false;
   String get firstName => _firstName;
   String get lastName => _lastName;
+  bool get isGuest => _isGuest;
   String get fullName => [_firstName, _lastName]
       .where((s) => s.isNotEmpty)
       .join(' ');
@@ -39,12 +41,15 @@ class AuthState extends ChangeNotifier {
     _status = token != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
     _firstName = await _tokenStore.getFirstName() ?? '';
     _lastName  = await _tokenStore.getLastName()  ?? '';
+    _isGuest   = await _tokenStore.getIsGuest();
     notifyListeners();
   }
 
   Future<void> login(String email, String password) async {
     final tokens = await _repo.login(email: email, password: password);
     await _storeTokens(tokens);
+    await _tokenStore.setIsGuest(false);
+    _isGuest = false;
     _status = AuthStatus.authenticated;
     notifyListeners();
   }
@@ -71,6 +76,25 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> guestLogin() async {
+    final tokens = await _repo.guestLogin();
+    await _storeTokens(tokens);
+    await _tokenStore.setIsGuest(true);
+    _isGuest = true;
+    _status = AuthStatus.authenticated;
+    notifyListeners();
+  }
+
+  /// Enters guest mode locally without a network call — used as fallback when
+  /// the backend guest-login endpoint is unreachable (e.g. no internet).
+  Future<void> enterLocalGuestMode() async {
+    await _clearSession();
+    await _tokenStore.setIsGuest(true);
+    _isGuest = true;
+    _status = AuthStatus.authenticated;
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     try {
       final refresh = await _tokenStore.getRefreshToken();
@@ -78,28 +102,32 @@ class AuthState extends ChangeNotifier {
     } catch (_) {
       // Best-effort — always clear local tokens regardless.
     }
-    await _tokenStore.clearAll();
+    await _clearSession();
     _status = AuthStatus.unauthenticated;
     notifyListeners();
   }
 
   /// Called by ApiClient interceptor when the refresh token is expired or missing.
   void onAuthExpired() {
-    _tokenStore.clearAll();
+    _clearSession();
     _status = AuthStatus.unauthenticated;
     notifyListeners();
+  }
+
+  Future<void> _clearSession() async {
+    await _tokenStore.clearAll();
+    _firstName = '';
+    _lastName = '';
+    _isGuest = false;
   }
 
   Future<void> _storeTokens(AuthTokens tokens) async {
     await _tokenStore.setAccessToken(tokens.access);
     await _tokenStore.setRefreshToken(tokens.refresh);
-    if (tokens.firstName.isNotEmpty) {
-      await _tokenStore.setFirstName(tokens.firstName);
-      _firstName = tokens.firstName;
-    }
-    if (tokens.lastName.isNotEmpty) {
-      await _tokenStore.setLastName(tokens.lastName);
-      _lastName = tokens.lastName;
-    }
+    // Always overwrite — clears previous user's name when switching accounts.
+    await _tokenStore.setFirstName(tokens.firstName);
+    await _tokenStore.setLastName(tokens.lastName);
+    _firstName = tokens.firstName;
+    _lastName = tokens.lastName;
   }
 }

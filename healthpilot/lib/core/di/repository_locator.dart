@@ -82,7 +82,7 @@ abstract final class RepositoryLocator {
           },
         ),
 
-        // Branch 3 — User profile; auto-loads when AuthState becomes authenticated.
+        // Branch 3 — User profile; auto-loads when AuthState becomes authenticated (non-guest).
         ChangeNotifierProxyProvider<AuthState, ProfileProvider>(
           create: (_) => ProfileProvider(
             FeatureFlags.userProfile
@@ -90,8 +90,10 @@ abstract final class RepositoryLocator {
                 : MockProfileRepository(),
           ),
           update: (_, authState, provider) {
-            if (authState.status == AuthStatus.authenticated) {
+            if (authState.status == AuthStatus.authenticated && !authState.isGuest) {
               provider!.load();
+            } else if (authState.status == AuthStatus.unauthenticated || authState.isGuest) {
+              provider!.reset();
             }
             return provider!;
           },

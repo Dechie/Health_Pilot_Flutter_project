@@ -379,7 +379,18 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                 BottomActionTexts(
                   normalTexts: "Wanna give it a try? ",
                   commandTexts: "Skip",
-                  login: () {
+                  login: () async {
+                    if (!FeatureFlags.auth) {
+                      AppNavigation.replaceWithHome(context);
+                      return;
+                    }
+                    try {
+                      await context.read<AuthState>().guestLogin();
+                    } catch (_) {
+                      if (!context.mounted) return;
+                      await context.read<AuthState>().enterLocalGuestMode();
+                    }
+                    if (!context.mounted) return;
                     AppNavigation.replaceWithHome(context);
                   },
                   fontSize: 15,

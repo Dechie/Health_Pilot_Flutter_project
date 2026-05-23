@@ -54,6 +54,14 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Resets to demo state — called when the user logs out or switches accounts.
+  void reset() {
+    _profile = kDemoUserProfile;
+    _status = ProfileLoadStatus.idle;
+    _error = null;
+    notifyListeners();
+  }
+
   /// Saves public profile fields (about_me, visibility).
   Future<void> savePublic(UserProfile updated) async {
     if (!FeatureFlags.userProfile) {

@@ -46,10 +46,11 @@ Legend: ✅ passed · ❌ failed · ⬜ not yet tested
 - ✅ Happy path — clears tokens, navigates to login screen, spinner shown during logout
 
 ### GET `/api/v1/auth/me/`
-- ⬜ Happy path — returns current user identity fields
+- ✅ Happy path — returns correct user identity fields (id, email, first_name, last_name, full_name, etc.)
 
 ### PATCH `/api/v1/auth/me/`
-- ⬜ Happy path — updates user identity fields (name, email)
+- ✅ Happy path — first name and last name updates saved and reflected immediately in profile screen
+- ⬜ Email update — skipped for now (likely requires re-verification flow)
 - ⬜ Invalid payload — user-friendly validation error
 
 ### POST `/api/v1/auth/token/refresh/`
@@ -57,51 +58,63 @@ Legend: ✅ passed · ❌ failed · ⬜ not yet tested
 - ⬜ Expired refresh token — app should redirect to login screen gracefully
 
 ### POST `/api/v1/auth/guest/`
-- ⬜ Happy path — returns guest tokens, app proceeds without account
+- ✅ Happy path — returns guest tokens, app proceeds without account
+- ✅ No internet fallback — offline local guest mode: `isGuest=true` set without a token, UI shows "Guest" correctly with all edit/health-info restricted
 
 ---
 
 ## 2 · Profile — `FF_PROFILE`
 
 ### GET `/api/v1/auth/me/` + GET `/api/v1/profile/me/`
-- ⬜ Happy path — combined profile loads and all fields render correctly
+- ✅ Happy path — both endpoints hit on profile screen open; data merged and displayed correctly
+- ✅ Loading state — spinner shown while fetching, real name replaces it on response
 
-### PATCH `/api/v1/auth/me/` + PATCH `/api/v1/profile/me/`
-- ⬜ Happy path — edits saved and reflected immediately in UI
+### PATCH `/api/v1/auth/me/`
+- ✅ Happy path — name/last name edits saved and reflected immediately in profile screen
+- ⬜ Email update — skipped (likely requires re-verification flow)
 - ⬜ Invalid fields — user-friendly validation error shown
+
+### PATCH `/api/v1/profile/me/`
+- ⬜ Happy path — about_me and visibility fields saved correctly
 
 ---
 
 ## 3 · Health Data — `FF_HEALTH_DATA`
 
-### GET `/api/v1/health/conditions/`
-- ⬜ Happy path — conditions list loads and renders correctly
-- ⬜ Empty state — graceful empty UI when no conditions saved
+> **Backend note:** `/api/v1/health/conditions/` does not exist. Remote stubs return empty list.
+> Actual backend health routes (from Postman collection): `symptoms/`, `vitals/`, `summaries/`, `goals/`, `dashboard/`.
+> Symptoms response is **paginated** — `{count, next, previous, results: [...]}`.
 
-### POST `/api/v1/health/conditions/`
-- ⬜ Happy path — new condition appears in list immediately
-- ⬜ Duplicate condition — should show a clear error
-
-### DELETE `/api/v1/health/conditions/{id}/`
-- ⬜ Happy path — condition removed from list
-- ⬜ Non-existent ID — should not crash
-
-### DELETE `/api/v1/health/conditions/` _(bulk clear)_
-- ⬜ Happy path — all conditions removed
+### ~~conditions/~~ — not implemented on backend
 
 ### GET `/api/v1/health/symptoms/`
-- ⬜ Happy path — symptoms list loads and renders correctly
-- ⬜ Empty state
+- ✅ Returns paginated response — app correctly unwraps `results` field
+- ⬜ Happy path with data — symptoms render correctly in list
 
 ### POST `/api/v1/health/symptoms/`
-- ⬜ Happy path — new symptom appears in list
-- ⬜ Duplicate symptom
+- ⬜ Happy path — payload: `{symptom_name, severity (0–10), body_location, description}`; new entry appears in list
+- ⬜ Duplicate symptom — backend response
 
 ### DELETE `/api/v1/health/symptoms/{id}/`
 - ⬜ Happy path — symptom removed from list
 
-### DELETE `/api/v1/health/symptoms/` _(bulk clear)_
-- ⬜ Happy path — all symptoms removed
+### GET `/api/v1/health/vitals/`
+- ⬜ Not yet wired in app — backend exists
+
+### POST `/api/v1/health/vitals/`
+- ⬜ Not yet wired in app — payload: `{systolic_bp, diastolic_bp, heart_rate, weight_kg, steps}`
+
+### GET `/api/v1/health/dashboard/`
+- ⬜ Not yet wired in app
+
+### GET `/api/v1/health/summaries/`
+- ⬜ Not yet wired in app
+
+### GET `/api/v1/health/goals/`
+- ⬜ Not yet wired in app
+
+### POST `/api/v1/health/goals/`
+- ⬜ Not yet wired in app — payload: `{goal_type, target_value, unit}`
 
 ---
 
@@ -122,16 +135,18 @@ Legend: ✅ passed · ❌ failed · ⬜ not yet tested
 
 ## 5 · AI Assistant — `FF_AI_ASSISTANT`
 
-### GET `/api/v1/chat/messages/`
+> **Endpoint correction (Postman):** AI routes are under `chat/ai/`, not `chat/messages/`.
+
+### GET `/api/v1/chat/ai/history/`
 - ⬜ Happy path — existing conversation history loads
 - ⬜ Empty state — greeting shown when no history
 
-### POST `/api/v1/chat/messages/`
-- ⬜ Happy path — user message sent, AI reply received and rendered
+### POST `/api/v1/chat/ai/`
+- ⬜ Happy path — payload: `{message}`; AI reply received and rendered
 - ⬜ Empty message — should not send
 - ⬜ Long message — no layout overflow
 
-### DELETE `/api/v1/chat/messages/`
+### DELETE `/api/v1/chat/ai/history/`
 - ⬜ Happy path — conversation history cleared
 
 ---
@@ -173,46 +188,53 @@ Legend: ✅ passed · ❌ failed · ⬜ not yet tested
 
 ## 7 · Nutrition — `FF_NUTRITION`
 
-### GET `/api/v1/nutrition/history/`
-- ⬜ Happy path — nutrition log history loads
+> **Endpoint correction (Postman):** `history/` → `meals/`; `settings/` → `goals/`; also has `search/` and `summary/`.
+
+### GET `/api/v1/nutrition/search/?q=<query>`
+- ⬜ Happy path — food search results load
+
+### GET `/api/v1/nutrition/meals/`
+- ⬜ Happy path — meal log history loads
 - ⬜ Empty state
 
-### POST `/api/v1/nutrition/history/`
-- ⬜ Happy path — new log entry appears in history
+### POST `/api/v1/nutrition/meals/`
+- ⬜ Happy path — payload: `{meal_type, entries: [{food_name, quantity_g, calories, ...}]}`
 
-### GET `/api/v1/nutrition/settings/`
-- ⬜ Happy path — diet tags and report frequency load correctly
+### GET `/api/v1/nutrition/goals/`
+- ⬜ Happy path — daily calorie/macro goals load
 
-### PATCH `/api/v1/nutrition/settings/`
-- ⬜ Happy path — updated settings persisted and reloaded correctly
+### PATCH `/api/v1/nutrition/goals/`
+- ⬜ Happy path — updated goals persisted correctly
+
+### GET `/api/v1/nutrition/summary/`
+- ⬜ Happy path — daily summary loads
 
 ---
 
 ## 8 · Contacts — `FF_CONTACTS`
 
-### GET `/api/v1/contacts/emergency/`
+> **Endpoint correction (Postman):** contacts live under `profile/`, not a separate `contacts/` prefix.
+
+### GET `/api/v1/profile/emergency-contacts/`
 - ⬜ Happy path — emergency contacts load
 - ⬜ Empty state
 
-### POST `/api/v1/contacts/emergency/`
-- ⬜ Happy path — new contact appears in list
+### POST `/api/v1/profile/emergency-contacts/`
+- ⬜ Happy path — payload: `{first_name, last_name, relationship, phone, email}`; contact appears in list
 
-### PATCH `/api/v1/contacts/emergency/{id}/`
+### PATCH `/api/v1/profile/emergency-contacts/{id}/`
 - ⬜ Happy path — updated contact details reflected
 
-### DELETE `/api/v1/contacts/emergency/{id}/`
+### DELETE `/api/v1/profile/emergency-contacts/{id}/`
 - ⬜ Happy path — contact removed
 
-### GET `/api/v1/contacts/doctors/`
+### GET `/api/v1/profile/doctors/`
 - ⬜ Happy path — doctor contacts load
 
-### POST `/api/v1/contacts/doctors/`
-- ⬜ Happy path — new doctor added
+### POST `/api/v1/profile/doctors/`
+- ⬜ Happy path — payload: `{first_name, last_name, specialization, email, report_frequency}`
 
-### PATCH `/api/v1/contacts/doctors/{id}/`
-- ⬜ Happy path — doctor details updated
-
-### DELETE `/api/v1/contacts/doctors/{id}/`
+### DELETE `/api/v1/profile/doctors/{id}/`
 - ⬜ Happy path — doctor removed
 
 ---
@@ -246,17 +268,19 @@ Legend: ✅ passed · ❌ failed · ⬜ not yet tested
 
 ## 11 · Subscriptions — `FF_SUBSCRIPTIONS`
 
-### GET `/api/v1/subscriptions/plans/`
-- ⬜ Happy path — plan list and pricing loads
+> **Endpoint correction (Postman):** no `plans/`, `subscribe/`, or `cancel/` — payment flow instead.
 
 ### GET `/api/v1/subscriptions/status/`
 - ⬜ Happy path — current subscription status reflects correctly
 
-### POST `/api/v1/subscriptions/subscribe/`
-- ⬜ Happy path — subscription confirmed, premium flag set
+### POST `/api/v1/subscriptions/payment/`
+- ⬜ Happy path — payload: `{amount, payment_method, currency, months}`; returns payment_id
 
-### DELETE `/api/v1/subscriptions/cancel/`
-- ⬜ Happy path — subscription cancelled, status reverts
+### POST `/api/v1/subscriptions/payment/confirm/`
+- ⬜ Happy path — payload: `{payment_id}`; subscription activated
+
+### GET `/api/v1/subscriptions/payment/history/`
+- ⬜ Happy path — payment history loads
 
 ---
 

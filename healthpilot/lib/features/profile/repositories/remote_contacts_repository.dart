@@ -10,7 +10,7 @@ class RemoteContactsRepository implements IContactsRepository {
   @override
   Future<List<EmergencyContactEntry>> fetchEmergencyContacts() async {
     final data =
-        await _client.get('${ApiConstants.contactsBase}/emergency/');
+        await _client.get('${ApiConstants.profileBase}/emergency-contacts/');
     return (data as List)
         .map((e) =>
             EmergencyContactEntry.fromJson(e as Map<String, dynamic>))
@@ -21,7 +21,7 @@ class RemoteContactsRepository implements IContactsRepository {
   Future<EmergencyContactEntry> addEmergencyContact(
       EmergencyContactEntry contact) async {
     final data = await _client.post(
-      '${ApiConstants.contactsBase}/emergency/',
+      '${ApiConstants.profileBase}/emergency-contacts/',
       data: contact.toJson(),
     );
     return EmergencyContactEntry.fromJson(data as Map<String, dynamic>);
@@ -31,7 +31,7 @@ class RemoteContactsRepository implements IContactsRepository {
   Future<EmergencyContactEntry> updateEmergencyContact(
       EmergencyContactEntry contact) async {
     final data = await _client.patch(
-      '${ApiConstants.contactsBase}/emergency/${contact.id}/',
+      '${ApiConstants.profileBase}/emergency-contacts/${contact.id}/',
       data: contact.toJson(),
     );
     return EmergencyContactEntry.fromJson(data as Map<String, dynamic>);
@@ -39,11 +39,11 @@ class RemoteContactsRepository implements IContactsRepository {
 
   @override
   Future<void> deleteEmergencyContact(String id) async =>
-      _client.delete('${ApiConstants.contactsBase}/emergency/$id/');
+      _client.delete('${ApiConstants.profileBase}/emergency-contacts/$id/');
 
   @override
   Future<List<PersonalDoctorEntry>> fetchDoctors() async {
-    final data = await _client.get('${ApiConstants.contactsBase}/doctors/');
+    final data = await _client.get('${ApiConstants.profileBase}/doctors/');
     return (data as List)
         .map((e) =>
             PersonalDoctorEntry.fromJson(e as Map<String, dynamic>))
@@ -53,7 +53,7 @@ class RemoteContactsRepository implements IContactsRepository {
   @override
   Future<PersonalDoctorEntry> addDoctor(PersonalDoctorEntry doctor) async {
     final data = await _client.post(
-      '${ApiConstants.contactsBase}/doctors/',
+      '${ApiConstants.profileBase}/doctors/',
       data: doctor.toJson(),
     );
     return PersonalDoctorEntry.fromJson(data as Map<String, dynamic>);
@@ -62,7 +62,7 @@ class RemoteContactsRepository implements IContactsRepository {
   @override
   Future<PersonalDoctorEntry> updateDoctor(PersonalDoctorEntry doctor) async {
     final data = await _client.patch(
-      '${ApiConstants.contactsBase}/doctors/${doctor.id}/',
+      '${ApiConstants.profileBase}/doctors/${doctor.id}/',
       data: doctor.toJson(),
     );
     return PersonalDoctorEntry.fromJson(data as Map<String, dynamic>);
@@ -70,5 +70,5 @@ class RemoteContactsRepository implements IContactsRepository {
 
   @override
   Future<void> deleteDoctor(String id) async =>
-      _client.delete('${ApiConstants.contactsBase}/doctors/$id/');
+      _client.delete('${ApiConstants.profileBase}/doctors/$id/');
 }
