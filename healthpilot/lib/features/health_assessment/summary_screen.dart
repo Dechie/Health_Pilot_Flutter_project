@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/network/api_error.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/health_assessment/assessment_history_stepper_screen.dart';
@@ -87,9 +88,23 @@ class SummaryScreen extends StatelessWidget {
                       hasOtherSymptoms: hasOtherSymptoms,
                       symptomsTrend: symptomsTrend,
                     );
-                    await context
-                        .read<AssessmentProvider>()
-                        .submit(summary);
+                    try {
+                      await context
+                          .read<AssessmentProvider>()
+                          .submit(summary);
+                    } on ApiException catch (e) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.userMessage)),
+                      );
+                      return;
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Submit failed: $e')),
+                      );
+                      return;
+                    }
                     if (!context.mounted) return;
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute<void>(

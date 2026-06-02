@@ -10,7 +10,9 @@ class RemoteAssessmentRepository implements IAssessmentRepository {
   @override
   Future<List<CompletedAssessmentEntry>> fetchHistory() async {
     final data = await _client.get('${ApiConstants.assessmentsBase}/');
-    return (data as List)
+    // Handle both plain list and paginated envelope {count, results:[...]}.
+    final list = data is Map ? (data['results'] as List) : (data as List);
+    return list
         .map((e) =>
             CompletedAssessmentEntry.fromJson(e as Map<String, dynamic>))
         .toList();

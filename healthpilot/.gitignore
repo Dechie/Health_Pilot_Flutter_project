@@ -49,3 +49,4 @@ app.*.map.json
 *.apk
 *.aab
 /android/app/.cxx/
+dart_defines.json
