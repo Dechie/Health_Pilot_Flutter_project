@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
+import 'package:healthpilot/data/constants.dart';
+import 'package:provider/provider.dart';
 
 class InitialInfoFinal extends StatefulWidget {
   const InitialInfoFinal({super.key});
@@ -72,7 +74,9 @@ class _InitialInfoFinal extends State<InitialInfoFinal> {
           height: size.height * 0.03,
         ),
         GestureDetector(
-          onTap: () {
+          onTap: () async {
+            await context.read<AuthState>().markOnboardingCompleted();
+            if (!context.mounted) return;
             AppNavigation.replaceWithHome(context);
           },
           child: Container(

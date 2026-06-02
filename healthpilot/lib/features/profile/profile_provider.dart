@@ -54,6 +54,17 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// PATCHes only height and weight to /auth/me/.
+  Future<void> savePhysical({
+    required double heightCm,
+    required double weightKg,
+  }) async {
+    final partial = UserProfile(heightCm: heightCm, weightKg: weightKg);
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
   /// Resets to demo state — called when the user logs out or switches accounts.
   void reset() {
     _profile = kDemoUserProfile;

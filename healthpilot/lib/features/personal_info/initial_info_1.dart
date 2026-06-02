@@ -3,6 +3,8 @@ import 'package:flutter_ruler_picker/flutter_ruler_picker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_2.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
@@ -315,7 +317,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                         ],
                         onValueChanged: (num value) {
                           setState(() {
-                            selectedAge = value.toInt();
+                            selectedHeight = value.toInt();
                           });
                         },
                         width: size.width,
@@ -433,7 +435,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                         ],
                         onValueChanged: (value) {
                           setState(() {
-                            selectedAge = value.toInt();
+                            selectedWeight = value.toInt();
                           });
                         },
 
@@ -451,12 +453,29 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                     Padding(
                       padding: const EdgeInsets.only(top: 48.0, bottom: 48),
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          final double heightCm =
+                              mesurementTypeForHeight == 'ft'
+                                  ? selectedHeight * 30.48
+                                  : selectedHeight.toDouble();
+                          final double weightKg =
+                              mesurementTypeForWeight == 'gm'
+                                  ? selectedWeight / 1000.0
+                                  : selectedWeight.toDouble();
+                          try {
+                            await context.read<ProfileProvider>().savePhysical(
+                                  heightCm: heightCm,
+                                  weightKg: weightKg,
+                                );
+                          } catch (_) {
+                            // Don't block onboarding if the save fails.
+                          }
+                          if (!context.mounted) return;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const InitialInfoSecond()), // Navigate to the DestinationPage
+                                    const InitialInfoSecond()),
                           );
                         },
                         style: ElevatedButton.styleFrom(

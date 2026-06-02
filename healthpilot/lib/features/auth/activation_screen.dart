@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
-import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/network/api_error.dart';
+import 'package:healthpilot/features/personal_info/initial_info_1.dart';
 import 'package:provider/provider.dart';
 
 class ActivationScreen extends StatefulWidget {
@@ -35,7 +35,10 @@ class _ActivationScreenState extends State<ActivationScreen> {
     try {
       await context.read<AuthState>().activate(token);
       if (!mounted) return;
-      AppNavigation.replaceWithHome(context);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const InitialInfoFirst()),
+        (route) => false,
+      );
     } on ApiException catch (e) {
       setState(() {
         _loading = false;

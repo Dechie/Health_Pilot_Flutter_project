@@ -1,12 +1,13 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureTokenStore {
-  static const _accessKey     = 'hp.auth.access_token';
-  static const _refreshKey    = 'hp.auth.refresh_token';
-  static const _userIdKey     = 'hp.auth.user_id';
-  static const _firstNameKey  = 'hp.auth.first_name';
-  static const _lastNameKey   = 'hp.auth.last_name';
-  static const _isGuestKey    = 'hp.auth.is_guest';
+  static const _accessKey              = 'hp.auth.access_token';
+  static const _refreshKey             = 'hp.auth.refresh_token';
+  static const _userIdKey              = 'hp.auth.user_id';
+  static const _firstNameKey           = 'hp.auth.first_name';
+  static const _lastNameKey            = 'hp.auth.last_name';
+  static const _isGuestKey             = 'hp.auth.is_guest';
+  static const _onboardingCompletedKey = 'hp.onboarding.completed';
 
   final FlutterSecureStorage _storage;
 
@@ -26,6 +27,11 @@ class SecureTokenStore {
   Future<void> setFirstName(String name)     => _storage.write(key: _firstNameKey, value: name);
   Future<void> setLastName(String name)      => _storage.write(key: _lastNameKey,  value: name);
   Future<void> setIsGuest(bool v)            => _storage.write(key: _isGuestKey,   value: v.toString());
+
+  Future<bool> getOnboardingCompleted() async =>
+      (await _storage.read(key: _onboardingCompletedKey)) == 'true';
+  Future<void> setOnboardingCompleted()  =>
+      _storage.write(key: _onboardingCompletedKey, value: 'true');
 
   Future<void> clearAll() => Future.wait([
     _storage.delete(key: _accessKey),

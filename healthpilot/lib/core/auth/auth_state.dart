@@ -16,9 +16,11 @@ class AuthState extends ChangeNotifier {
   String _firstName = '';
   String _lastName = '';
   bool _isGuest = false;
+  bool _onboardingCompleted = false;
   String get firstName => _firstName;
   String get lastName => _lastName;
   bool get isGuest => _isGuest;
+  bool get isOnboardingCompleted => _onboardingCompleted;
   String get fullName => [_firstName, _lastName]
       .where((s) => s.isNotEmpty)
       .join(' ');
@@ -39,9 +41,10 @@ class AuthState extends ChangeNotifier {
     }
     final token = await _tokenStore.getAccessToken();
     _status = token != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
-    _firstName = await _tokenStore.getFirstName() ?? '';
-    _lastName  = await _tokenStore.getLastName()  ?? '';
-    _isGuest   = await _tokenStore.getIsGuest();
+    _firstName           = await _tokenStore.getFirstName() ?? '';
+    _lastName            = await _tokenStore.getLastName()  ?? '';
+    _isGuest             = await _tokenStore.getIsGuest();
+    _onboardingCompleted = await _tokenStore.getOnboardingCompleted();
     notifyListeners();
   }
 
@@ -111,6 +114,12 @@ class AuthState extends ChangeNotifier {
   void onAuthExpired() {
     _clearSession();
     _status = AuthStatus.unauthenticated;
+    notifyListeners();
+  }
+
+  Future<void> markOnboardingCompleted() async {
+    await _tokenStore.setOnboardingCompleted();
+    _onboardingCompleted = true;
     notifyListeners();
   }
 

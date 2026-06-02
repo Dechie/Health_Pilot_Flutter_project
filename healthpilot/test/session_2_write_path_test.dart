@@ -645,7 +645,7 @@ void main() {
   // ── W31–W34: Contacts ────────────────────────────────────────────────────
 
   group('W31–W34 Contacts', () {
-    EmergencyContactEntry _stubContact(String id) => EmergencyContactEntry(
+    EmergencyContactEntry stubContact(String id) => EmergencyContactEntry(
           id: id,
           firstName: 'Alice',
           lastName: 'Smith',
@@ -654,7 +654,7 @@ void main() {
           relationship: 'Sister',
         );
 
-    PersonalDoctorEntry _stubDoctor(String id) => PersonalDoctorEntry(
+    PersonalDoctorEntry stubDoctor(String id) => PersonalDoctorEntry(
           id: id,
           firstName: 'Dr',
           lastName: 'Jones',
@@ -668,7 +668,7 @@ void main() {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
       expect(contactsP.contacts, isEmpty);
-      await contactsP.addContact(_stubContact('c1'));
+      await contactsP.addContact(stubContact('c1'));
       expect(contactsP.contacts.length, 1);
       expect(contactsP.contacts.first.firstName, 'Alice');
     });
@@ -677,7 +677,7 @@ void main() {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
       expect(contactsP.doctors, isEmpty);
-      await contactsP.addDoctor(_stubDoctor('d1'));
+      await contactsP.addDoctor(stubDoctor('d1'));
       expect(contactsP.doctors.length, 1);
       expect(contactsP.doctors.first.profession, 'Cardiologist');
     });
@@ -685,9 +685,9 @@ void main() {
     testWidgets('W33 update contact reflects new values', (tester) async {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
-      await contactsP.addContact(_stubContact('c1'));
+      await contactsP.addContact(stubContact('c1'));
       await contactsP.updateContact(
-        _stubContact('c1').copyWith(firstName: 'Alicia'),
+        stubContact('c1').copyWith(firstName: 'Alicia'),
       );
       expect(contactsP.contacts.first.firstName, 'Alicia');
     });
@@ -696,8 +696,8 @@ void main() {
         (tester) async {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
-      await contactsP.addContact(_stubContact('c1'));
-      await contactsP.addDoctor(_stubDoctor('d1'));
+      await contactsP.addContact(stubContact('c1'));
+      await contactsP.addDoctor(stubDoctor('d1'));
       await contactsP.deleteContact('c1');
       expect(contactsP.contacts, isEmpty);
       expect(contactsP.doctors.length, 1);
