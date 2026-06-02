@@ -57,13 +57,13 @@ abstract final class RepositoryLocator {
   static late final ApiClient apiClient;
 
   // Late-bound so AuthState can register its callback after creation.
-  static void Function()? _onAuthExpiredCallback;
+  static Future<void> Function()? _onAuthExpiredCallback;
 
   static void initialize() {
     tokenStore = const SecureTokenStore(FlutterSecureStorage());
     ApiClient.initialize(
       tokenStore: tokenStore,
-      onAuthExpired: () => _onAuthExpiredCallback?.call(),
+      onAuthExpired: () async => _onAuthExpiredCallback?.call(),
     );
     apiClient = ApiClient.instance;
   }

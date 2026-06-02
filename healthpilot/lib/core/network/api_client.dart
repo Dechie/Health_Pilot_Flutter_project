@@ -14,7 +14,7 @@ class ApiClient {
   /// Must be called once at app startup before [instance] is accessed.
   static void initialize({
     required SecureTokenStore tokenStore,
-    required void Function() onAuthExpired,
+    required Future<void> Function() onAuthExpired,
   }) {
     if (_instance != null) return;
     final dio = Dio(BaseOptions(

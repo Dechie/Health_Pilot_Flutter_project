@@ -11,12 +11,12 @@ import 'package:path_provider/path_provider.dart';
 class AuthInterceptor extends Interceptor {
   final Dio _dio;
   final SecureTokenStore _tokenStore;
-  final void Function() _onAuthExpired;
+  final Future<void> Function() _onAuthExpired;
 
   AuthInterceptor({
     required Dio dio,
     required SecureTokenStore tokenStore,
-    required void Function() onAuthExpired,
+    required Future<void> Function() onAuthExpired,
   })  : _dio = dio,
         _tokenStore = tokenStore,
         _onAuthExpired = onAuthExpired;
@@ -48,7 +48,7 @@ class AuthInterceptor extends Interceptor {
     final refreshToken = await _tokenStore.getRefreshToken();
     if (refreshToken == null) {
       await _tokenStore.clearAll();
-      _onAuthExpired();
+      await _onAuthExpired();
       handler.reject(err);
       return;
     }
@@ -71,7 +71,7 @@ class AuthInterceptor extends Interceptor {
       handler.resolve(retryResponse);
     } catch (_) {
       await _tokenStore.clearAll();
-      _onAuthExpired();
+      await _onAuthExpired();
       handler.reject(err);
     }
   }

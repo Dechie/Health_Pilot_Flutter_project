@@ -111,8 +111,8 @@ class AuthState extends ChangeNotifier {
   }
 
   /// Called by ApiClient interceptor when the refresh token is expired or missing.
-  void onAuthExpired() {
-    _clearSession();
+  Future<void> onAuthExpired() async {
+    await _clearSession();
     _status = AuthStatus.unauthenticated;
     notifyListeners();
   }

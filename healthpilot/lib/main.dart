@@ -5,6 +5,7 @@ import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/di/repository_locator.dart';
 import 'package:healthpilot/core/network/api_interceptors.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
+import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
@@ -30,8 +31,47 @@ Future<void> main() async {
   );
 }
 
-class HealthPilotApp extends StatelessWidget {
+class HealthPilotApp extends StatefulWidget {
   const HealthPilotApp({super.key});
+
+  @override
+  State<HealthPilotApp> createState() => _HealthPilotAppState();
+}
+
+class _HealthPilotAppState extends State<HealthPilotApp> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  AuthStatus _prevAuthStatus = AuthStatus.unknown;
+  bool _listenerAdded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_listenerAdded) {
+      context.read<AuthState>().addListener(_onAuthChanged);
+      _listenerAdded = true;
+    }
+  }
+
+  void _onAuthChanged() {
+    final auth = context.read<AuthState>();
+    if (_prevAuthStatus == AuthStatus.authenticated &&
+        auth.status == AuthStatus.unauthenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        AppNavigation.replaceWithLogin(
+          _navigatorKey.currentContext!,
+          useRootNavigator: false,
+        );
+      });
+    }
+    _prevAuthStatus = auth.status;
+  }
+
+  @override
+  void dispose() {
+    context.read<AuthState>().removeListener(_onAuthChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +83,7 @@ class HealthPilotApp extends StatelessWidget {
           return Consumer<AppState>(
             builder: (context, appState, _) {
               return MaterialApp(
+                navigatorKey: _navigatorKey,
                 debugShowCheckedModeBanner: false,
                 title: 'Health Pilot',
                 theme: AppTheme.light,
