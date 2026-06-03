@@ -7,7 +7,6 @@ import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
-import 'package:healthpilot/features/profile/language_translation.dart';
 
 class InitialInfoFirst extends StatefulWidget {
   const InitialInfoFirst({super.key});
@@ -20,18 +19,13 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
   Color textColor = const Color.fromRGBO(42, 42, 42, 0.5);
 
   double tickWidth = 1.0;
+  String? selectedGender;
   int selectedAge = 20;
   int selectedWeight = 50;
-  int selectedHeight = 180;
+  int selectedHeight = 140;
   RulerPickerController? _rulerPickerAgeController;
   RulerPickerController? _rulerPickerHeightController;
   RulerPickerController? _rulerPickerWeightController;
-  String selectedHeightUnit = 'cm';
-  String selectedWeightUnit = 'kg';
-  String? mesurementTypeForWeight = "kg";
-  List listItemsForWeight = ["kg", "gm"];
-  String? mesurementTypeForHeight = "cm";
-  List listItemsForHeight = ["cm", "ft"];
 
   @override
   void initState() {
@@ -65,21 +59,9 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
             ),
             maxLines: 2,
           ),
-          actions: [
-            IconButton(
-              onPressed: () => openLanguageScreen(context),
-              icon: SvgPicture.asset(
-                translateIcon,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-            SizedBox(width: size.width * 0.02),
-          ],
         ),
         body: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 32),
           child: Column(
             children: [
               SizedBox(
@@ -103,23 +85,22 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                 height: size.height * 0.04,
               ),
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Expanded(
-                      child: GestureDetector(
-                        child:
-                            ClipRRect(child: SvgPicture.asset(maleForinital)),
-                      ),
+                    _GenderOption(
+                      assetPath: maleForinital,
+                      label: 'Male',
+                      selected: selectedGender == 'male',
+                      onTap: () => setState(() => selectedGender = 'male'),
                     ),
-                    Expanded(
-                      child: GestureDetector(
-                        child:
-                            ClipRRect(child: SvgPicture.asset(femaleForinital)),
-                      ),
-                    )
+                    _GenderOption(
+                      assetPath: femaleForinital,
+                      label: 'Female',
+                      selected: selectedGender == 'female',
+                      onTap: () => setState(() => selectedGender = 'female'),
+                    ),
                   ],
                 ),
               ),
@@ -145,6 +126,26 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             fontSize: 16,
                           ),
                         ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "years",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$selectedAge',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                     Container(
@@ -163,11 +164,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                           ],
                         ),
                         ranges: const [
-                          RulerRange(begin: 0, end: 10, scale: 0.1),
-                          RulerRange(begin: 10, end: 100, scale: 1),
-                          RulerRange(begin: 100, end: 1000, scale: 10),
-                          RulerRange(begin: 1000, end: 10000, scale: 100),
-                          RulerRange(begin: 10000, end: 100000, scale: 1000)
+                          RulerRange(begin: 0, end: 100, scale: 1),
                         ],
                         controller: _rulerPickerAgeController,
                         // beginValue: 0,
@@ -235,34 +232,26 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             fontSize: 16,
                           ),
                         ),
-                        SizedBox(
-                          width: size.height * 0.02,
-                        ),
-                        DropdownButton(
-                          elevation: 0,
-                          isDense: true,
-                          underline: const Text(''),
-                          iconEnabledColor:
-                              const Color.fromRGBO(42, 42, 42, 0.5),
-                          hint: Text(
-                            mesurementTypeForHeight!,
-                          ),
-                          style: const TextStyle(
+                        const SizedBox(width: 6),
+                        const Text(
+                          "cm",
+                          style: TextStyle(
                             color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
                           ),
-                          value: mesurementTypeForHeight,
-                          onChanged: (newValue) {
-                            setState(() {
-                              mesurementTypeForHeight = newValue! as String?;
-                            });
-                          },
-                          items: listItemsForHeight.map((valueItem) {
-                            return DropdownMenuItem(
-                              value: valueItem,
-                              child: Text(valueItem),
-                            );
-                          }).toList(),
-                        )
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$selectedHeight',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                     Container(
@@ -282,11 +271,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                           ],
                         ),
                         ranges: const [
-                          RulerRange(begin: 0, end: 10, scale: 0.1),
-                          RulerRange(begin: 10, end: 100, scale: 1),
-                          RulerRange(begin: 100, end: 1000, scale: 10),
-                          RulerRange(begin: 1000, end: 10000, scale: 100),
-                          RulerRange(begin: 10000, end: 100000, scale: 1000)
+                          RulerRange(begin: 40, end: 200, scale: 1),
                         ],
                         controller: _rulerPickerHeightController,
 
@@ -352,32 +337,26 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             fontSize: 16,
                           ),
                         ),
-                        SizedBox(
-                          width: size.height * 0.02,
-                        ),
-                        DropdownButton(
-                          underline: const Text(''),
-                          elevation: 0,
-                          iconEnabledColor:
-                              const Color.fromRGBO(42, 42, 42, 0.5),
-                          hint: Text(
-                            mesurementTypeForWeight!,
+                        const SizedBox(width: 6),
+                        const Text(
+                          "kg",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
                           ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$selectedWeight',
                           style: const TextStyle(
-                              color: Color.fromRGBO(42, 42, 42, 0.5)),
-                          value: mesurementTypeForWeight,
-                          onChanged: (newValue) {
-                            setState(() {
-                              mesurementTypeForWeight = newValue! as String?;
-                            });
-                          },
-                          items: listItemsForWeight.map((valueItem) {
-                            return DropdownMenuItem(
-                              value: valueItem,
-                              child: Text(valueItem),
-                            );
-                          }).toList(),
-                        )
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                     Container(
@@ -397,11 +376,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                           ],
                         ),
                         ranges: const [
-                          RulerRange(begin: 0, end: 10, scale: 0.1),
-                          RulerRange(begin: 10, end: 100, scale: 1),
-                          RulerRange(begin: 100, end: 1000, scale: 10),
-                          RulerRange(begin: 1000, end: 10000, scale: 100),
-                          RulerRange(begin: 10000, end: 100000, scale: 1000)
+                          RulerRange(begin: 0, end: 120, scale: 1),
                         ],
                         controller: _rulerPickerWeightController,
                         // beginValue: 0,
@@ -454,14 +429,8 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                       padding: const EdgeInsets.only(top: 48.0, bottom: 48),
                       child: ElevatedButton(
                         onPressed: () async {
-                          final double heightCm =
-                              mesurementTypeForHeight == 'ft'
-                                  ? selectedHeight * 30.48
-                                  : selectedHeight.toDouble();
-                          final double weightKg =
-                              mesurementTypeForWeight == 'gm'
-                                  ? selectedWeight / 1000.0
-                                  : selectedWeight.toDouble();
+                          final double heightCm = selectedHeight.toDouble();
+                          final double weightKg = selectedWeight.toDouble();
                           try {
                             await context.read<ProfileProvider>().savePhysical(
                                   heightCm: heightCm,
@@ -497,5 +466,59 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
             ],
           ),
         ));
+  }
+}
+
+class _GenderOption extends StatelessWidget {
+  const _GenderOption({
+    required this.assetPath,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String assetPath;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const selectedColor = Color.fromRGBO(110, 182, 255, 1);
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: selected ? selectedColor : Colors.transparent,
+                width: 3,
+              ),
+              color: selected
+                  ? selectedColor.withValues(alpha: 0.08)
+                  : Colors.transparent,
+            ),
+            padding: const EdgeInsets.all(8),
+            child: SvgPicture.asset(assetPath, fit: BoxFit.contain),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: selected ? selectedColor : const Color.fromRGBO(42, 42, 42, 0.7),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
