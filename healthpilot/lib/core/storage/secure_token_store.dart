@@ -7,7 +7,9 @@ class SecureTokenStore {
   static const _firstNameKey           = 'hp.auth.first_name';
   static const _lastNameKey            = 'hp.auth.last_name';
   static const _isGuestKey             = 'hp.auth.is_guest';
-  static const _onboardingCompletedKey = 'hp.onboarding.completed';
+  static const _onboardingCompletedKey  = 'hp.onboarding.completed';
+  static const _onboardingStepKey       = 'hp.onboarding.step';
+  static const _activationPendingKey    = 'hp.auth.activation_pending';
 
   final FlutterSecureStorage _storage;
 
@@ -30,8 +32,18 @@ class SecureTokenStore {
 
   Future<bool> getOnboardingCompleted() async =>
       (await _storage.read(key: _onboardingCompletedKey)) == 'true';
-  Future<void> setOnboardingCompleted()  =>
+  Future<void> setOnboardingCompleted() =>
       _storage.write(key: _onboardingCompletedKey, value: 'true');
+
+  Future<int>  getOnboardingStep() async =>
+      int.tryParse(await _storage.read(key: _onboardingStepKey) ?? '') ?? 0;
+  Future<void> setOnboardingStep(int step) =>
+      _storage.write(key: _onboardingStepKey, value: step.toString());
+
+  Future<bool> getActivationPending() async =>
+      (await _storage.read(key: _activationPendingKey)) == 'true';
+  Future<void> setActivationPending(bool v) =>
+      _storage.write(key: _activationPendingKey, value: v.toString());
 
   Future<void> clearAll() => Future.wait([
     _storage.delete(key: _accessKey),
@@ -40,5 +52,6 @@ class SecureTokenStore {
     _storage.delete(key: _firstNameKey),
     _storage.delete(key: _lastNameKey),
     _storage.delete(key: _isGuestKey),
+    _storage.delete(key: _activationPendingKey),
   ]);
 }

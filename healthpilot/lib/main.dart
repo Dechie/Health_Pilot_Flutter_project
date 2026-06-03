@@ -10,9 +10,13 @@ import 'package:healthpilot/core/localization/app_locales.dart';
 import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
+import 'package:healthpilot/features/auth/activation_screen.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
-import 'package:healthpilot/features/onboarding/onboarding_flow_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
+import 'package:healthpilot/features/personal_info/initial_info_1.dart';
+import 'package:healthpilot/features/personal_info/initial_info_2.dart';
+import 'package:healthpilot/features/personal_info/initial_info_3.dart';
+import 'package:healthpilot/features/personal_info/initial_info_4.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -112,6 +116,13 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  Widget _onboardingStepScreen(int step) => switch (step) {
+        2 => const InitialInfoSecond(),
+        3 => const InitialInfoThird(),
+        4 => const InitialInfoFinal(),
+        _ => const InitialInfoFirst(),
+      };
+
   Future<void> _goToNextScreen() async {
     final auth = context.read<AuthState>();
     // Wait for auth init and a minimum splash display time in parallel.
@@ -122,12 +133,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     if (!mounted) return;
 
     final Widget next;
-    if (!FeatureFlags.auth || auth.status == AuthStatus.authenticated) {
-      next = kEnableOnboardingFlow
-          ? const OnboardingFlowScreen()
-          : const HomePageScreen(isHelpPressed: false);
+    if (!FeatureFlags.auth) {
+      next = const HomePageScreen(isHelpPressed: false);
+    } else if (auth.status == AuthStatus.authenticated) {
+      next = auth.isOnboardingCompleted
+          ? const HomePageScreen(isHelpPressed: false)
+          : _onboardingStepScreen(auth.onboardingStep);
     } else {
-      next = const SignupAndLoginScreen();
+      next = auth.isActivationPending
+          ? const ActivationScreen()
+          : const SignupAndLoginScreen();
     }
     Navigator.pushReplacement(
       context,

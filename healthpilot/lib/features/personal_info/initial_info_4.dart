@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,11 @@ class _InitialInfoFinal extends State<InitialInfoFinal> {
   @override
   void initState() {
     super.initState();
+    if (FeatureFlags.auth) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.read<AuthState>().setOnboardingStep(4);
+      });
+    }
   }
 
   @override

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_3.dart';
+import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
@@ -18,6 +21,17 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
   String accidentsAnswer = "";
   String smokingAnswer = "";
   String diabetesAnswer = "";
+
+  @override
+  void initState() {
+    super.initState();
+    if (FeatureFlags.auth) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.read<AuthState>().setOnboardingStep(2);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

@@ -17,10 +17,14 @@ class AuthState extends ChangeNotifier {
   String _lastName = '';
   bool _isGuest = false;
   bool _onboardingCompleted = false;
+  bool _activationPending = false;
+  int  _onboardingStep = 0;
   String get firstName => _firstName;
   String get lastName => _lastName;
   bool get isGuest => _isGuest;
   bool get isOnboardingCompleted => _onboardingCompleted;
+  bool get isActivationPending => _activationPending;
+  int  get onboardingStep => _onboardingStep;
   String get fullName => [_firstName, _lastName]
       .where((s) => s.isNotEmpty)
       .join(' ');
@@ -45,6 +49,8 @@ class AuthState extends ChangeNotifier {
     _lastName            = await _tokenStore.getLastName()  ?? '';
     _isGuest             = await _tokenStore.getIsGuest();
     _onboardingCompleted = await _tokenStore.getOnboardingCompleted();
+    _activationPending   = await _tokenStore.getActivationPending();
+    _onboardingStep      = await _tokenStore.getOnboardingStep();
     notifyListeners();
   }
 
@@ -69,12 +75,16 @@ class AuthState extends ChangeNotifier {
       lastName: lastName,
       password: password,
     );
+    await _tokenStore.setActivationPending(true);
+    _activationPending = true;
     // Status unchanged — user must activate via email token before logging in.
   }
 
   Future<void> activate(String token) async {
     final tokens = await _repo.activate(token: token);
     await _storeTokens(tokens);
+    await _tokenStore.setActivationPending(false);
+    _activationPending = false;
     _status = AuthStatus.authenticated;
     notifyListeners();
   }
@@ -117,9 +127,16 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setOnboardingStep(int step) async {
+    await _tokenStore.setOnboardingStep(step);
+    _onboardingStep = step;
+  }
+
   Future<void> markOnboardingCompleted() async {
     await _tokenStore.setOnboardingCompleted();
+    await _tokenStore.setOnboardingStep(0);
     _onboardingCompleted = true;
+    _onboardingStep = 0;
     notifyListeners();
   }
 
@@ -128,6 +145,7 @@ class AuthState extends ChangeNotifier {
     _firstName = '';
     _lastName = '';
     _isGuest = false;
+    _activationPending = false;
   }
 
   Future<void> _storeTokens(AuthTokens tokens) async {

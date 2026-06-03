@@ -3,6 +3,8 @@ import 'package:flutter_ruler_picker/flutter_ruler_picker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_2.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -33,6 +35,11 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
     _rulerPickerHeightController = RulerPickerController(value: selectedHeight);
     _rulerPickerWeightController = RulerPickerController(value: selectedWeight);
     super.initState();
+    if (FeatureFlags.auth) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.read<AuthState>().setOnboardingStep(1);
+      });
+    }
   }
 
   @override

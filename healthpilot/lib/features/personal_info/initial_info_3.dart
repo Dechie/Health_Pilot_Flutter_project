@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_4.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
+import 'package:provider/provider.dart';
 
 
 class InitialInfoThird extends StatefulWidget {
@@ -15,6 +18,16 @@ class InitialInfoThird extends StatefulWidget {
 class _InitialInfoThird extends State<InitialInfoThird> {
   List<String> allergies = [];
   List<String> selectedAllergies = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (FeatureFlags.auth) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.read<AuthState>().setOnboardingStep(3);
+      });
+    }
+  }
   List<String> availableAllergies = [
     "Pollen Allergy (Hay Fever)",
     "Dust Mite Allergy",
