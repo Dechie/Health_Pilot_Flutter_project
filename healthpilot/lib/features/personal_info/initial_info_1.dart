@@ -435,11 +435,17 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                     Padding(
                       padding: const EdgeInsets.only(top: 48.0, bottom: 48),
                       child: ElevatedButton(
-                        onPressed: () async {
+                        onPressed: selectedGender == null
+                            ? null
+                            : () async {
                           final double heightCm = selectedHeight.toDouble();
                           final double weightKg = selectedWeight.toDouble();
                           try {
-                            await context.read<ProfileProvider>().savePhysical(
+                            await context
+                                .read<ProfileProvider>()
+                                .saveOnboardingStep1(
+                                  gender: selectedGender,
+                                  age: selectedAge,
                                   heightCm: heightCm,
                                   weightKg: weightKg,
                                 );

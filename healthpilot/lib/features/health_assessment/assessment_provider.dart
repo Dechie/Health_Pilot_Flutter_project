@@ -22,6 +22,14 @@ class AssessmentProvider extends ChangeNotifier {
   Future<void> load() async {
     if (_loadStarted) return;
     _loadStarted = true;
+    await _fetchHistory();
+  }
+
+  Future<void> refresh() async {
+    await _fetchHistory();
+  }
+
+  Future<void> _fetchHistory() async {
     _status = AssessmentLoadStatus.loading;
     _error = null;
     notifyListeners();
@@ -36,9 +44,43 @@ class AssessmentProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> submit(AssessmentSummary summary) async {
-    final entry = await _repo.submitAssessment(summary);
-    _entries = [entry, ..._entries];
+  /// Submits the wizard summary. On a 503 AI outage the backend may still
+  /// persist the record — we refresh history and return the matching entry.
+  Future<CompletedAssessmentEntry> submit(AssessmentSummary summary) async {
+    try {
+      final entry = await _repo.submitAssessment(summary);
+      _upsertEntry(entry);
+      return entry;
+    } on ServerError catch (e) {
+      if (e.statusCode != 503) rethrow;
+      final recovered = await _recoverEntryAfterAiOutage(summary);
+      if (recovered != null) return recovered;
+      rethrow;
+    }
+  }
+
+  Future<CompletedAssessmentEntry?> _recoverEntryAfterAiOutage(
+    AssessmentSummary summary,
+  ) async {
+    try {
+      final history = await _repo.fetchHistory();
+      _entries = history;
+      _status = AssessmentLoadStatus.loaded;
+      notifyListeners();
+      for (final entry in history) {
+        if (entry.summary.looselyMatches(summary)) return entry;
+      }
+    } on ApiException {
+      // Fall through to rethrow the original 503.
+    }
+    return null;
+  }
+
+  void _upsertEntry(CompletedAssessmentEntry entry) {
+    _entries = [
+      entry,
+      ..._entries.where((e) => e.id != entry.id),
+    ];
     notifyListeners();
   }
 
@@ -47,5 +89,4 @@ class AssessmentProvider extends ChangeNotifier {
     _entries = _entries.where((e) => e.id != id).toList();
     notifyListeners();
   }
-
 }

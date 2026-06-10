@@ -3,8 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/personal_info/initial_info_2.dart';
 import 'package:healthpilot/features/personal_info/initial_info_4.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 
@@ -16,8 +18,23 @@ class InitialInfoThird extends StatefulWidget {
 }
 
 class _InitialInfoThird extends State<InitialInfoThird> {
-  List<String> allergies = [];
   List<String> selectedAllergies = [];
+  String chronicConditionAnswer = '';
+  String? selectedBloodType;
+
+  static const _bloodTypes = [
+    'A+',
+    'A-',
+    'B+',
+    'B-',
+    'AB+',
+    'AB-',
+    'O+',
+    'O-',
+  ];
+
+  bool get _canFinish =>
+      chronicConditionAnswer.isNotEmpty && selectedBloodType != null;
 
   @override
   void initState() {
@@ -176,12 +193,20 @@ class _InitialInfoThird extends State<InitialInfoThird> {
               SizedBox(
                 height: size.height * 0.02,
               ),
-              if (!textFieldIsOnfocused)
+              if (!textFieldIsOnfocused) ...[
+                _buildYesNoQuestion(
+                  context,
+                  question: 'Do you have any chronic conditions?',
+                  groupValue: chronicConditionAnswer,
+                  onChanged: (value) =>
+                      setState(() => chronicConditionAnswer = value),
+                ),
+                SizedBox(height: size.height * 0.03),
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
                   child: Text(
-                    "Do you have any allergies?",
+                    'Do you have any allergies?',
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
@@ -191,6 +216,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                     maxLines: 2,
                   ),
                 ),
+              ],
               SizedBox(
                 height: size.height * 0.03,
               ),
@@ -256,7 +282,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                       padding:
                           EdgeInsets.symmetric(horizontal: size.width * 0.05),
                       width: double.infinity,
-                      height: size.height * 0.6,
+                      height: size.height * 0.35,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -272,7 +298,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                             ),
                           if (searchController.text.isNotEmpty)
                             SizedBox(
-                              height: size.height * 0.5,
+                              height: size.height * 0.28,
                               child: filteredAllergies.isEmpty
                                   ? Center(
                                       child: Column(
@@ -379,7 +405,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                               searchController.text.isEmpty)
                             SingleChildScrollView(
                               child: SizedBox(
-                                height: size.height * 0.5,
+                                height: size.height * 0.28,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: selectedAllergies.map((allergy) {
@@ -427,7 +453,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                     )
                   : SizedBox(
                       width: double.infinity,
-                      height: size.height * 0.6,
+                      height: size.height * 0.35,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -457,17 +483,72 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                         ],
                       ),
                     ),
+              if (!textFieldIsOnfocused) ...[
+                SizedBox(height: size.height * 0.03),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'What is your blood type?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _bloodTypes.map((type) {
+                          final selected = selectedBloodType == type;
+                          return ChoiceChip(
+                            label: Text(type),
+                            selected: selected,
+                            onSelected: (_) =>
+                                setState(() => selectedBloodType = type),
+                            selectedColor:
+                                cs.primary.withValues(alpha: 0.15),
+                            checkmarkColor: cs.primary,
+                            labelStyle: TextStyle(
+                              color: selected ? cs.primary : cs.onSurface,
+                              fontWeight:
+                                  selected ? FontWeight.w600 : FontWeight.w400,
+                            ),
+                            side: BorderSide(
+                              color: selected ? cs.primary : cs.outline,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: _canFinish
+                      ? () async {
+                    try {
+                      await context.read<ProfileProvider>().saveOnboardingStep3(
+                            selectedAllergies: selectedAllergies,
+                            chronicConditionAnswer: chronicConditionAnswer,
+                            bloodType: selectedBloodType!,
+                          );
+                    } catch (_) {
+                      // Don't block onboarding if the save fails.
+                    }
+                    if (!context.mounted) return;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              const InitialInfoFinal()), // Navigate to the DestinationPage
+                          builder: (context) => const InitialInfoFinal()),
                     );
-                  },
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: cs.primary,
                       foregroundColor: cs.onPrimary,
@@ -485,6 +566,56 @@ class _InitialInfoThird extends State<InitialInfoThird> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildYesNoQuestion(
+    BuildContext context, {
+    required String question,
+    required String groupValue,
+    required ValueChanged<String> onChanged,
+  }) {
+    final size = MediaQuery.of(context).size;
+    final cs = Theme.of(context).colorScheme;
+
+    Widget radio(String value) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomRadioBtn(
+            groupValue: groupValue,
+            value: value,
+            onChanged: onChanged,
+          ),
+          SizedBox(width: size.width * 0.02),
+          Text(value, style: TextStyle(color: cs.onSurface)),
+        ],
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            question,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: cs.onSurface,
+            ),
+          ),
+          SizedBox(height: size.height * 0.02),
+          Row(
+            children: [
+              radio('Yes'),
+              SizedBox(width: size.width * 0.12),
+              radio('No'),
+            ],
+          ),
+        ],
       ),
     );
   }

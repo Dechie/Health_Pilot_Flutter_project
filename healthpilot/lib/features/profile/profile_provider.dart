@@ -54,12 +54,55 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// PATCHes only height and weight to /auth/me/.
-  Future<void> savePhysical({
+  /// Onboarding step 1 — gender, date_of_birth (from age), height, weight.
+  Future<void> saveOnboardingStep1({
+    required String? gender,
+    required int age,
     required double heightCm,
     required double weightKg,
   }) async {
-    final partial = UserProfile(heightCm: heightCm, weightKg: weightKg);
+    final apiGender = genderToApi(gender);
+    final dob = DateTime.tryParse(dateOfBirthFromAge(age));
+    final partial = UserProfile(
+      gender: apiGender,
+      dateOfBirth: dob,
+      heightCm: heightCm,
+      weightKg: weightKg,
+    );
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
+  /// Onboarding step 2 — hypertension, diabetes, smoking, recent surgery/accidents.
+  Future<void> saveOnboardingStep2({
+    required String hypertensionAnswer,
+    required String accidentsAnswer,
+    required String smokingAnswer,
+    required String diabetesAnswer,
+  }) async {
+    final partial = UserProfile(
+      hasHypertension: yesNoToYn(hypertensionAnswer),
+      hadRecentSurgery: yesNoToYn(accidentsAnswer),
+      isSmoker: yesNoToYn(smokingAnswer),
+      hasDiabetes: yesNoToYn(diabetesAnswer),
+    );
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
+  /// Onboarding step 3 — allergies, chronic condition, blood type.
+  Future<void> saveOnboardingStep3({
+    required List<String> selectedAllergies,
+    required String chronicConditionAnswer,
+    required String bloodType,
+  }) async {
+    final partial = UserProfile(
+      allergies: selectedAllergies.isEmpty ? null : selectedAllergies.join(', '),
+      hasChronicCondition: yesNoToYn(chronicConditionAnswer),
+      bloodType: bloodType,
+    );
     final saved = await _repo.updateMe(partial);
     _profile = _profile.mergeWith(saved);
     notifyListeners();

@@ -4,6 +4,7 @@ import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_3.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
@@ -21,6 +22,12 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
   String accidentsAnswer = "";
   String smokingAnswer = "";
   String diabetesAnswer = "";
+
+  bool get _canProceed =>
+      hypertensionAnswer.isNotEmpty &&
+      accidentsAnswer.isNotEmpty &&
+      smokingAnswer.isNotEmpty &&
+      diabetesAnswer.isNotEmpty;
 
   @override
   void initState() {
@@ -116,14 +123,29 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
                       padding: EdgeInsets.only(
                           top: size.height * 0.01, bottom: size.height * 0.1),
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: _canProceed
+                            ? () async {
+                          try {
+                            await context
+                                .read<ProfileProvider>()
+                                .saveOnboardingStep2(
+                                  hypertensionAnswer: hypertensionAnswer,
+                                  accidentsAnswer: accidentsAnswer,
+                                  smokingAnswer: smokingAnswer,
+                                  diabetesAnswer: diabetesAnswer,
+                                );
+                          } catch (_) {
+                            // Don't block onboarding if the save fails.
+                          }
+                          if (!context.mounted) return;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const InitialInfoThird()), // Navigate to the DestinationPage
+                                    const InitialInfoThird()),
                           );
-                        },
+                            }
+                            : null,
                         style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromRGBO(110, 182, 255, 1),
@@ -166,11 +188,11 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
           height: size.height * 0.025,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             buildRadioButton("Yes", questionKey),
+            SizedBox(width: size.width * 0.12),
             buildRadioButton("No", questionKey),
-            buildRadioButton("I don't know", questionKey),
           ],
         ),
       ],
