@@ -1,0 +1,17 @@
+{
+  "APP_BASE_URL": "https://your-backend.b4a.run/",
+  "APP_ENV": "prod",
+  "FF_AUTH": "true",
+  "FF_PROFILE": "true",
+  "FF_ARTICLES": "false",
+  "FF_MEDICATIONS": "false",
+  "FF_ASSESSMENT": "true",
+  "FF_CONTACTS": "false",
+  "FF_HEALTH_DATA": "true",
+  "FF_CHAT": "true",
+  "FF_AI_ASSISTANT": "true",
+  "FF_COMMUNITY": "false",
+  "FF_NUTRITION": "false",
+  "FF_NOTIFICATIONS": "false",
+  "FF_SUBSCRIPTIONS": "false"
+}

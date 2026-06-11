@@ -37,7 +37,9 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
     super.initState();
     if (FeatureFlags.auth) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.read<AuthState>().setOnboardingStep(1);
+        if (!mounted) return;
+        final auth = context.read<AuthState>();
+        if (!auth.isOnboardingCompleted) auth.setOnboardingStep(1);
       });
     }
   }

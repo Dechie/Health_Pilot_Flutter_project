@@ -41,7 +41,9 @@ class _InitialInfoThird extends State<InitialInfoThird> {
     super.initState();
     if (FeatureFlags.auth) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.read<AuthState>().setOnboardingStep(3);
+        if (!mounted) return;
+        final auth = context.read<AuthState>();
+        if (!auth.isOnboardingCompleted) auth.setOnboardingStep(3);
       });
     }
   }
@@ -184,15 +186,19 @@ class _InitialInfoThird extends State<InitialInfoThird> {
               ),
             )
           : null,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                height: size.height * 0.02,
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                size.width * 0.04,
+                size.height * 0.02,
+                size.width * 0.04,
+                16,
               ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
               if (!textFieldIsOnfocused) ...[
                 _buildYesNoQuestion(
                   context,
@@ -278,11 +284,9 @@ class _InitialInfoThird extends State<InitialInfoThird> {
               ),
               SizedBox(height: size.height * 0.03),
               searchController.text.isNotEmpty || selectedAllergies.isNotEmpty
-                  ? Container(
+                  ? Padding(
                       padding:
                           EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                      width: double.infinity,
-                      height: size.height * 0.35,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -297,9 +301,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                               ),
                             ),
                           if (searchController.text.isNotEmpty)
-                            SizedBox(
-                              height: size.height * 0.28,
-                              child: filteredAllergies.isEmpty
+                            filteredAllergies.isEmpty
                                   ? Center(
                                       child: Column(
                                         mainAxisAlignment:
@@ -333,6 +335,9 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                                       ),
                                     )
                                   : ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: filteredAllergies.length,
                                       itemBuilder: (context, index) {
                                         final allergy =
@@ -384,8 +389,6 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                                         );
                                       },
                                     ),
-                            ),
-                          // const SizedBox(height: 10.0),
                           if (selectedAllergies.isNotEmpty &&
                               !textFieldIsOnfocused &&
                               searchController.text.isEmpty)
@@ -403,60 +406,48 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                           if (selectedAllergies.isNotEmpty &&
                               !textFieldIsOnfocused &&
                               searchController.text.isEmpty)
-                            SingleChildScrollView(
-                              child: SizedBox(
-                                height: size.height * 0.28,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: selectedAllergies.map((allergy) {
-                                    return Column(
-                                      children: [
-                                        ListTile(
-                                          title: Text(
-                                            allergy,
-                                            style: TextStyle(
-                                              color: cs.onSurface,
-                                            ),
-                                          ),
-                                          trailing: IconButton(
-                                            icon: Icon(
-                                              Icons.highlight_remove_rounded,
-                                              color: cs.error,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                selectedAllergies
-                                                    .remove(allergy);
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                            right: size.width * 0.07,
-                                            left: size.width * 0.04,
-                                          ),
-                                          child: Divider(
-                                            height: size.width * 0.02,
-                                            color: cs.outline
-                                                .withValues(alpha: 0.35),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
+                            ...selectedAllergies.map((allergy) {
+                              return Column(
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                      allergy,
+                                      style: TextStyle(color: cs.onSurface),
+                                    ),
+                                    trailing: IconButton(
+                                      icon: Icon(
+                                        Icons.highlight_remove_rounded,
+                                        color: cs.error,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          selectedAllergies.remove(allergy);
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      right: size.width * 0.07,
+                                      left: size.width * 0.04,
+                                    ),
+                                    child: Divider(
+                                      height: size.width * 0.02,
+                                      color: cs.outline.withValues(alpha: 0.35),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
                         ],
                       ),
                     )
-                  : SizedBox(
-                      width: double.infinity,
-                      height: size.height * 0.35,
+                  : Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: size.width * 0.05,
+                        vertical: size.height * 0.04,
+                      ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
                             'No allergies added',
@@ -468,18 +459,16 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                             ),
                           ),
                           SizedBox(height: size.height * 0.005),
-                          SizedBox(
-                            width: size.width * 0.5,
-                            child: Text(
-                              'Search the allergies you have and press the + button to add them',
-                              style: TextStyle(
-                                fontFamily: ' PlusJakartaSans',
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w300,
-                                color: cs.onSurfaceVariant,
-                              ),
+                          Text(
+                            'Search the allergies you have and press the + button to add them',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: ' PlusJakartaSans',
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w300,
+                              color: cs.onSurfaceVariant,
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -527,45 +516,60 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                   ),
                 ),
               ],
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                ],
+              ),
+            ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              child: SizedBox(
+                width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _canFinish
                       ? () async {
-                    try {
-                      await context.read<ProfileProvider>().saveOnboardingStep3(
-                            selectedAllergies: selectedAllergies,
-                            chronicConditionAnswer: chronicConditionAnswer,
-                            bloodType: selectedBloodType!,
+                          try {
+                            await context
+                                .read<ProfileProvider>()
+                                .saveOnboardingStep3(
+                                  selectedAllergies: selectedAllergies,
+                                  chronicConditionAnswer:
+                                      chronicConditionAnswer,
+                                  bloodType: selectedBloodType!,
+                                );
+                          } catch (_) {
+                            // Don't block onboarding if the save fails.
+                          }
+                          if (!context.mounted) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const InitialInfoFinal(),
+                            ),
                           );
-                    } catch (_) {
-                      // Don't block onboarding if the save fails.
-                    }
-                    if (!context.mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const InitialInfoFinal()),
-                    );
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.primary,
-                      foregroundColor: cs.onPrimary,
-                      padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width * 0.25,
-                          vertical: MediaQuery.of(context).size.height * 0.015),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                    backgroundColor: cs.primary,
+                    foregroundColor: cs.onPrimary,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.25,
+                      vertical: size.height * 0.015,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   child: Text(
                     'Finish',
                     style: TextStyle(color: cs.onPrimary),
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -23,7 +23,7 @@ class RemoteAssessmentRepository implements IAssessmentRepository {
       AssessmentSummary summary) async {
     final data = await _client.post(
       '${ApiConstants.assessmentsBase}/',
-      data: summary.toJson(),
+      data: summary.toApiJson(),
     );
     return CompletedAssessmentEntry.fromApiJson(data as Map<String, dynamic>);
   }

@@ -28,7 +28,9 @@ class _InitialInfoFinal extends State<InitialInfoFinal> {
     super.initState();
     if (FeatureFlags.auth) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.read<AuthState>().setOnboardingStep(4);
+        if (!mounted) return;
+        final auth = context.read<AuthState>();
+        if (!auth.isOnboardingCompleted) auth.setOnboardingStep(4);
       });
     }
   }
@@ -82,6 +84,7 @@ class _InitialInfoFinal extends State<InitialInfoFinal> {
         GestureDetector(
           onTap: () async {
             await context.read<AuthState>().markOnboardingCompleted();
+            await context.read<AuthState>().markHealthInfoCompleted();
             if (!context.mounted) return;
             AppNavigation.replaceWithHome(context);
           },

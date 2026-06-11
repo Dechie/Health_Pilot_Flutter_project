@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/debug/dev_startup_log.dart';
 import 'package:healthpilot/core/di/repository_locator.dart';
 import 'package:healthpilot/core/network/api_interceptors.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LoggingInterceptor.init();
   RepositoryLocator.initialize();
+  logDevStartupConfig();
   runApp(
     MultiProvider(
       providers: [

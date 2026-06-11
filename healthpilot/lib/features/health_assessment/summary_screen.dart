@@ -237,11 +237,17 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               title: Text(cause.name, style: t.bodyMedium),
-              subtitle: cause.description != null
-                  ? Text(cause.description!, style: t.bodySmall)
-                  : cause.urgency != null
-                      ? Text('Urgency: ${cause.urgency}', style: t.bodySmall)
-                      : null,
+              subtitle: () {
+                final details = [
+                  if (cause.description != null) cause.description,
+                  if (cause.likelihood != null)
+                    'Likelihood: ${cause.likelihood}',
+                  if (cause.urgency != null) 'Urgency: ${cause.urgency}',
+                  if (cause.nextSteps != null) cause.nextSteps,
+                ].whereType<String>().join('\n');
+                if (details.isEmpty) return null;
+                return Text(details, style: t.bodySmall);
+              }(),
             ),
           ),
       ];

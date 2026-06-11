@@ -95,25 +95,31 @@ class LoggingInterceptor extends Interceptor {
     );
   }
 
-  static void _write(String block) {
+  static String _compact(dynamic value, {int maxLen = 600}) {
+    final text = value?.toString() ?? '';
+    if (text.length <= maxLen) return text;
+    return '${text.substring(0, maxLen)}… (${text.length} chars)';
+  }
+
+  static void _logLine(String line) {
     if (!kDebugMode) return;
-    debugPrint(block);
-    _logFile?.writeAsStringSync('$block\n', mode: FileMode.append, flush: true);
+    // print() shows reliably in `flutter run` on device; debugPrint can be buried.
+    // ignore: avoid_print
+    print(line);
+    _logFile?.writeAsStringSync('$line\n', mode: FileMode.append, flush: true);
   }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {
-      final headers = Map<String, dynamic>.from(options.headers)
-        ..update('Authorization', (v) => '${(v as String).substring(0, 15)}…', ifAbsent: () => null)
-        ..removeWhere((_, v) => v == null);
-      _write(
-        '┌── REQUEST ─────────────────────────────────\n'
-        '│ ${options.method} ${options.uri}\n'
-        '│ Headers: $headers\n'
-        '${options.data != null ? '│ Body: ${options.data}\n' : ''}'
-        '└────────────────────────────────────────────',
+      final hasAuth = options.headers.containsKey('Authorization');
+      _logLine(
+        '[HP API] → ${options.method} ${options.uri}'
+        '${hasAuth ? ' (auth)' : ' (no auth)'}',
       );
+      if (options.data != null) {
+        _logLine('[HP API]   req: ${_compact(options.data)}');
+      }
     }
     handler.next(options);
   }
@@ -121,12 +127,10 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
-      _write(
-        '┌── RESPONSE ────────────────────────────────\n'
-        '│ ${response.statusCode} ${response.requestOptions.uri}\n'
-        '│ Body: ${response.data}\n'
-        '└────────────────────────────────────────────',
+      _logLine(
+        '[HP API] ← ${response.statusCode} ${response.requestOptions.uri}',
       );
+      _logLine('[HP API]   res: ${_compact(response.data)}');
     }
     handler.next(response);
   }
@@ -134,12 +138,11 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
-      _write(
-        '┌── ERROR ───────────────────────────────────\n'
-        '│ ${err.response?.statusCode ?? 'NO STATUS'} ${err.requestOptions.uri}\n'
-        '│ Body: ${err.response?.data}\n'
-        '└────────────────────────────────────────────',
+      _logLine(
+        '[HP API] ✗ ${err.response?.statusCode ?? 'NO STATUS'} '
+        '${err.requestOptions.uri}',
       );
+      _logLine('[HP API]   err: ${_compact(err.response?.data)}');
     }
     handler.next(err);
   }

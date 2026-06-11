@@ -7,6 +7,7 @@ import 'package:healthpilot/features/health/health_profile_screen.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/profile/allergies_screen.dart';
+import 'package:healthpilot/features/personal_info/initial_info_1.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:healthpilot/features/profile/settings_screen.dart';
 import 'package:healthpilot/features/profile/widgets/profile_settings_shared.dart';
@@ -139,6 +140,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
+                  Builder(builder: (context) {
+                    final auth = context.watch<AuthState>();
+                    if (!auth.isGuest && !auth.isHealthInfoCompleted) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (context) => const InitialInfoFirst(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.health_and_safety_outlined),
+                          label: const Text('Set up your health profile'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                            alignment: Alignment.centerLeft,
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
                   const SettingsTitle(title: 'Health Information'),
                   Builder(builder: (context) {
                     if (context.watch<AuthState>().isGuest) {
@@ -229,7 +254,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             iconData: Icons.arrow_forward,
                             onpressed: () {
                               Navigator.of(context).push(MaterialPageRoute<void>(
-                                  builder: (context) => InitialInfoThird()));
+                                  builder: (context) =>
+                                      const ProfileAllergiesScreen()));
                             },
                           ),
                         ],

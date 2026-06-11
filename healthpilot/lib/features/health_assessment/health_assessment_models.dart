@@ -58,18 +58,22 @@ class AssessmentSummary {
 
     final notes = json['additional_notes'] as String? ?? '';
     bool? hasOtherSymptoms = json['has_other_symptoms'] as bool?;
-    String? symptomsTrend = json['symptoms_trend'] as String?;
+    String? symptomsTrend = symptomsTrendFromApi(
+      json['symptoms_trend'] as String?,
+    );
     if (notes.contains('additional symptoms')) {
       hasOtherSymptoms = true;
     }
-    for (final (pattern, trend) in [
-      ('trend: worse', 'worse'),
-      ('trend: better', 'better'),
-      ('trend: no_change', 'no_change'),
-    ]) {
-      if (notes.contains(pattern)) {
-        symptomsTrend = trend;
-        break;
+    if (symptomsTrend == null) {
+      for (final (pattern, trend) in [
+        ('trend: worse', 'worse'),
+        ('trend: better', 'better'),
+        ('trend: no_change', 'no_change'),
+      ]) {
+        if (notes.contains(pattern)) {
+          symptomsTrend = trend;
+          break;
+        }
       }
     }
 
@@ -84,6 +88,7 @@ class AssessmentSummary {
     );
   }
 
+  /// Local mock / wizard persistence.
   Map<String, dynamic> toJson() => {
         'subject': subject?.name,
         'blood_type': bloodType?.name,
@@ -92,6 +97,18 @@ class AssessmentSummary {
         'symptom_duration': symptomDuration,
         'has_other_symptoms': hasOtherSymptoms,
         'symptoms_trend': symptomsTrend,
+      };
+
+  /// POST /api/v1/assessments/ request body.
+  Map<String, dynamic> toApiJson() => {
+        if (subject != null) 'subject': subjectToApi(subject!),
+        if (bloodType != null) 'blood_type': bloodTypeToApi(bloodType!),
+        'allergies': allergies,
+        'symptoms': symptoms,
+        if (symptomDuration != null) 'symptom_duration': symptomDuration,
+        if (hasOtherSymptoms != null) 'has_other_symptoms': hasOtherSymptoms,
+        if (symptomsTrend != null)
+          'symptoms_trend': symptomsTrendToApi(symptomsTrend!),
       };
 
   /// Loose match for recovering a saved record after a 503 AI failure.
@@ -115,13 +132,45 @@ HealthAssessmentSubject? _parseSubject(String? forWhom) {
   return null;
 }
 
+String subjectToApi(HealthAssessmentSubject subject) =>
+    subject == HealthAssessmentSubject.someoneElse ? 'someone_else' : 'myself';
+
+String bloodTypeToApi(BloodType type) => switch (type) {
+      BloodType.a => 'A',
+      BloodType.b => 'B',
+      BloodType.ab => 'AB',
+      BloodType.o => 'O',
+    };
+
+String symptomsTrendToApi(String internal) => switch (internal) {
+      'worse' => 'getting worse',
+      'better' => 'getting better',
+      'no_change' => 'no change',
+      _ => internal,
+    };
+
+String? symptomsTrendFromApi(String? apiValue) {
+  if (apiValue == null || apiValue.isEmpty) return null;
+  final normalized = apiValue.toLowerCase();
+  if (normalized.contains('worse')) return 'worse';
+  if (normalized.contains('better')) return 'better';
+  if (normalized.contains('no change') || normalized.contains('stable')) {
+    return 'no_change';
+  }
+  return apiValue;
+}
+
 BloodType? _parseBloodType(String? raw) {
   if (raw == null || raw.isEmpty) return null;
-  final normalized = raw.toLowerCase();
-  for (final type in BloodType.values) {
-    if (type.name == normalized) return type;
-  }
-  return null;
+  final normalized =
+      raw.toUpperCase().replaceAll('+', '').replaceAll('-', '').trim();
+  return switch (normalized) {
+    'A' => BloodType.a,
+    'B' => BloodType.b,
+    'AB' => BloodType.ab,
+    'O' => BloodType.o,
+    _ => null,
+  };
 }
 
 @immutable
@@ -130,11 +179,15 @@ class PossibleCause {
     required this.name,
     this.description,
     this.urgency,
+    this.likelihood,
+    this.nextSteps,
   });
 
   final String name;
   final String? description;
   final String? urgency;
+  final String? likelihood;
+  final String? nextSteps;
 
   factory PossibleCause.fromJson(Map<String, dynamic> json) => PossibleCause(
         name: json['name'] as String? ??
@@ -143,6 +196,8 @@ class PossibleCause {
             'Unknown',
         description: json['description'] as String?,
         urgency: json['urgency'] as String? ?? json['severity']?.toString(),
+        likelihood: json['likelihood'] as String?,
+        nextSteps: json['next_steps'] as String?,
       );
 }
 
@@ -158,17 +213,21 @@ class AssessmentAiResult {
   final String? generalAdvice;
   final bool seekEmergencyCare;
 
-  factory AssessmentAiResult.fromJson(Map<String, dynamic> json) =>
-      AssessmentAiResult(
-        possibleCauses: (json['possible_causes'] as List?)
-                ?.map(
-                  (e) => PossibleCause.fromJson(e as Map<String, dynamic>),
-                )
-                .toList() ??
-            [],
-        generalAdvice: json['general_advice'] as String?,
-        seekEmergencyCare: json['seek_emergency_care'] as bool? ?? false,
-      );
+  factory AssessmentAiResult.fromJson(Map<String, dynamic> json) {
+    final causes = (json['possible_causes'] as List?)
+            ?.map(
+              (e) => PossibleCause.fromJson(e as Map<String, dynamic>),
+            )
+            .toList() ??
+        [];
+    final seekEmergency = json['seek_emergency_care'] as bool? ??
+        causes.any((c) => c.urgency?.toLowerCase() == 'high');
+    return AssessmentAiResult(
+      possibleCauses: causes,
+      generalAdvice: json['general_advice'] as String?,
+      seekEmergencyCare: seekEmergency,
+    );
+  }
 }
 
 @immutable
@@ -205,18 +264,22 @@ class CompletedAssessmentEntry {
   }
 
   /// Backend list item, detail, or POST response.
-  factory CompletedAssessmentEntry.fromApiJson(Map<String, dynamic> json) =>
-      CompletedAssessmentEntry(
-        id: json['id'] as String,
-        completedAt: DateTime.parse(json['created_at'] as String),
-        summary: AssessmentSummary.fromApiJson(json),
-        status: json['status'] as String?,
-        result: json['result'] is Map<String, dynamic>
-            ? AssessmentAiResult.fromJson(
-                json['result'] as Map<String, dynamic>,
-              )
-            : null,
-      );
+  factory CompletedAssessmentEntry.fromApiJson(Map<String, dynamic> json) {
+    final createdAtRaw = json['created_at'] as String?;
+    return CompletedAssessmentEntry(
+      id: json['id'] as String,
+      completedAt: createdAtRaw != null
+          ? DateTime.parse(createdAtRaw)
+          : DateTime.now(),
+      summary: AssessmentSummary.fromApiJson(json),
+      status: json['status'] as String?,
+      result: json['result'] is Map<String, dynamic>
+          ? AssessmentAiResult.fromJson(
+              json['result'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

@@ -9,6 +9,7 @@ class SecureTokenStore {
   static const _isGuestKey             = 'hp.auth.is_guest';
   static const _onboardingCompletedKey  = 'hp.onboarding.completed';
   static const _onboardingStepKey       = 'hp.onboarding.step';
+  static const _healthInfoCompletedKey  = 'hp.profile.health_info_completed';
   static const _activationPendingKey    = 'hp.auth.activation_pending';
 
   final FlutterSecureStorage _storage;
@@ -40,6 +41,12 @@ class SecureTokenStore {
   Future<void> setOnboardingStep(int step) =>
       _storage.write(key: _onboardingStepKey, value: step.toString());
 
+  /// Whether the user has completed the optional health-profile setup flow.
+  Future<bool> getHealthInfoCompleted() async =>
+      (await _storage.read(key: _healthInfoCompletedKey)) == 'true';
+  Future<void> setHealthInfoCompleted(bool value) =>
+      _storage.write(key: _healthInfoCompletedKey, value: value.toString());
+
   Future<bool> getActivationPending() async =>
       (await _storage.read(key: _activationPendingKey)) == 'true';
   Future<void> setActivationPending(bool v) =>
@@ -53,5 +60,8 @@ class SecureTokenStore {
     _storage.delete(key: _lastNameKey),
     _storage.delete(key: _isGuestKey),
     _storage.delete(key: _activationPendingKey),
+    _storage.delete(key: _healthInfoCompletedKey),
+    _storage.delete(key: _onboardingCompletedKey),
+    _storage.delete(key: _onboardingStepKey),
   ]);
 }

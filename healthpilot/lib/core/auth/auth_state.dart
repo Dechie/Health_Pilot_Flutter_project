@@ -17,12 +17,14 @@ class AuthState extends ChangeNotifier {
   String _lastName = '';
   bool _isGuest = false;
   bool _onboardingCompleted = false;
+  bool _healthInfoCompleted = false;
   bool _activationPending = false;
   int  _onboardingStep = 0;
   String get firstName => _firstName;
   String get lastName => _lastName;
   bool get isGuest => _isGuest;
   bool get isOnboardingCompleted => _onboardingCompleted;
+  bool get isHealthInfoCompleted => _healthInfoCompleted;
   bool get isActivationPending => _activationPending;
   int  get onboardingStep => _onboardingStep;
   String get fullName => [_firstName, _lastName]
@@ -49,6 +51,7 @@ class AuthState extends ChangeNotifier {
     _lastName            = await _tokenStore.getLastName()  ?? '';
     _isGuest             = await _tokenStore.getIsGuest();
     _onboardingCompleted = await _tokenStore.getOnboardingCompleted();
+    _healthInfoCompleted = await _tokenStore.getHealthInfoCompleted();
     _activationPending   = await _tokenStore.getActivationPending();
     _onboardingStep      = await _tokenStore.getOnboardingStep();
     notifyListeners();
@@ -140,12 +143,21 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> markHealthInfoCompleted() async {
+    await _tokenStore.setHealthInfoCompleted(true);
+    _healthInfoCompleted = true;
+    notifyListeners();
+  }
+
   Future<void> _clearSession() async {
     await _tokenStore.clearAll();
     _firstName = '';
     _lastName = '';
     _isGuest = false;
     _activationPending = false;
+    _onboardingCompleted = false;
+    _healthInfoCompleted = false;
+    _onboardingStep = 0;
   }
 
   Future<void> _storeTokens(AuthTokens tokens) async {

@@ -92,6 +92,16 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Saves allergies only (profile allergies screen).
+  Future<void> saveAllergies(List<String> selectedAllergies) async {
+    final partial = UserProfile(
+      allergies: selectedAllergies.isEmpty ? null : selectedAllergies.join(', '),
+    );
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
   /// Onboarding step 3 — allergies, chronic condition, blood type.
   Future<void> saveOnboardingStep3({
     required List<String> selectedAllergies,
