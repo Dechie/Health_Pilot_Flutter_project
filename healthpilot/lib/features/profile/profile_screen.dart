@@ -110,11 +110,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     child: CircularProgressIndicator(strokeWidth: 2),
                                   );
                                 }
+                                final profileName =
+                                    profileP.profile.displayName?.trim();
+                                final authName = auth.fullName.trim();
                                 final name = FeatureFlags.userProfile
-                                    ? profileP.profile.displayName ?? 'Profile'
-                                    : auth.fullName.isEmpty
-                                        ? 'Profile'
-                                        : auth.fullName;
+                                    ? (profileName != null &&
+                                            profileName.isNotEmpty
+                                        ? profileName
+                                        : authName.isNotEmpty
+                                            ? authName
+                                            : 'Profile')
+                                    : authName.isNotEmpty
+                                        ? authName
+                                        : 'Profile';
                                 return Text(
                                   name,
                                   maxLines: 1,

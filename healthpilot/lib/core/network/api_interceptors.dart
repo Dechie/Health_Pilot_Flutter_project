@@ -162,18 +162,24 @@ class EnvelopeInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     final body = response.data;
-    if (body is Map<String, dynamic>) {
-      final success = body['success'] as bool? ?? true;
-      if (!success) {
+    if (body is Map) {
+      final map = Map<String, dynamic>.from(body);
+      final success = map['success'];
+      if (success == false) {
         handler.reject(DioException(
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.badResponse,
-          message: body['message'] as String? ?? 'Request failed',
+          message: map['message'] as String? ?? 'Request failed',
         ));
         return;
       }
-      response.data = body.containsKey('data') ? body['data'] : body;
+      if (map.containsKey('data')) {
+        final inner = map['data'];
+        response.data = inner is Map ? Map<String, dynamic>.from(inner) : inner;
+      } else {
+        response.data = map;
+      }
     }
     handler.next(response);
   }

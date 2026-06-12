@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/auth/mock_auth_repository.dart';
@@ -92,9 +93,13 @@ abstract final class RepositoryLocator {
                 : MockProfileRepository(),
           ),
           update: (_, authState, provider) {
-            if (authState.status == AuthStatus.authenticated && !authState.isGuest) {
-              provider!.load();
-            } else if (authState.status == AuthStatus.unauthenticated || authState.isGuest) {
+            if (authState.status == AuthStatus.authenticated &&
+                !authState.isGuest) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                provider?.load();
+              });
+            } else if (authState.status == AuthStatus.unauthenticated ||
+                authState.isGuest) {
               provider!.reset();
             }
             return provider!;

@@ -87,34 +87,76 @@ class UserProfile {
     return parts.join(' ');
   }
 
-  factory UserProfile.fromAuthJson(Map<String, dynamic> json) => UserProfile(
-        id: json['id'] as int?,
-        firstName: json['first_name'] as String?,
-        lastName: json['last_name'] as String?,
-        email: json['email'] as String?,
-        gender: json['gender'] as String?,
-        dateOfBirth: _parseApiDate(json['date_of_birth'] as String?),
-        age: (json['age'] as num?)?.toInt(),
-        weightKg: (json['weight_kg'] as num?)?.toDouble(),
-        heightCm: (json['height_cm'] as num?)?.toDouble(),
-        allergies: json['allergies'] as String?,
-        bloodType: json['blood_type'] as String?,
-        hasHypertension: json['has_hypertension'] as String?,
-        hasDiabetes: json['has_diabetes'] as String?,
-        hasChronicCondition: json['has_chronic_condition'] as String?,
-        isSmoker: json['is_smoker'] as String?,
-        hadRecentSurgery: json['had_recent_surgery'] as String?,
-      );
+  factory UserProfile.fromAuthJson(Map<String, dynamic> json) {
+    final data = _unwrapEnvelope(json);
+    final (firstName, lastName) = _nameFields(data);
+    return UserProfile(
+      id: _parseApiInt(data['id']),
+      firstName: firstName,
+      lastName: lastName,
+      email: data['email'] as String?,
+      gender: data['gender'] as String?,
+      dateOfBirth: _parseApiDate(data['date_of_birth'] as String?),
+      age: _parseApiInt(data['age']),
+      weightKg: _parseApiDouble(data['weight_kg']),
+      heightCm: _parseApiDouble(data['height_cm']),
+      allergies: data['allergies'] as String?,
+      bloodType: data['blood_type'] as String?,
+      hasHypertension: data['has_hypertension'] as String?,
+      hasDiabetes: data['has_diabetes'] as String?,
+      hasChronicCondition: data['has_chronic_condition'] as String?,
+      isSmoker: data['is_smoker'] as String?,
+      hadRecentSurgery: data['had_recent_surgery'] as String?,
+    );
+  }
 
   static DateTime? _parseApiDate(String? value) {
     if (value == null || value.isEmpty) return null;
     return DateTime.tryParse(value);
   }
 
-  factory UserProfile.fromPublicJson(Map<String, dynamic> json) => UserProfile(
-        aboutMe: json['about_me'] as String?,
-        isVisibleInCommunity: json['is_visible_in_community'] as bool? ?? true,
-      );
+  static Map<String, dynamic> _unwrapEnvelope(Map<String, dynamic> json) {
+    final inner = json['data'];
+    if (inner is Map) return Map<String, dynamic>.from(inner);
+    return json;
+  }
+
+  static (String?, String?) _nameFields(Map<String, dynamic> json) {
+    var first = json['first_name'] as String?;
+    var last = json['last_name'] as String?;
+    if ((first == null || first.isEmpty) && (last == null || last.isEmpty)) {
+      final full = json['full_name'] as String?;
+      if (full != null && full.isNotEmpty) {
+        final space = full.indexOf(' ');
+        if (space < 0) return (full, null);
+        return (full.substring(0, space), full.substring(space + 1).trim());
+      }
+    }
+    return (first, last);
+  }
+
+  static int? _parseApiInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  static double? _parseApiDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
+  }
+
+  factory UserProfile.fromPublicJson(Map<String, dynamic> json) {
+    final data = _unwrapEnvelope(json);
+    return UserProfile(
+      aboutMe: data['about_me'] as String?,
+      isVisibleInCommunity: data['is_visible_in_community'] as bool? ?? true,
+    );
+  }
 
   /// Returns a new profile with non-null fields from [other] taking priority.
   UserProfile mergeWith(UserProfile other) => UserProfile(

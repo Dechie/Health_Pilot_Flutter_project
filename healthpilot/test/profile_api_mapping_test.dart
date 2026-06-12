@@ -62,5 +62,31 @@ void main() {
       expect(profile.age, 35);
       expect(profile.hasDiabetes, 'N');
     });
+
+    test('fromAuthJson unwraps envelope and string decimals', () {
+      final profile = UserProfile.fromAuthJson({
+        'success': true,
+        'data': {
+          'id': 4,
+          'first_name': 'yajo',
+          'last_name': 'yakobo',
+          'weight_kg': '56.00',
+          'height_cm': '140.00',
+        },
+      });
+
+      expect(profile.displayName, 'yajo yakobo');
+      expect(profile.weightKg, 56);
+      expect(profile.heightCm, 140);
+    });
+
+    test('fromAuthJson falls back to full_name', () {
+      final profile = UserProfile.fromAuthJson({
+        'full_name': 'yajo yakobo',
+        'email': 'user@example.com',
+      });
+
+      expect(profile.displayName, 'yajo yakobo');
+    });
   });
 }

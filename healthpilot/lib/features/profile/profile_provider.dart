@@ -9,7 +9,8 @@ enum ProfileLoadStatus { idle, loading, loaded, error }
 class ProfileProvider extends ChangeNotifier {
   final IProfileRepository _repo;
 
-  UserProfile _profile = kDemoUserProfile;
+  UserProfile _profile =
+      FeatureFlags.userProfile ? const UserProfile() : kDemoUserProfile;
   ProfileLoadStatus _status = ProfileLoadStatus.idle;
   String? _error;
 
@@ -23,15 +24,19 @@ class ProfileProvider extends ChangeNotifier {
   /// Fetches profile from backend. Guarded against double-loading.
   Future<void> load() async {
     if (!FeatureFlags.userProfile) return;
-    if (_status == ProfileLoadStatus.loading || _status == ProfileLoadStatus.loaded) return;
+    if (_status == ProfileLoadStatus.loading) return;
     _status = ProfileLoadStatus.loading;
-    notifyListeners();
     try {
       final auth = await _repo.fetchMe();
-      final pub = await _repo.fetchPublicProfile();
-      _profile = auth.mergeWith(pub);
+      _profile = auth;
       _status = ProfileLoadStatus.loaded;
       _error = null;
+      try {
+        final pub = await _repo.fetchPublicProfile();
+        _profile = _profile.mergeWith(pub);
+      } catch (_) {
+        // Identity fields from /auth/me/ are enough for the profile header.
+      }
     } on ApiException catch (e) {
       _status = ProfileLoadStatus.error;
       _error = e.userMessage;
@@ -120,7 +125,8 @@ class ProfileProvider extends ChangeNotifier {
 
   /// Resets to demo state — called when the user logs out or switches accounts.
   void reset() {
-    _profile = kDemoUserProfile;
+    _profile =
+        FeatureFlags.userProfile ? const UserProfile() : kDemoUserProfile;
     _status = ProfileLoadStatus.idle;
     _error = null;
     notifyListeners();
