@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
-import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_3.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
-import 'package:healthpilot/features/profile/language_translation.dart';
 
 class InitialInfoSecond extends StatefulWidget {
   const InitialInfoSecond({super.key});
@@ -66,18 +63,6 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
                 color: Colors.black),
             maxLines: 2,
           ),
-          actions: [
-            IconButton(
-              onPressed: () => openLanguageScreen(context),
-              icon: SvgPicture.asset(
-                translateIcon,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

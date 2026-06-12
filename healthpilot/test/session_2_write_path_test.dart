@@ -66,6 +66,8 @@ import 'package:healthpilot/features/subscription/subscription_provider.dart';
 
 import 'package:healthpilot/theme/app_theme.dart';
 
+import 'helpers/chat_local_store_test_helper.dart';
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -116,10 +118,16 @@ Future<void> _pump(
 
   final article = articleP ?? ArticleProvider(MockArticleRepository());
   await article.load();
-  final chat = chatP ?? ChatProvider(MockChatRepository());
-  await chat.load();
-  final ai = aiP ?? AiAssistantProvider(MockAiAssistantRepository());
-  await ai.load();
+  final localStore = await createTestChatLocalStore();
+  final chat = chatP ??
+      ChatProvider(MockChatRepository(), localStore: localStore);
+  if (chatP == null) await chat.load();
+  final ai = aiP ??
+      AiAssistantProvider(
+        MockAiAssistantRepository(),
+        localStore: localStore,
+      );
+  if (aiP == null) await ai.load();
   final nutrition = nutritionP ?? NutritionProvider(MockNutritionRepository());
   await nutrition.load();
   final health = healthP ?? HealthProvider(MockHealthRepository());
@@ -431,8 +439,7 @@ void main() {
 
     testWidgets('W17 send message — user message and bot reply appear',
         (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       final initial = aiP.messages.length;
       await tester.runAsync(() => aiP.send('Hello'));
       expect(aiP.messages.length, initial + 2);
@@ -442,8 +449,7 @@ void main() {
 
     testWidgets('W18 send 3 more messages — all present in order',
         (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       final initial = aiP.messages.length;
       await tester.runAsync(() async {
         await aiP.send('Msg 1');
@@ -458,8 +464,7 @@ void main() {
     });
 
     testWidgets('W19 thread is scrollable without crash', (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       await tester.runAsync(() async {
         for (int i = 0; i < 5; i++) {
           await aiP.send('Message $i');
@@ -475,8 +480,7 @@ void main() {
     });
 
     testWidgets('W20 empty message does not add to thread', (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       final before = aiP.messages.length;
       // Empty/blank strings return early — no repo call, no delay.
       await aiP.send('');
@@ -708,8 +712,7 @@ void main() {
 
   group('W35–W40 Chat', () {
     testWidgets('W35 search filters to matching user', (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await _pump(
         tester,
         const GeneralChatScreen(showBackButton: false),
@@ -733,8 +736,7 @@ void main() {
 
     testWidgets('W36 clearing chat search restores full user list',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await _pump(
         tester,
         const GeneralChatScreen(showBackButton: false),
@@ -757,8 +759,7 @@ void main() {
 
     testWidgets('W37 send direct message — appears in user chat history',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendDirect('1', '999', 'Hi from test');
       final user = chatP.findUser('1');
       expect(
@@ -770,8 +771,7 @@ void main() {
     testWidgets(
         'W38 reopening DM — message still present in same-session provider',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendDirect('1', '999', 'Persistent message');
       // Same provider instance — in-memory state is unchanged.
       final user = chatP.findUser('1');
@@ -783,8 +783,7 @@ void main() {
 
     testWidgets('W39 send group message — appears in group chat history',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendGroup('g1', '999', 'Hello group');
       final group = chatP.findGroup('g1');
       expect(
@@ -795,8 +794,7 @@ void main() {
 
     testWidgets('W40 reopening group — message still present same session',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendGroup('g1', '999', 'Group message');
       final group = chatP.findGroup('g1');
       expect(

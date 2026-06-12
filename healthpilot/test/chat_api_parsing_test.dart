@@ -17,7 +17,7 @@ void main() {
       expect(message.sentAt, DateTime.parse('2024-06-18T08:36:41.793139Z'));
     });
 
-    test('fromApiHistoryJson maps user role', () {
+    test('fromApiHistoryJson maps user role as delivered', () {
       final message = ChatMessage.fromApiHistoryJson({
         'id': 1,
         'role': 'user',
@@ -26,6 +26,23 @@ void main() {
       });
 
       expect(message.fromUser, isTrue);
+      expect(message.showSentLabel, isTrue);
+    });
+
+    test('pending outgoing message hides Sent until marked sent', () {
+      final pending = ChatMessage(
+        id: 'u1',
+        fromUser: true,
+        body: 'Hello',
+        sentAt: DateTime.parse('2024-06-18T08:36:40.793139Z'),
+        deliveryStatus: OutgoingDeliveryStatus.pending,
+      );
+
+      expect(pending.showSentLabel, isFalse);
+      expect(
+        pending.copyWith(deliveryStatus: OutgoingDeliveryStatus.sent).showSentLabel,
+        isTrue,
+      );
     });
 
     test('fromApiReply maps reply field', () {

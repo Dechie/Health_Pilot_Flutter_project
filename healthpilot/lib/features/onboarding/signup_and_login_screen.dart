@@ -5,7 +5,6 @@ import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/network/api_error.dart';
-import 'package:healthpilot/features/auth/activation_screen.dart';
 import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +12,18 @@ import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
 
 class SignupAndLoginScreen extends StatefulWidget {
   static const routeName = '/SignupandLogin';
-  const SignupAndLoginScreen({super.key});
+
+  /// When true, opens in login mode (e.g. from the activation screen).
+  final bool initialLogin;
+
+  /// Pre-fills the email field (e.g. pending registration email).
+  final String? initialEmail;
+
+  const SignupAndLoginScreen({
+    super.key,
+    this.initialLogin = false,
+    this.initialEmail,
+  });
 
   @override
   State<SignupAndLoginScreen> createState() => _SignupAndLoginScreenState();
@@ -34,8 +44,22 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
 
   @override
   void initState() {
-    _isObscured = true;
     super.initState();
+    _isObscured = true;
+    _isLogin = widget.initialLogin;
+    if (widget.initialEmail != null) {
+      emailController.text = widget.initialEmail!;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _resumePendingActivation());
+  }
+
+  /// Registration already succeeded — keep the user on activation, not signup.
+  void _resumePendingActivation() {
+    if (!mounted) return;
+    final auth = context.read<AuthState>();
+    if (auth.isActivationPending && !widget.initialLogin) {
+      AppNavigation.replaceWithActivation(context);
+    }
   }
 
   @override
@@ -77,6 +101,10 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
       _showError('Passwords do not match.');
       return;
     }
+    if (FeatureFlags.auth && context.read<AuthState>().isActivationPending) {
+      AppNavigation.replaceWithActivation(context);
+      return;
+    }
     if (!FeatureFlags.auth) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => const ConfirmEmailScreen()),
@@ -93,9 +121,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
           );
       if (!mounted) return;
       setState(() => _isLoading = false);
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => const ActivationScreen()),
-      );
+      AppNavigation.replaceWithActivation(context);
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -117,7 +143,9 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //Signup and login sceen starts here
+    final auth = FeatureFlags.auth ? context.watch<AuthState>() : null;
+    final showActivationBanner =
+        _isLogin && auth != null && auth.isActivationPending;
 
     return Scaffold(
       body: SafeArea(
@@ -171,6 +199,32 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                       horizontal: screenWidth * 0.1,
                       vertical: screenHeight * 0.02),
                 ),
+                if (showActivationBanner) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                    child: Material(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                      child: ListTile(
+                        title: const Text('Activation pending'),
+                        subtitle: Text(
+                          auth.pendingActivationEmail.isNotEmpty
+                              ? 'Enter the token we sent to '
+                                  '${auth.pendingActivationEmail}.'
+                              : 'Enter the token from your activation email.',
+                        ),
+                        trailing: TextButton(
+                          onPressed: () =>
+                              AppNavigation.replaceWithActivation(context),
+                          child: const Text('Activate'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                ],
                 SizedBox(
                   height: screenHeight * 0.055,
                 ),
@@ -360,9 +414,14 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                     ? BottomActionTexts(
                         normalTexts: "Don't have an account? ",
                         commandTexts: "Sign up",
-                        login: () => setState(() {
-                          _isLogin = !_isLogin;
-                        }),
+                        login: () {
+                          if (FeatureFlags.auth &&
+                              context.read<AuthState>().isActivationPending) {
+                            AppNavigation.replaceWithActivation(context);
+                            return;
+                          }
+                          setState(() => _isLogin = false);
+                        },
                         fontSize: 15,
                       )
                     : BottomActionTexts(

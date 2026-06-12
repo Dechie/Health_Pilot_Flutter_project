@@ -33,7 +33,15 @@ import 'blog_reccomendation._card.dart';
 
 class HomePageScreen extends StatefulWidget {
   final bool isHelpPressed;
-  const HomePageScreen({super.key, required this.isHelpPressed});
+
+  /// Bottom navigation index to show when this shell is first built (0–4).
+  final int initialTabIndex;
+
+  const HomePageScreen({
+    super.key,
+    required this.isHelpPressed,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<HomePageScreen> createState() => _HomePageScreenState();
@@ -51,6 +59,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   void initState() {
     super.initState();
+    _currentIndex = widget.initialTabIndex.clamp(0, 4);
     _tutorPrefsFuture = getTutorStatus();
     isOnHelp = widget.isHelpPressed;
   }

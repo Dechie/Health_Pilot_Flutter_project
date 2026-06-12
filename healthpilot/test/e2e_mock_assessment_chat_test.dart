@@ -24,6 +24,7 @@ import 'package:healthpilot/features/chatbot/ai_assistant_provider.dart';
 import 'package:healthpilot/features/chatbot/chatbot_models.dart';
 import 'package:healthpilot/features/chatbot/repositories/mock_ai_assistant_repository.dart';
 
+import 'helpers/chat_local_store_test_helper.dart';
 import 'helpers/e2e_test_harness.dart';
 
 /// Same mock replies as production mock, without the 900ms delay (avoids
@@ -174,8 +175,9 @@ void main() {
   group('E2E AI chat (mock)', () {
     testWidgets('user can type, tap send, and see mock bot reply in thread',
         (tester) async {
-      final aiP = AiAssistantProvider(_InstantAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider(
+        repository: _InstantAiAssistantRepository(),
+      );
 
       await pumpE2eScreen(tester, const ChatbotScreen(), aiP: aiP);
 
@@ -210,8 +212,9 @@ void main() {
 
     testWidgets('suggestion chip sends a question through the UI',
         (tester) async {
-      final aiP = AiAssistantProvider(_InstantAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider(
+        repository: _InstantAiAssistantRepository(),
+      );
 
       await pumpE2eScreen(tester, const ChatbotScreen(), aiP: aiP);
 
@@ -234,8 +237,7 @@ void main() {
   group('E2E direct chat (mock)', () {
     testWidgets('inbox opens DM and sent message appears in the thread',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
 
       await pumpE2eScreen(
         tester,
@@ -266,8 +268,7 @@ void main() {
     });
 
     testWidgets('search narrows inbox then DM send still works', (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
 
       await pumpE2eScreen(
         tester,

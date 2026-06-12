@@ -14,6 +14,7 @@ import 'package:healthpilot/core/repositories/i_health_repository.dart';
 import 'package:healthpilot/core/repositories/i_medication_repository.dart';
 import 'package:healthpilot/core/repositories/i_profile_repository.dart';
 import 'package:healthpilot/core/storage/secure_token_store.dart';
+import 'package:healthpilot/features/chat/data/chat_local_store.dart';
 import 'package:healthpilot/features/articles/article_provider.dart';
 import 'package:healthpilot/features/articles/repositories/mock_article_repository.dart';
 import 'package:healthpilot/features/articles/repositories/remote_article_repository.dart';
@@ -55,6 +56,7 @@ import 'package:provider/single_child_widget.dart';
 abstract final class RepositoryLocator {
   static late final SecureTokenStore tokenStore;
   static late final ApiClient apiClient;
+  static final ChatLocalStore chatLocalStore = ChatLocalStore.instance;
 
   // Late-bound so AuthState can register its callback after creation.
   static Future<void> Function()? _onAuthExpiredCallback;
@@ -136,6 +138,7 @@ abstract final class RepositoryLocator {
                 ? RemoteAiAssistantRepository(apiClient)
                     as IAiAssistantRepository
                 : MockAiAssistantRepository(),
+            localStore: chatLocalStore,
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
@@ -196,6 +199,7 @@ abstract final class RepositoryLocator {
             FeatureFlags.chat
                 ? RemoteChatRepository(apiClient) as IChatRepository
                 : MockChatRepository(),
+            localStore: chatLocalStore,
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {

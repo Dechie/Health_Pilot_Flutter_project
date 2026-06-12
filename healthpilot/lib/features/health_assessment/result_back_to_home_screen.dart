@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
-import 'package:healthpilot/features/chat/general_chat_screen.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_flow_screen.dart';
 
 class ResultBackToHomeScreen extends StatelessWidget {
@@ -42,13 +42,9 @@ class ResultBackToHomeScreen extends StatelessWidget {
                 height: 44,
                 child: FilledButton(
                   onPressed: () {
-                    final nav = Navigator.of(context, rootNavigator: true);
-                    nav.popUntil((route) => route.isFirst);
-                    nav.push(
-                      MaterialPageRoute<void>(
-                        builder: (_) =>
-                            const GeneralChatScreen(showBackButton: true),
-                      ),
+                    AppNavigation.replaceRootHomeTab(
+                      context,
+                      initialTabIndex: HomeTab.chat,
                     );
                   },
                   child: const Text('Go to Community'),

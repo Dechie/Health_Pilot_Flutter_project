@@ -7,6 +7,7 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
 import 'package:healthpilot/features/chat/chat_models.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
+import 'package:healthpilot/features/chat/widgets/chat_markdown_body.dart';
 import 'package:healthpilot/features/chat/user_detail_screen.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl/intl.dart';
@@ -340,36 +341,53 @@ class ChatList extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                 decoration: bubbleDecoration,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        chat.content,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: isIncoming
-                              ? cs.onSurface
-                              : (isDark ? cs.onPrimary : cs.onSurface),
-                          fontSize: 12,
-                          fontWeight: isIncoming ? FontWeight.w400 : FontWeight.w500,
-                        ),
+                child: isIncoming
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Flexible(
+                            child: ChatMarkdownBody(
+                              rawText: chat.content,
+                              textColor: cs.onSurface,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            DateFormat('hh:mm a').format(chat.timestamp),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w400,
+                              color: cs.onSurface.withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ChatMarkdownBody(
+                            rawText: chat.content,
+                            textColor: isDark ? cs.onPrimary : cs.onSurface,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          if (chat.isDelivered) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              'Sent',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w400,
+                                color: (isDark ? cs.onPrimary : cs.onSurface)
+                                    .withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      DateFormat('hh:mm a').format(chat.timestamp),
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w400,
-                        color: (isIncoming
-                                ? cs.onSurface
-                                : (isDark ? cs.onPrimary : cs.onSurface))
-                            .withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             );
           },

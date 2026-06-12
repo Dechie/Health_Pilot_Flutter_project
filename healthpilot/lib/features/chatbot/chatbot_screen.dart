@@ -128,7 +128,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     final cs = Theme.of(context).colorScheme;
     final provider = context.watch<AiAssistantProvider>();
     final messages = provider.messages;
-    final isTyping = provider.isTyping;
     final showSuggestions = !messages.any((m) => m.fromUser);
 
     return Scaffold(
@@ -236,7 +235,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 children: [
                   for (final msg in messages) _bubbleForMessage(msg),
-                  if (isTyping) _typingRow(),
                 ],
               ),
             ),
@@ -334,6 +332,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     final bubble = ChatBubble(
       body: msg.body,
       time: _formatTime(msg.sentAt),
+      footerLabel: msg.showSentLabel ? 'Sent' : null,
       nipPosition:
           msg.fromUser ? BubbleNip.rightBottom : BubbleNip.leftBottom,
     );
@@ -352,24 +351,4 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     );
   }
 
-  Widget _typingRow() {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, left: 4),
-      child: Row(
-        children: [
-          Icon(LineIcons.robot, size: 18, color: cs.onSurfaceVariant),
-          const SizedBox(width: 8),
-          Text(
-            'HealthBot is typing…',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-              color: cs.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

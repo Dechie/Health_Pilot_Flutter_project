@@ -32,6 +32,8 @@ import 'package:healthpilot/features/subscription/repositories/mock_subscription
 import 'package:healthpilot/features/subscription/subscription_provider.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
+import 'chat_local_store_test_helper.dart';
+
 /// No-op secure storage for widget tests (avoids platform channel hangs).
 class E2eMockTokenStore extends SecureTokenStore {
   const E2eMockTokenStore() : super(const FlutterSecureStorage());
@@ -85,9 +87,15 @@ Future<void> pumpE2eScreen(
 
   final assess = assessP ?? AssessmentProvider(MockAssessmentRepository());
   if (assessP == null) await assess.load();
-  final chat = chatP ?? ChatProvider(MockChatRepository());
+  final localStore = await createTestChatLocalStore();
+  final chat = chatP ??
+      ChatProvider(MockChatRepository(), localStore: localStore);
   if (chatP == null) await chat.load();
-  final ai = aiP ?? AiAssistantProvider(MockAiAssistantRepository());
+  final ai = aiP ??
+      AiAssistantProvider(
+        MockAiAssistantRepository(),
+        localStore: localStore,
+      );
   if (aiP == null) await ai.load();
 
   await tester.pumpWidget(

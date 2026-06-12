@@ -6,11 +6,28 @@ class DirectMessage {
   final String content;
   final DateTime timestamp;
 
+  /// True once the server has accepted the message (HTTP 2xx).
+  final bool isDelivered;
+
   const DirectMessage({
     required this.senderId,
     required this.content,
     required this.timestamp,
+    this.isDelivered = true,
   });
+
+  DirectMessage copyWith({
+    String? senderId,
+    String? content,
+    DateTime? timestamp,
+    bool? isDelivered,
+  }) =>
+      DirectMessage(
+        senderId: senderId ?? this.senderId,
+        content: content ?? this.content,
+        timestamp: timestamp ?? this.timestamp,
+        isDelivered: isDelivered ?? this.isDelivered,
+      );
 
   factory DirectMessage.fromJson(Map<String, dynamic> json) => DirectMessage(
         senderId: json['sender_id'] as String,

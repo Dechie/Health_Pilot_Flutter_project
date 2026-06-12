@@ -11,6 +11,7 @@ class SecureTokenStore {
   static const _onboardingStepKey       = 'hp.onboarding.step';
   static const _healthInfoCompletedKey  = 'hp.profile.health_info_completed';
   static const _activationPendingKey    = 'hp.auth.activation_pending';
+  static const _pendingActivationEmailKey = 'hp.auth.pending_activation_email';
 
   final FlutterSecureStorage _storage;
 
@@ -52,6 +53,15 @@ class SecureTokenStore {
   Future<void> setActivationPending(bool v) =>
       _storage.write(key: _activationPendingKey, value: v.toString());
 
+  Future<String?> getPendingActivationEmail() =>
+      _storage.read(key: _pendingActivationEmailKey);
+
+  Future<void> setPendingActivationEmail(String email) =>
+      _storage.write(key: _pendingActivationEmailKey, value: email);
+
+  Future<void> clearPendingActivationEmail() =>
+      _storage.delete(key: _pendingActivationEmailKey);
+
   Future<void> clearAll() => Future.wait([
     _storage.delete(key: _accessKey),
     _storage.delete(key: _refreshKey),
@@ -60,6 +70,7 @@ class SecureTokenStore {
     _storage.delete(key: _lastNameKey),
     _storage.delete(key: _isGuestKey),
     _storage.delete(key: _activationPendingKey),
+    _storage.delete(key: _pendingActivationEmailKey),
     _storage.delete(key: _healthInfoCompletedKey),
     _storage.delete(key: _onboardingCompletedKey),
     _storage.delete(key: _onboardingStepKey),

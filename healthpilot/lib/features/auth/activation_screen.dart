@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/network/api_error.dart';
+import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/features/personal_info/initial_info_1.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,14 @@ class _ActivationScreenState extends State<ActivationScreen> {
   void dispose() {
     _tokenController.dispose();
     super.dispose();
+  }
+
+  void _goToLogin() {
+    final email = context.read<AuthState>().pendingActivationEmail;
+    AppNavigation.replaceWithLoginAfterRegistration(
+      context,
+      email: email.isNotEmpty ? email : null,
+    );
   }
 
   Future<void> _activate() async {
@@ -56,120 +65,114 @@ class _ActivationScreenState extends State<ActivationScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final pendingEmail = context.watch<AuthState>().pendingActivationEmail;
 
-    return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
-        child: LayoutBuilder(builder: (context, constraints) {
-          final w = constraints.maxWidth;
-          final h = constraints.maxHeight;
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: w * 0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: h * 0.06),
-                Row(
-                  children: [
-                    Container(
-                      width: w * 0.1,
-                      height: w * 0.1,
-                      decoration: BoxDecoration(
-                        color: cs.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(w * 0.05),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goToLogin();
+      },
+      child: Scaffold(
+        backgroundColor: cs.surface,
+        body: SafeArea(
+          child: LayoutBuilder(builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            final h = constraints.maxHeight;
+            return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: w * 0.1),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: h * 0.06),
+                  Text(
+                    'Activate Account',
+                    style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: h * 0.06),
+                  Text(
+                    'Check your email',
+                    style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: h * 0.015),
+                  Text(
+                    pendingEmail.isNotEmpty
+                        ? 'We sent an activation token to $pendingEmail. '
+                            'Paste it below to complete your registration.'
+                        : 'We sent an activation token to your email address. '
+                            'Paste it below to complete your registration.',
+                    style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: h * 0.05),
+                  TextField(
+                    controller: _tokenController,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _activate(),
+                    decoration: InputDecoration(
+                      hintText: 'Activation token',
+                      errorText: _error,
+                      prefixIcon:
+                          Icon(Icons.key_outlined, color: cs.onSurfaceVariant),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: cs.outline),
                       ),
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).maybePop(),
-                        icon: const Icon(Icons.arrow_back),
-                        color: cs.primary,
-                        iconSize: w * 0.05,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: cs.outline),
                       ),
-                    ),
-                    SizedBox(width: w * 0.04),
-                    Text(
-                      'Activate Account',
-                      style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-                SizedBox(height: h * 0.06),
-                Text(
-                  'Check your email',
-                  style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: h * 0.015),
-                Text(
-                  'We sent an activation token to your email address. Paste it below to complete your registration.',
-                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: h * 0.05),
-                TextField(
-                  controller: _tokenController,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _activate(),
-                  decoration: InputDecoration(
-                    hintText: 'Activation token',
-                    errorText: _error,
-                    prefixIcon: Icon(Icons.key_outlined, color: cs.onSurfaceVariant),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: cs.outline),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: cs.outline),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: cs.primary, width: 1.5),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: h * 0.04),
-                SizedBox(
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _loading ? null : _activate,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.primary,
-                      foregroundColor: cs.onPrimary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  SizedBox(height: h * 0.04),
+                  SizedBox(
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _loading ? null : _activate,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: cs.primary,
+                        foregroundColor: cs.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                    child: _loading
-                        ? SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: cs.onPrimary,
+                      child: _loading
+                          ? SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: cs.onPrimary,
+                              ),
+                            )
+                          : const Text(
+                              'Activate',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          )
-                        : const Text(
-                            'Activate',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                    ),
                   ),
-                ),
-                SizedBox(height: h * 0.03),
-                TextButton(
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  child: Text(
-                    'Return to login',
-                    style: TextStyle(color: cs.primary),
+                  SizedBox(height: h * 0.03),
+                  TextButton(
+                    onPressed: _goToLogin,
+                    child: Text(
+                      'Already activated? Log in',
+                      style: TextStyle(color: cs.primary),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+            );
+          }),
+        ),
       ),
     );
   }

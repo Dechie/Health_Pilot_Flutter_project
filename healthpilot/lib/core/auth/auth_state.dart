@@ -19,6 +19,7 @@ class AuthState extends ChangeNotifier {
   bool _onboardingCompleted = false;
   bool _healthInfoCompleted = false;
   bool _activationPending = false;
+  String _pendingActivationEmail = '';
   int  _onboardingStep = 0;
   String get firstName => _firstName;
   String get lastName => _lastName;
@@ -26,6 +27,7 @@ class AuthState extends ChangeNotifier {
   bool get isOnboardingCompleted => _onboardingCompleted;
   bool get isHealthInfoCompleted => _healthInfoCompleted;
   bool get isActivationPending => _activationPending;
+  String get pendingActivationEmail => _pendingActivationEmail;
   int  get onboardingStep => _onboardingStep;
   String get fullName => [_firstName, _lastName]
       .where((s) => s.isNotEmpty)
@@ -53,6 +55,8 @@ class AuthState extends ChangeNotifier {
     _onboardingCompleted = await _tokenStore.getOnboardingCompleted();
     _healthInfoCompleted = await _tokenStore.getHealthInfoCompleted();
     _activationPending   = await _tokenStore.getActivationPending();
+    _pendingActivationEmail =
+        await _tokenStore.getPendingActivationEmail() ?? '';
     _onboardingStep      = await _tokenStore.getOnboardingStep();
     notifyListeners();
   }
@@ -78,16 +82,21 @@ class AuthState extends ChangeNotifier {
       lastName: lastName,
       password: password,
     );
+    await _tokenStore.setPendingActivationEmail(email);
     await _tokenStore.setActivationPending(true);
+    _pendingActivationEmail = email;
     _activationPending = true;
     // Status unchanged — user must activate via email token before logging in.
+    notifyListeners();
   }
 
   Future<void> activate(String token) async {
     final tokens = await _repo.activate(token: token);
     await _storeTokens(tokens);
     await _tokenStore.setActivationPending(false);
+    await _tokenStore.clearPendingActivationEmail();
     _activationPending = false;
+    _pendingActivationEmail = '';
     _status = AuthStatus.authenticated;
     notifyListeners();
   }
@@ -155,6 +164,7 @@ class AuthState extends ChangeNotifier {
     _lastName = '';
     _isGuest = false;
     _activationPending = false;
+    _pendingActivationEmail = '';
     _onboardingCompleted = false;
     _healthInfoCompleted = false;
     _onboardingStep = 0;
