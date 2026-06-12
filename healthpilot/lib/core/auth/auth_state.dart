@@ -6,6 +6,14 @@ import 'package:healthpilot/core/storage/secure_token_store.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
+class AuthException implements Exception {
+  const AuthException(this.message);
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 class AuthState extends ChangeNotifier {
   final IAuthRepository _repo;
   final SecureTokenStore _tokenStore;
@@ -64,10 +72,22 @@ class AuthState extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     final tokens = await _repo.login(email: email, password: password);
     await _storeTokens(tokens);
+    await _tokenStore.setActivationPending(false);
+    await _tokenStore.clearPendingActivationEmail();
+    _activationPending = false;
+    _pendingActivationEmail = '';
     await _tokenStore.setIsGuest(false);
     _isGuest = false;
     _status = AuthStatus.authenticated;
     notifyListeners();
+  }
+
+  Future<void> resendActivationEmail() async {
+    final email = _pendingActivationEmail.trim();
+    if (email.isEmpty) {
+      throw const AuthException('No email on file. Return to sign up.');
+    }
+    await _repo.resendActivation(email: email);
   }
 
   Future<void> register({

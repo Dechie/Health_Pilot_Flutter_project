@@ -142,7 +142,14 @@ class LoggingInterceptor extends Interceptor {
         '[HP API] ✗ ${err.response?.statusCode ?? 'NO STATUS'} '
         '${err.requestOptions.uri}',
       );
-      _logLine('[HP API]   err: ${_compact(err.response?.data)}');
+      _logLine('[HP API]   type: ${err.type.name}');
+      if (err.message != null && err.message!.isNotEmpty) {
+        _logLine('[HP API]   message: ${_compact(err.message)}');
+      }
+      final body = err.response?.data;
+      if (body != null) {
+        _logLine('[HP API]   body: ${_compact(body)}');
+      }
     }
     handler.next(err);
   }

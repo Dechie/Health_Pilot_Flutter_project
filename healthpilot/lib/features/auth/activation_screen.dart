@@ -6,7 +6,10 @@ import 'package:healthpilot/features/personal_info/initial_info_1.dart';
 import 'package:provider/provider.dart';
 
 class ActivationScreen extends StatefulWidget {
-  const ActivationScreen({super.key});
+  const ActivationScreen({super.key, this.initialToken});
+
+  /// Token from an email deep link, if the app was opened via activation URL.
+  final String? initialToken;
 
   @override
   State<ActivationScreen> createState() => _ActivationScreenState();
@@ -15,7 +18,19 @@ class ActivationScreen extends StatefulWidget {
 class _ActivationScreenState extends State<ActivationScreen> {
   final _tokenController = TextEditingController();
   bool _loading = false;
+  bool _resending = false;
+  bool _showManualToken = false;
   String? _error;
+  String? _info;
+
+  @override
+  void initState() {
+    super.initState();
+    final token = widget.initialToken?.trim();
+    if (token != null && token.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _activate(token));
+    }
+  }
 
   @override
   void dispose() {
@@ -31,8 +46,8 @@ class _ActivationScreenState extends State<ActivationScreen> {
     );
   }
 
-  Future<void> _activate() async {
-    final token = _tokenController.text.trim();
+  Future<void> _activate([String? tokenOverride]) async {
+    final token = (tokenOverride ?? _tokenController.text).trim();
     if (token.isEmpty) {
       setState(() => _error = 'Enter the activation token from your email.');
       return;
@@ -40,6 +55,7 @@ class _ActivationScreenState extends State<ActivationScreen> {
     setState(() {
       _loading = true;
       _error = null;
+      _info = null;
     });
     try {
       await context.read<AuthState>().activate(token);
@@ -57,6 +73,37 @@ class _ActivationScreenState extends State<ActivationScreen> {
       setState(() {
         _loading = false;
         _error = 'Activation failed. Please try again.';
+      });
+    }
+  }
+
+  Future<void> _resendEmail() async {
+    setState(() {
+      _resending = true;
+      _error = null;
+      _info = null;
+    });
+    try {
+      await context.read<AuthState>().resendActivationEmail();
+      if (!mounted) return;
+      setState(() {
+        _resending = false;
+        _info = 'Activation email sent. Open the link in your inbox.';
+      });
+    } on AuthException catch (e) {
+      setState(() {
+        _resending = false;
+        _error = e.message;
+      });
+    } on ApiException catch (e) {
+      setState(() {
+        _resending = false;
+        _error = e.userMessage;
+      });
+    } catch (_) {
+      setState(() {
+        _resending = false;
+        _error = 'Could not resend email. Try again later.';
       });
     }
   }
@@ -90,6 +137,12 @@ class _ActivationScreenState extends State<ActivationScreen> {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: h * 0.06),
+                  Icon(
+                    Icons.mark_email_read_outlined,
+                    size: 56,
+                    color: cs.primary,
+                  ),
+                  SizedBox(height: h * 0.03),
                   Text(
                     'Check your email',
                     style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
@@ -98,69 +151,56 @@ class _ActivationScreenState extends State<ActivationScreen> {
                   SizedBox(height: h * 0.015),
                   Text(
                     pendingEmail.isNotEmpty
-                        ? 'We sent an activation token to $pendingEmail. '
-                            'Paste it below to complete your registration.'
-                        : 'We sent an activation token to your email address. '
-                            'Paste it below to complete your registration.',
+                        ? 'We sent an activation link to $pendingEmail. '
+                            'Tap the link in that email — it activates your account '
+                            'automatically. Then return here and log in.'
+                        : 'We sent an activation link to your email. '
+                            'Tap the link to activate your account, then log in.',
                     style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: h * 0.05),
-                  TextField(
-                    controller: _tokenController,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (_) => _activate(),
-                    decoration: InputDecoration(
-                      hintText: 'Activation token',
-                      errorText: _error,
-                      prefixIcon:
-                          Icon(Icons.key_outlined, color: cs.onSurfaceVariant),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: cs.outline),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: cs.outline),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: cs.primary, width: 1.5),
-                      ),
+                  if (_loading) ...[
+                    SizedBox(height: h * 0.05),
+                    const Center(child: CircularProgressIndicator()),
+                    SizedBox(height: h * 0.02),
+                    Text(
+                      'Activating your account…',
+                      textAlign: TextAlign.center,
+                      style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
-                  ),
+                  ],
+                  if (_info != null) ...[
+                    SizedBox(height: h * 0.03),
+                    Text(
+                      _info!,
+                      textAlign: TextAlign.center,
+                      style: tt.bodyMedium?.copyWith(color: cs.primary),
+                    ),
+                  ],
+                  if (_error != null) ...[
+                    SizedBox(height: h * 0.03),
+                    Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: tt.bodyMedium?.copyWith(color: cs.error),
+                    ),
+                  ],
                   SizedBox(height: h * 0.04),
-                  SizedBox(
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _loading ? null : _activate,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: cs.primary,
-                        foregroundColor: cs.onPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: _loading
-                          ? SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: cs.onPrimary,
-                              ),
-                            )
-                          : const Text(
-                              'Activate',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
+                  OutlinedButton.icon(
+                    onPressed: _resending || _loading ? null : _resendEmail,
+                    icon: _resending
+                        ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: cs.primary,
                             ),
-                    ),
+                          )
+                        : const Icon(Icons.refresh),
+                    label: const Text('Resend activation email'),
                   ),
-                  SizedBox(height: h * 0.03),
+                  SizedBox(height: h * 0.02),
                   TextButton(
                     onPressed: _goToLogin,
                     child: Text(
@@ -168,6 +208,58 @@ class _ActivationScreenState extends State<ActivationScreen> {
                       style: TextStyle(color: cs.primary),
                     ),
                   ),
+                  SizedBox(height: h * 0.02),
+                  TextButton(
+                    onPressed: () =>
+                        setState(() => _showManualToken = !_showManualToken),
+                    child: Text(
+                      _showManualToken
+                          ? 'Hide manual token entry'
+                          : 'Having trouble? Enter token manually',
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  if (_showManualToken) ...[
+                    SizedBox(height: h * 0.02),
+                    TextField(
+                      controller: _tokenController,
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _activate(),
+                      decoration: InputDecoration(
+                        hintText: 'Activation token',
+                        prefixIcon:
+                            Icon(Icons.key_outlined, color: cs.onSurfaceVariant),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: h * 0.03),
+                    SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: _loading ? null : () => _activate(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: cs.primary,
+                          foregroundColor: cs.onPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          'Activate with token',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );

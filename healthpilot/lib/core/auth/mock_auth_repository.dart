@@ -26,6 +26,9 @@ class MockAuthRepository implements IAuthRepository {
   Future<AuthTokens> activate({required String token}) async => _tokens;
 
   @override
+  Future<void> resendActivation({required String email}) async {}
+
+  @override
   Future<AuthTokens> login({
     required String email,
     required String password,

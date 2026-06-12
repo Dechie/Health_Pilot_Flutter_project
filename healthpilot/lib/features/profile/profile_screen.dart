@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
+import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/health/health_profile_screen.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
@@ -27,9 +28,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!context.read<AuthState>().isGuest) {
+    if (context.read<AuthState>().isGuest) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<ProfileProvider>().load();
-    }
+    });
   }
 
   @override
@@ -256,6 +259,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Navigator.of(context).push(MaterialPageRoute<void>(
                                   builder: (context) =>
                                       const ProfileAllergiesScreen()));
+                            },
+                          ),
+                          HealthInformationSettings(
+                            leadingIcon: Icons.restaurant_outlined,
+                            settingAdress: 'Food & Nutrition',
+                            iconData: Icons.arrow_forward,
+                            onpressed: () {
+                              Navigator.of(context).push(MaterialPageRoute<void>(
+                                  builder: (context) =>
+                                      const FoodNutritionHistoryScreen()));
                             },
                           ),
                         ],

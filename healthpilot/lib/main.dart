@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthpilot/core/auth/activation_link_handler.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/debug/dev_startup_log.dart';
 import 'package:healthpilot/core/di/repository_locator.dart';
@@ -21,10 +22,13 @@ import 'package:healthpilot/features/personal_info/initial_info_4.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
+final ActivationLinkHandler activationLinkHandler = ActivationLinkHandler();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LoggingInterceptor.init();
   RepositoryLocator.initialize();
+  await activationLinkHandler.init();
   logDevStartupConfig();
   runApp(
     MultiProvider(
@@ -48,6 +52,37 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   AuthStatus _prevAuthStatus = AuthStatus.unknown;
   bool _listenerAdded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    activationLinkHandler.onLinkToken = _activateFromEmailLink;
+  }
+
+  Future<void> _activateFromEmailLink(String token) async {
+    final ctx = _navigatorKey.currentContext;
+    if (ctx == null) return;
+    final auth = ctx.read<AuthState>();
+    if (!auth.isActivationPending && auth.status == AuthStatus.authenticated) {
+      return;
+    }
+    try {
+      await auth.activate(token);
+      if (!ctx.mounted) return;
+      Navigator.of(ctx).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const InitialInfoFirst()),
+        (_) => false,
+      );
+    } on Object {
+      if (!ctx.mounted) return;
+      Navigator.of(ctx).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (_) => ActivationScreen(initialToken: token),
+        ),
+        (_) => false,
+      );
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -75,6 +110,7 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
 
   @override
   void dispose() {
+    activationLinkHandler.onLinkToken = null;
     context.read<AuthState>().removeListener(_onAuthChanged);
     super.dispose();
   }
@@ -143,7 +179,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           : _onboardingStepScreen(auth.onboardingStep);
     } else {
       next = auth.isActivationPending
-          ? const ActivationScreen()
+          ? ActivationScreen(
+              initialToken: activationLinkHandler.initialToken,
+            )
           : const SignupAndLoginScreen();
     }
     Navigator.pushReplacement(
