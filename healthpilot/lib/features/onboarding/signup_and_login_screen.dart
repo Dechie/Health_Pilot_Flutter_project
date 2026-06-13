@@ -153,11 +153,12 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
           final size = constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
-          return SingleChildScrollView(
+          return ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             reverse: true,
-            child: Column(
-              children: [
-                Row(
+            padding: const EdgeInsets.only(bottom: 32),
+            children: [
+                Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Padding(
@@ -458,7 +459,6 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                     padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom))
               ],
-            ),
           );
         }),
       ),
@@ -486,9 +486,10 @@ class ConfirmEmailScreen extends StatelessWidget {
           final size = Constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
-          return SingleChildScrollView(
-            child: Column(
-              children: [
+          return ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.only(bottom: 32),
+            children: [
                 Row(
                   children: [
                     Padding(
@@ -614,7 +615,6 @@ class ConfirmEmailScreen extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
           );
         },
       )),

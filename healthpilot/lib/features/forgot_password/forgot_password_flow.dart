@@ -82,15 +82,14 @@ class _EmailStep extends StatelessWidget {
     final controller = context.read<ForgotPasswordController>();
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom + 16,
-      ),
-      child: Form(
-        key: controller.formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    return Form(
+      key: controller.formKey,
+      child: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom + 24,
+        ),
+        children: [
             ForgotPasswordHeader(
               screenWidth: screenWidth,
               screenHeight: screenHeight,
@@ -166,7 +165,6 @@ class _EmailStep extends StatelessWidget {
                   context.read<ForgotPasswordController>().submitEmail(),
             ),
           ],
-        ),
       ),
     );
   }

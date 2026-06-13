@@ -82,11 +82,10 @@ class _ProfileAllergiesScreenState extends State<ProfileAllergiesScreen> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              children: [
                   Text(
                     'Add any known allergies',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -162,7 +161,6 @@ class _ProfileAllergiesScreenState extends State<ProfileAllergiesScreen> {
                 ],
               ),
             ),
-          ),
           SafeArea(
             top: false,
             child: Padding(

@@ -64,8 +64,8 @@ class _SimilarPeopleScreenState extends State<SimilarPeopleScreen> {
                   : peers.isEmpty
                       ? const Center(child: Text('No users found.'))
                       : ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 15),
+                      padding: const EdgeInsets.fromLTRB(
+                          20, 15, 20, 24),
                       itemCount: peers.length,
                       itemBuilder: (context, index) {
                         final peer = peers[index];

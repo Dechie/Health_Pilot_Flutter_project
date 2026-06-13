@@ -125,11 +125,10 @@ class _ActivationScreenState extends State<ActivationScreen> {
           child: LayoutBuilder(builder: (context, constraints) {
             final w = constraints.maxWidth;
             final h = constraints.maxHeight;
-            return SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: w * 0.1),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+            return ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(w * 0.1, 0, w * 0.1, 24),
+              children: [
                   SizedBox(height: h * 0.06),
                   Text(
                     'Activate Account',
@@ -261,8 +260,7 @@ class _ActivationScreenState extends State<ActivationScreen> {
                     ),
                   ],
                 ],
-              ),
-            );
+              );
           }),
         ),
       ),

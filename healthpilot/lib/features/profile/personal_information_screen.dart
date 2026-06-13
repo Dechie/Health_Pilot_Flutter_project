@@ -168,7 +168,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );
@@ -187,9 +187,10 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
             final screenWidth = size.width;
             final screenHeight = size.height;
 
-            return SingleChildScrollView(
-              child: Column(
-                children: [
+            return ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.only(bottom: 32),
+              children: [
                   Row(
                     children: [
                       Padding(
@@ -455,7 +456,6 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     ),
                   ),
                 ],
-              ),
             );
           },
         ),
@@ -677,11 +677,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
           final size = Constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
-          return SingleChildScrollView(
+          return ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             reverse: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            padding: const EdgeInsets.only(bottom: 32),
+            children: [
                 Row(
                   children: [
                     Padding(
@@ -942,7 +942,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom))
               ],
-            ),
           );
         }),
       ),

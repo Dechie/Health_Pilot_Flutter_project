@@ -62,9 +62,12 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
               Icons.arrow_back, 'Public Profile', context),
         ),
       ),
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
+      body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.only(bottom: 32),
+        children: [
+          SafeArea(
+            child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,6 +238,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
             ),
           ),
         ),
+        ],
       ),
     );
   }

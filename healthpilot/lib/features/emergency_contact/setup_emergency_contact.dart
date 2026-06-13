@@ -190,17 +190,15 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.symmetric(
             horizontal: size.width * 0.08,
             vertical: size.width * 0.08,
           ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+          children: [
                 _labeledField(
                   label: 'First Name',
                   child: TextFormField(
@@ -288,10 +286,8 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+        ],
+      ),
       ),
     );
   }

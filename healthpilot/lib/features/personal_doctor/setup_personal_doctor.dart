@@ -175,14 +175,12 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: size.width * 0.08),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+          children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -355,9 +353,7 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                 ),
                 SizedBox(height: 20 + bottomInset),
               ],
-            ),
           ),
-        ),
       ),
     );
   }

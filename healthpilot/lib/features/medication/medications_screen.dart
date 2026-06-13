@@ -702,10 +702,11 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
           final size = constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
-          return SingleChildScrollView(
+          return ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             reverse: true,
-            child: Column(
-              children: [
+            padding: const EdgeInsets.only(bottom: 32),
+            children: [
                 Row(
                   children: [
                     Padding(
@@ -904,7 +905,6 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
                     padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom))
               ],
-            ),
           );
         },
       )),

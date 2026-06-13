@@ -117,16 +117,15 @@ class _InitialInfoThird extends State<InitialInfoThird> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.fromLTRB(
                 size.width * 0.04,
                 size.height * 0.02,
                 size.width * 0.04,
-                16,
+                24,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
+              children: <Widget>[
                   _buildYesNoQuestion(
                     context,
                     question: 'Do you have any chronic conditions?',
@@ -375,7 +374,6 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                 ],
               ),
             ),
-          ),
           SafeArea(
             top: false,
             child: Padding(

@@ -198,10 +198,10 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: EdgeInsets.only(bottom: 24 + bottomInset),
-        child: Column(
-          children: [
+        children: [
             SizedBox(
               width: double.infinity,
               child: Column(
@@ -850,7 +850,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
             ),
           ],
         ),
-      ),
     );
   }
 
