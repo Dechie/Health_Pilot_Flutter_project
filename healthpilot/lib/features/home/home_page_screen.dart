@@ -172,7 +172,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       shape: BoxShape.circle,
                       color: cs.primary,
                     ),
-                    child: const Icon(Icons.close, size: 12, color: Colors.white),
+                    child:
+                        const Icon(Icons.close, size: 12, color: Colors.white),
                   ),
                 ),
               ),
@@ -240,8 +241,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       isOnEmeregencyCalling = true;
       _emergencySecondsRemaining = 60;
     });
-    _emergencyCountdownTimer =
-        Timer.periodic(const Duration(seconds: 1), (_) {
+    _emergencyCountdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) {
         return;
       }
@@ -320,7 +320,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                           ),
                           if (auth.isGuest)
                             GestureDetector(
-                              onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
+                              onTap: () =>
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
                                 SignupAndLoginScreen.routeName,
                                 (_) => false,
                               ),
@@ -534,8 +535,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
               selectedItemColor: Theme.of(context).colorScheme.primary,
               unselectedItemColor:
                   Theme.of(context).colorScheme.onSurfaceVariant,
-              selectedLabelStyle:
-                  const TextStyle(fontWeight: FontWeight.bold),
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
               elevation: 30,
               currentIndex: _currentIndex,
               onTap: _onTabTapped,
@@ -616,10 +616,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                       );
                     },
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primary,
-                    foregroundColor:
-                        Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     child: const Icon(LineIcons.robot),
                   )
                 : null,
@@ -848,9 +846,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                 controller: _pageControllerOfTutorial,
                                 count: _tutorialSlides.length,
                                 effect: ExpandingDotsEffect(
-                                    activeDotColor: Theme.of(context)
-                                        .colorScheme
-                                        .primary,
+                                    activeDotColor:
+                                        Theme.of(context).colorScheme.primary,
                                     dotColor: Theme.of(context)
                                         .colorScheme
                                         .primaryContainer),

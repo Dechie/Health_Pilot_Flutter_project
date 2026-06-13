@@ -41,7 +41,7 @@ class RemoteCommunityRepository implements ICommunityRepository {
     final data = await _api.get(
       '${ApiConstants.communityBase}/peers/connections/',
     );
-    return (data as List<dynamic>)
+    return (data['results'] as List<dynamic>)
         .map((e) => ConnectionRequest.fromJson(e as Map<String, dynamic>))
         .toList();
   }

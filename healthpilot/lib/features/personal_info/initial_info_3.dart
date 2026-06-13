@@ -9,7 +9,6 @@ import 'package:healthpilot/features/personal_info/initial_info_4.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:provider/provider.dart';
 
-
 class InitialInfoThird extends StatefulWidget {
   const InitialInfoThird({super.key});
 
@@ -47,6 +46,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
       });
     }
   }
+
   final searchController = TextEditingController();
 
   List<String> get _filteredAllergies =>
@@ -63,6 +63,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -126,254 +127,264 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                 24,
               ),
               children: <Widget>[
-                  _buildYesNoQuestion(
-                    context,
-                    question: 'Do you have any chronic conditions?',
-                    groupValue: chronicConditionAnswer,
-                    onChanged: (value) =>
-                        setState(() => chronicConditionAnswer = value),
-                  ),
-                  SizedBox(height: size.height * 0.03),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                    child: Text(
-                      'Do you have any allergies?',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: cs.onSurface,
-                      ),
-                      textAlign: TextAlign.left,
-                      maxLines: 2,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildYesNoQuestion(
+                      context,
+                      question: 'Do you have any chronic conditions?',
+                      groupValue: chronicConditionAnswer,
+                      onChanged: (value) =>
+                          setState(() => chronicConditionAnswer = value),
                     ),
-                  ),
-                  SizedBox(height: size.height * 0.03),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: (_) => setState(() {}),
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (_) =>
-                          FocusManager.instance.primaryFocus?.unfocus(),
-                      style: TextStyle(color: cs.onSurface),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: cs.surface,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 10),
-                        hintText: 'Search allergies',
-                        hintStyle: TextStyle(
-                          color: cs.onSurfaceVariant,
-                          fontWeight: FontWeight.w300,
-                          fontSize: 14,
-                        ),
-                        prefixIcon: Icon(Icons.search, color: iconMuted),
-                        suffixIcon: hasSearchQuery
-                            ? IconButton(
-                                tooltip: 'Clear search',
-                                onPressed: _clearAllergySearch,
-                                icon: Icon(
-                                  Icons.close,
-                                  color: iconMuted,
-                                ),
-                              )
-                            : null,
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: cs.outline),
-                          borderRadius: BorderRadius.circular(13.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: cs.outline),
-                          borderRadius: BorderRadius.circular(13.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: cs.primary, width: 2),
-                          borderRadius: BorderRadius.circular(13.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: size.height * 0.02),
-                  if (hasSearchQuery) ...[
-                    Padding(
+                    SizedBox(height: size.height * 0.03),
+                    Container(
+                      width: double.infinity,
                       padding:
                           EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Choose all that apply:',
-                          style: TextStyle(
-                            fontFamily: 'PlusJakartaSans',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurface,
+                      child: Text(
+                        'Do you have any allergies?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: cs.onSurface,
+                        ),
+                        textAlign: TextAlign.left,
+                        maxLines: 2,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.03),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: TextField(
+                        controller: searchController,
+                        onChanged: (_) => setState(() {}),
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (_) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                        style: TextStyle(color: cs.onSurface),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: cs.surface,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 10),
+                          hintText: 'Search allergies',
+                          hintStyle: TextStyle(
+                            color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(Icons.search, color: iconMuted),
+                          suffixIcon: hasSearchQuery
+                              ? IconButton(
+                                  tooltip: 'Clear search',
+                                  onPressed: _clearAllergySearch,
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: iconMuted,
+                                  ),
+                                )
+                              : null,
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                            borderRadius: BorderRadius.circular(13.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                            borderRadius: BorderRadius.circular(13.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.primary, width: 2),
+                            borderRadius: BorderRadius.circular(13.0),
                           ),
                         ),
                       ),
                     ),
-                    if (filteredAllergies.isEmpty)
+                    SizedBox(height: size.height * 0.02),
+                    if (hasSearchQuery) ...[
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Choose all that apply:',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (filteredAllergies.isEmpty)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: size.width * 0.05,
+                            vertical: size.height * 0.02,
+                          ),
+                          child: Column(
+                            children: [
+                              SvgPicture.asset(itemNotFound),
+                              Text(
+                                'No match found',
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w400,
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                              SizedBox(height: size.height * 0.005),
+                              Text(
+                                'Check the spelling or try another term',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...filteredAllergies.map((allergy) {
+                          final isSelected =
+                              selectedAllergies.contains(allergy);
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: size.width * 0.02,
+                            ),
+                            child: ListTile(
+                              dense: true,
+                              title: Text(
+                                allergy,
+                                style: TextStyle(color: cs.onSurface),
+                              ),
+                              trailing: Icon(
+                                isSelected
+                                    ? Icons.check_circle
+                                    : Icons.add_circle_outline,
+                                color: cs.primary,
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedAllergies.remove(allergy);
+                                  } else {
+                                    selectedAllergies.add(allergy);
+                                  }
+                                });
+                              },
+                            ),
+                          );
+                        }),
+                    ] else if (selectedAllergies.isEmpty) ...[
                       Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: size.width * 0.05,
-                          vertical: size.height * 0.02,
+                          vertical: size.height * 0.03,
                         ),
-                        child: Column(
-                          children: [
-                            SvgPicture.asset(itemNotFound),
-                            Text(
-                              'No match found',
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                                color: cs.onSurface,
-                              ),
-                            ),
-                            SizedBox(height: size.height * 0.005),
-                            Text(
-                              'Check the spelling or try another term',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w300,
-                                color: cs.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      ...filteredAllergies.map((allergy) {
-                        final isSelected = selectedAllergies.contains(allergy);
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: size.width * 0.02,
-                          ),
-                          child: ListTile(
-                            dense: true,
-                            title: Text(
-                              allergy,
-                              style: TextStyle(color: cs.onSurface),
-                            ),
-                            trailing: Icon(
-                              isSelected
-                                  ? Icons.check_circle
-                                  : Icons.add_circle_outline,
-                              color: cs.primary,
-                            ),
-                            onTap: () {
-                              setState(() {
-                                if (isSelected) {
-                                  selectedAllergies.remove(allergy);
-                                } else {
-                                  selectedAllergies.add(allergy);
-                                }
-                              });
-                            },
-                          ),
-                        );
-                      }),
-                  ] else if (selectedAllergies.isEmpty) ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: size.width * 0.05,
-                        vertical: size.height * 0.03,
-                      ),
-                      child: Text(
-                        'Search for allergies and tap to add them. '
-                        'You can skip this if you have none.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'PlusJakartaSans',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (selectedAllergies.isNotEmpty) ...[
-                    SizedBox(height: size.height * 0.02),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
                         child: Text(
-                          'Selected allergies',
+                          'Search for allergies and tap to add them. '
+                          'You can skip this if you have none.',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'PlusJakartaSans',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurface,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                            color: cs.onSurfaceVariant,
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: selectedAllergies.map((allergy) {
-                          return InputChip(
-                            label: Text(allergy),
-                            onDeleted: () => setState(
-                              () => selectedAllergies.remove(allergy),
+                    ],
+                    if (selectedAllergies.isNotEmpty) ...[
+                      SizedBox(height: size.height * 0.02),
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Selected allergies',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurface,
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                  SizedBox(height: size.height * 0.03),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'What is your blood type?',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: cs.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Wrap(
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                        child: Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: _bloodTypes.map((type) {
-                            final selected = selectedBloodType == type;
-                            return ChoiceChip(
-                              label: Text(type),
-                              selected: selected,
-                              onSelected: (_) =>
-                                  setState(() => selectedBloodType = type),
-                              selectedColor: cs.primary.withValues(alpha: 0.15),
-                              checkmarkColor: cs.primary,
-                              labelStyle: TextStyle(
-                                color: selected ? cs.primary : cs.onSurface,
-                                fontWeight: selected
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                              ),
-                              side: BorderSide(
-                                color: selected ? cs.primary : cs.outline,
+                          children: selectedAllergies.map((allergy) {
+                            return InputChip(
+                              label: Text(allergy),
+                              onDeleted: () => setState(
+                                () => selectedAllergies.remove(allergy),
                               ),
                             );
                           }).toList(),
                         ),
-                      ],
+                      ),
+                    ],
+                    SizedBox(height: size.height * 0.03),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'What is your blood type?',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _bloodTypes.map((type) {
+                              final selected = selectedBloodType == type;
+                              return ChoiceChip(
+                                label: Text(type),
+                                selected: selected,
+                                onSelected: (_) =>
+                                    setState(() => selectedBloodType = type),
+                                selectedColor:
+                                    cs.primary.withValues(alpha: 0.15),
+                                checkmarkColor: cs.primary,
+                                labelStyle: TextStyle(
+                                  color: selected ? cs.primary : cs.onSurface,
+                                  fontWeight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                ),
+                                side: BorderSide(
+                                  color: selected ? cs.primary : cs.outline,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
+          ),
           SafeArea(
             top: false,
             child: Padding(

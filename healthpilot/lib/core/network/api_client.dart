@@ -38,7 +38,8 @@ class ApiClient {
   }
 
   static ApiClient get instance {
-    assert(_instance != null, 'ApiClient.initialize() must be called before use');
+    assert(
+        _instance != null, 'ApiClient.initialize() must be called before use');
     return _instance!;
   }
 
@@ -48,7 +49,8 @@ class ApiClient {
     Options? options,
   }) async {
     try {
-      final r = await _dio.get(path, queryParameters: queryParameters, options: options);
+      final r = await _dio.get(path,
+          queryParameters: queryParameters, options: options);
       return r.data;
     } on DioException catch (e) {
       throw _mapError(e);

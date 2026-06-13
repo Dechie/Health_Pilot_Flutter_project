@@ -162,8 +162,7 @@ class _HealthProfileState extends State<HealthProfile> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const HealthTrackingScreen(),
+                            builder: (context) => const HealthTrackingScreen(),
                           ),
                         );
                       },
@@ -203,8 +202,7 @@ class _HealthProfileState extends State<HealthProfile> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const SymptomTrackingScreen(),
+                          builder: (context) => const SymptomTrackingScreen(),
                         ),
                       );
                     },
@@ -261,7 +259,8 @@ class _HealthProfileState extends State<HealthProfile> {
                     ListTile(
                       leading: const Icon(Icons.notifications_active_outlined),
                       title: const Text('Reminders'),
-                      subtitle: const Text('Select a medication to manage reminders'),
+                      subtitle:
+                          const Text('Select a medication to manage reminders'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.of(context).push(
@@ -275,7 +274,8 @@ class _HealthProfileState extends State<HealthProfile> {
                     ListTile(
                       leading: const Icon(Icons.history),
                       title: const Text('History'),
-                      subtitle: const Text('Select a medication to view history'),
+                      subtitle:
+                          const Text('Select a medication to view history'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.of(context).push(
@@ -307,8 +307,7 @@ class _HealthProfileState extends State<HealthProfile> {
                   ),
                   IconButton(
                     onPressed: () {},
-                    icon:
-                        Icon(Icons.add_circle_outline, color: cs.onSurface),
+                    icon: Icon(Icons.add_circle_outline, color: cs.onSurface),
                   ),
                 ],
               ),

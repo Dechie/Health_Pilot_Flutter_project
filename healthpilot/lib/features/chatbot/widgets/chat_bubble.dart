@@ -38,9 +38,8 @@ class ChatBubble extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           );
 
-    final textColor = isBot
-        ? cs.onSurface
-        : (isDark ? cs.onPrimary : cs.onSurface);
+    final textColor =
+        isBot ? cs.onSurface : (isDark ? cs.onPrimary : cs.onSurface);
 
     return Bubble(
       radius: const Radius.circular(10),

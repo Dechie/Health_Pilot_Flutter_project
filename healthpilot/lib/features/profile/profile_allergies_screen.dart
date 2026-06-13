@@ -86,81 +86,86 @@ class _ProfileAllergiesScreenState extends State<ProfileAllergiesScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
               children: [
-                  Text(
-                    'Add any known allergies',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Add any known allergies',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'Search allergies',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {});
+                                },
+                              ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _searchController,
-                    onChanged: (_) => setState(() {}),
-                    decoration: InputDecoration(
-                      hintText: 'Search allergies',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {});
-                              },
-                            ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ),
-                  if (suggestions.isNotEmpty) ...[
+                    if (suggestions.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'Suggestions',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      ...suggestions.map(
+                        (allergy) => ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(allergy),
+                          trailing: Icon(
+                            _selected.contains(allergy)
+                                ? Icons.check_circle
+                                : Icons.add_circle_outline,
+                            color: cs.primary,
+                          ),
+                          onTap: () => _toggle(allergy),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     Text(
-                      'Suggestions',
+                      'Selected',
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                     const SizedBox(height: 8),
-                    ...suggestions.map(
-                      (allergy) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(allergy),
-                        trailing: Icon(
-                          _selected.contains(allergy)
-                              ? Icons.check_circle
-                              : Icons.add_circle_outline,
-                          color: cs.primary,
-                        ),
-                        onTap: () => _toggle(allergy),
+                    if (_selected.isEmpty)
+                      Text(
+                        'No allergies added yet.',
+                        style: TextStyle(color: cs.onSurfaceVariant),
+                      )
+                    else
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _selected
+                            .map(
+                              (allergy) => InputChip(
+                                label: Text(allergy),
+                                onDeleted: () => _toggle(allergy),
+                              ),
+                            )
+                            .toList(),
                       ),
-                    ),
                   ],
-                  const SizedBox(height: 16),
-                  Text(
-                    'Selected',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  if (_selected.isEmpty)
-                    Text(
-                      'No allergies added yet.',
-                      style: TextStyle(color: cs.onSurfaceVariant),
-                    )
-                  else
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _selected
-                          .map(
-                            (allergy) => InputChip(
-                              label: Text(allergy),
-                              onDeleted: () => _toggle(allergy),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
           SafeArea(
             top: false,
             child: Padding(

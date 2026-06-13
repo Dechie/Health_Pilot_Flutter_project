@@ -7,8 +7,10 @@ abstract class IMedicationRepository {
   Future<void> deleteMedication(int id);
 
   Future<List<MedicationReminder>> fetchReminders(int medicationId);
-  Future<MedicationReminder> addReminder(int medicationId, MedicationReminder reminder);
-  Future<MedicationReminder> updateReminder(int medicationId, MedicationReminder reminder);
+  Future<MedicationReminder> addReminder(
+      int medicationId, MedicationReminder reminder);
+  Future<MedicationReminder> updateReminder(
+      int medicationId, MedicationReminder reminder);
   Future<void> deleteReminder(int medicationId, int reminderId);
 
   Future<List<DoseLog>> fetchDoses(int medicationId);

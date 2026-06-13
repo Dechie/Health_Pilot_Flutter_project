@@ -10,11 +10,13 @@ class MockChatRepository implements IChatRepository {
 
   @override
   Future<DirectMessage> sendDirectMessage(
-      String targetUserId, DirectMessage message) async => message;
+          String targetUserId, DirectMessage message) async =>
+      message;
 
   @override
   Future<DirectMessage> sendGroupMessage(
-      String groupId, DirectMessage message) async => message;
+          String groupId, DirectMessage message) async =>
+      message;
 
   @override
   Future<PrivateChat> startPrivateChat(int userId) async {
@@ -33,7 +35,8 @@ class MockChatRepository implements IChatRepository {
         PrivateChatParticipant(
           id: userId,
           fullName: user.displayName,
-          email: '${user.displayName.toLowerCase().replaceAll(' ', '.')}@example.com',
+          email:
+              '${user.displayName.toLowerCase().replaceAll(' ', '.')}@example.com',
         ),
       ],
       createdAt: DateTime.now(),

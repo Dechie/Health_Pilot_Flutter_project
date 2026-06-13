@@ -268,9 +268,8 @@ class CompletedAssessmentEntry {
     final createdAtRaw = json['created_at'] as String?;
     return CompletedAssessmentEntry(
       id: json['id'] as String,
-      completedAt: createdAtRaw != null
-          ? DateTime.parse(createdAtRaw)
-          : DateTime.now(),
+      completedAt:
+          createdAtRaw != null ? DateTime.parse(createdAtRaw) : DateTime.now(),
       summary: AssessmentSummary.fromApiJson(json),
       status: json['status'] as String?,
       result: json['result'] is Map<String, dynamic>

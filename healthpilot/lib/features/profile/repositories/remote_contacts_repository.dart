@@ -12,8 +12,7 @@ class RemoteContactsRepository implements IContactsRepository {
     final data =
         await _client.get('${ApiConstants.profileBase}/emergency-contacts/');
     return (data as List)
-        .map((e) =>
-            EmergencyContactEntry.fromJson(e as Map<String, dynamic>))
+        .map((e) => EmergencyContactEntry.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
@@ -45,8 +44,7 @@ class RemoteContactsRepository implements IContactsRepository {
   Future<List<PersonalDoctorEntry>> fetchDoctors() async {
     final data = await _client.get('${ApiConstants.profileBase}/doctors/');
     return (data as List)
-        .map((e) =>
-            PersonalDoctorEntry.fromJson(e as Map<String, dynamic>))
+        .map((e) => PersonalDoctorEntry.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

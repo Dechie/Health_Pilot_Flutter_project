@@ -6,7 +6,8 @@ import 'package:healthpilot/core/auth/activation_link.dart';
 
 /// Listens for activation email links and exposes tokens to the auth flow.
 class ActivationLinkHandler {
-  ActivationLinkHandler({AppLinks? appLinks}) : _appLinks = appLinks ?? AppLinks();
+  ActivationLinkHandler({AppLinks? appLinks})
+      : _appLinks = appLinks ?? AppLinks();
 
   final AppLinks _appLinks;
   StreamSubscription<Uri>? _subscription;

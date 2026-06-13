@@ -27,4 +27,3 @@ class HealthAssessmentDetailsScreen extends StatelessWidget {
     );
   }
 }
-

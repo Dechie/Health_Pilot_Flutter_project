@@ -60,8 +60,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
     setState(() => _submitting = true);
     try {
-      final entry =
-          await context.read<AssessmentProvider>().submit(_summary);
+      final entry = await context.read<AssessmentProvider>().submit(_summary);
       if (!mounted) return;
       setState(() {
         _entry = entry;

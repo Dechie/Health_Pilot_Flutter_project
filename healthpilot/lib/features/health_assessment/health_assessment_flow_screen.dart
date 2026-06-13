@@ -13,7 +13,8 @@ class HealthAssessmentFlowScreen extends StatefulWidget {
       _HealthAssessmentFlowScreenState();
 }
 
-class _HealthAssessmentFlowScreenState extends State<HealthAssessmentFlowScreen> {
+class _HealthAssessmentFlowScreenState
+    extends State<HealthAssessmentFlowScreen> {
   final _pageController = PageController();
 
   int _page = 0;
@@ -27,7 +28,8 @@ class _HealthAssessmentFlowScreenState extends State<HealthAssessmentFlowScreen>
   final _symptomController = TextEditingController(text: 'Cough');
   final Set<String> _selectedSymptoms = {'Cough'};
 
-  String? _symptomDuration; // Less than a week | More than a week | More than a month
+  String?
+      _symptomDuration; // Less than a week | More than a week | More than a month
   bool? _hasOtherSymptoms; // Yes/No
   String? _symptomsTrend; // worse/better/no_change
 
@@ -446,7 +448,8 @@ class _AllergiesPageState extends State<_AllergiesPage> {
           const SizedBox(height: 26),
           Text(
             'Add any known allergies',
-            style: t.bodyLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+            style: t.bodyLarge
+                ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -478,8 +481,10 @@ class _AllergiesPageState extends State<_AllergiesPage> {
                         borderRadius: BorderRadius.circular(10),
                         side: BorderSide(color: scheme.outline),
                       ),
-                      title: Text(s, style: t.bodyMedium?.copyWith(fontSize: 13)),
-                      trailing: Icon(Icons.add, color: scheme.primary, size: 20),
+                      title:
+                          Text(s, style: t.bodyMedium?.copyWith(fontSize: 13)),
+                      trailing:
+                          Icon(Icons.add, color: scheme.primary, size: 20),
                       onTap: () => _appendSuggestion(s),
                     ),
                   );
@@ -525,7 +530,8 @@ class _SymptomsPage extends StatelessWidget {
         children: [
           const SizedBox(height: 26),
           Text(title,
-              style: t.bodyLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
+              style: t.bodyLarge
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
           const SizedBox(height: 12),
           TextField(
             controller: controller,
@@ -562,12 +568,16 @@ class _SymptomsPage extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                   ),
                   child: ListTile(
-                    title: Text(title, style: t.bodyLarge?.copyWith(fontSize: 13)),
-                    subtitle: Text(subtitle, style: t.bodySmall?.copyWith(fontSize: 11)),
+                    title:
+                        Text(title, style: t.bodyLarge?.copyWith(fontSize: 13)),
+                    subtitle: Text(subtitle,
+                        style: t.bodySmall?.copyWith(fontSize: 11)),
                     trailing: IconButton(
                       onPressed: () => onToggle(title),
                       icon: Icon(
-                        selected.contains(title) ? Icons.check_circle : Icons.add_circle_outline,
+                        selected.contains(title)
+                            ? Icons.check_circle
+                            : Icons.add_circle_outline,
                         color: c.primary,
                       ),
                     ),
@@ -599,7 +609,8 @@ class _DurationPage extends StatelessWidget {
         children: [
           const SizedBox(height: 26),
           Text('How long have you had this symptom?',
-              style: t.bodyLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
+              style: t.bodyLarge
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
           const SizedBox(height: 18),
           Expanded(
             child: Center(
@@ -650,7 +661,8 @@ class _OtherSymptomsPage extends StatelessWidget {
         children: [
           const SizedBox(height: 26),
           Text('Do you have any other symptoms?',
-              style: t.bodyLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
+              style: t.bodyLarge
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
           const SizedBox(height: 18),
           Expanded(
             child: Center(
@@ -696,7 +708,8 @@ class _TrendPage extends StatelessWidget {
           const SizedBox(height: 26),
           Text(
             'Okay, final question. How are your symptoms changing overtime?',
-            style: t.bodyLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+            style: t.bodyLarge
+                ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 18),
           Expanded(
@@ -756,7 +769,8 @@ class _OutlinedChoice extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           foregroundColor: c.onSurface,
           backgroundColor: selected ? c.primaryContainer : null,
-          textStyle: t.bodyMedium?.copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+          textStyle:
+              t.bodyMedium?.copyWith(fontSize: 12, fontWeight: FontWeight.w400),
         ),
         onPressed: onTap,
         child: Text(label),
@@ -854,4 +868,3 @@ class _BottomInfoLinks extends StatelessWidget {
     );
   }
 }
-

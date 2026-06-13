@@ -84,14 +84,17 @@ class _LanguageTranslationState extends State<LanguageTranslation> {
                           width: screenWidth * 0.1,
                           height: screenWidth * 0.1,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer,
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
                             borderRadius:
                                 BorderRadius.circular(screenWidth * 0.05),
                           ),
                           child: IconButton(
                             onPressed: () => Navigator.of(context).maybePop(),
                             icon: const Icon(Icons.arrow_back),
-                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
                             iconSize: screenWidth * 0.055,
                           ),
                         ),

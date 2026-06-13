@@ -22,7 +22,8 @@ class TutorialDetailScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Text(
             body,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.45),
+            style:
+                Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.45),
           ),
         ),
       ),

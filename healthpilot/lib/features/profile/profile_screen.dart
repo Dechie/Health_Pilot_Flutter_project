@@ -99,15 +99,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                   );
                                 }
-                                final profileP = context.watch<ProfileProvider>();
+                                final profileP =
+                                    context.watch<ProfileProvider>();
                                 final isLoading = FeatureFlags.userProfile &&
-                                    (profileP.status == ProfileLoadStatus.idle ||
-                                     profileP.status == ProfileLoadStatus.loading);
+                                    (profileP.status ==
+                                            ProfileLoadStatus.idle ||
+                                        profileP.status ==
+                                            ProfileLoadStatus.loading);
                                 if (isLoading) {
                                   return const SizedBox(
                                     height: 16,
                                     width: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
                                   );
                                 }
                                 final profileName =
@@ -181,23 +185,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
                         child: GestureDetector(
-                          onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                            SignupAndLoginScreen.routeName, (_) => false),
+                          onTap: () => Navigator.of(context)
+                              .pushNamedAndRemoveUntil(
+                                  SignupAndLoginScreen.routeName, (_) => false),
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 16),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.4),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.3),
                               ),
                             ),
                             child: Column(
                               children: [
                                 Icon(Icons.lock_outline,
                                     size: 32,
-                                    color: Theme.of(context).colorScheme.primary),
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Sign in to view your health information',
@@ -206,7 +219,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     fontFamily: 'PlusJakartaSans',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colorScheme.onSurface,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -216,7 +230,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   style: TextStyle(
                                     fontFamily: 'PlusJakartaSans',
                                     fontSize: 12,
-                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -226,7 +243,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     fontFamily: 'PlusJakartaSans',
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
                               ],
@@ -244,9 +262,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             settingAdress: 'Health Background',
                             iconData: Icons.arrow_forward,
                             onpressed: () {
-                              Navigator.of(context).push(MaterialPageRoute<void>(
-                                  builder: (context) =>
-                                      HealthProfile()));
+                              Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                      builder: (context) => HealthProfile()));
                             },
                           ),
                           HealthInformationSettings(
@@ -254,9 +272,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             settingAdress: 'Medications',
                             iconData: Icons.arrow_forward,
                             onpressed: () {
-                              Navigator.of(context).push(MaterialPageRoute<void>(
-                                  builder: (context) =>
-                                      const MedicationScreen()));
+                              Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                      builder: (context) =>
+                                          const MedicationScreen()));
                             },
                           ),
                           HealthInformationSettings(
@@ -264,9 +283,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             settingAdress: 'Allergies',
                             iconData: Icons.arrow_forward,
                             onpressed: () {
-                              Navigator.of(context).push(MaterialPageRoute<void>(
-                                  builder: (context) =>
-                                      const ProfileAllergiesScreen()));
+                              Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                      builder: (context) =>
+                                          const ProfileAllergiesScreen()));
                             },
                           ),
                           HealthInformationSettings(
@@ -274,9 +294,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             settingAdress: 'Food & Nutrition',
                             iconData: Icons.arrow_forward,
                             onpressed: () {
-                              Navigator.of(context).push(MaterialPageRoute<void>(
-                                  builder: (context) =>
-                                      const FoodNutritionHistoryScreen()));
+                              Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                      builder: (context) =>
+                                          const FoodNutritionHistoryScreen()));
                             },
                           ),
                         ],

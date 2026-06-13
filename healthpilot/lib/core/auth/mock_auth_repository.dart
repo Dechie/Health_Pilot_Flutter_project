@@ -32,7 +32,8 @@ class MockAuthRepository implements IAuthRepository {
   Future<AuthTokens> login({
     required String email,
     required String password,
-  }) async => _tokens;
+  }) async =>
+      _tokens;
 
   @override
   Future<AuthTokens> refreshToken({required String refresh}) async => _tokens;

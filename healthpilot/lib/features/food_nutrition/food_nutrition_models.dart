@@ -75,7 +75,8 @@ class FoodDayLog {
     final raw = json['meals'];
     final meals = raw is List
         ? raw
-            .map((e) => FoodMealEntry.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map((e) =>
+                FoodMealEntry.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList()
         : <FoodMealEntry>[];
     return FoodDayLog(
@@ -127,8 +128,7 @@ class FoodNutritionSettings {
   factory FoodNutritionSettings.fromJson(Map<String, dynamic> json) =>
       FoodNutritionSettings(
         frequency: parseFoodReportFrequency(json['frequency'] as String?),
-        pushNotificationsEnabled:
-            json['push_notifications'] as bool? ?? true,
+        pushNotificationsEnabled: json['push_notifications'] as bool? ?? true,
         diets: (json['diets'] as List<dynamic>? ?? [])
             .map((e) => e as String)
             .toSet(),

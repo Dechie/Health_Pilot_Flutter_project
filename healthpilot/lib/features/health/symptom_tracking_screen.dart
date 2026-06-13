@@ -35,8 +35,7 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
     final name = _symptomController.text.trim();
     if (name.isEmpty) return;
     final now = DateTime.now();
-    final loggedAt =
-        '${_fmtTime(now)}, ${_fmtDate(now)}';
+    final loggedAt = '${_fmtTime(now)}, ${_fmtDate(now)}';
     await context.read<HealthProvider>().addSymptom(
           HealthSymptom(name: name, severity: _severity, loggedAt: loggedAt),
         );
@@ -57,8 +56,18 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
   }
 
   static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   static String _fmtDate(DateTime dt) =>
@@ -209,8 +218,7 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: const Color.fromRGBO(110, 182, 255, 0.25),
-                  padding:
-                      EdgeInsets.symmetric(vertical: size.height * 0.001),
+                  padding: EdgeInsets.symmetric(vertical: size.height * 0.001),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(size.width * 0.015),
                   ),
@@ -235,14 +243,12 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: const Color.fromRGBO(252, 34, 34, 0.25),
-                  padding:
-                      EdgeInsets.symmetric(vertical: size.height * 0.001),
+                  padding: EdgeInsets.symmetric(vertical: size.height * 0.001),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(size.width * 0.015),
                   ),
                 ),
-                onPressed: () =>
-                    context.read<HealthProvider>().clearSymptoms(),
+                onPressed: () => context.read<HealthProvider>().clearSymptoms(),
                 child: const Text(
                   'Clear History',
                   style: TextStyle(
@@ -384,8 +390,7 @@ class _CustomizedBarIndicatorState extends State<CustomizedBarIndicator> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
-                  width:
-                      size.width * 0.06 + (size.width * 0.15 * selectedBar),
+                  width: size.width * 0.06 + (size.width * 0.15 * selectedBar),
                 ),
                 SvgPicture.asset(
                   barIndicatorUp,

@@ -130,14 +130,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   leading: SvgPicture.asset(
                                     'assets/Icons/profile.svg',
                                     colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.onSurfaceVariant,
+                                      Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                       BlendMode.srcIn,
                                     ),
                                   ),
                                   title: Text(
                                     'Logging out…',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          color: Theme.of(context).colorScheme.onSurface,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
                                           fontSize: 12,
                                           letterSpacing: -0.2,
                                         ),
@@ -146,11 +153,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   trailing: const SizedBox(
                                     width: 18,
                                     height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
                                   ),
                                 ),
                                 Divider(
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.18),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.18),
                                   thickness: 0.5,
                                 ),
                               ],

@@ -82,7 +82,8 @@ class UserProfile {
   final String? avatarAssetPath;
 
   String? get displayName {
-    final parts = [firstName, lastName].where((s) => s != null && s.isNotEmpty).toList();
+    final parts =
+        [firstName, lastName].where((s) => s != null && s.isNotEmpty).toList();
     if (parts.isEmpty) return null;
     return parts.join(' ');
   }
@@ -239,7 +240,8 @@ class UserProfile {
         if (bloodType != null) 'blood_type': bloodType,
         if (hasHypertension != null) 'has_hypertension': hasHypertension,
         if (hasDiabetes != null) 'has_diabetes': hasDiabetes,
-        if (hasChronicCondition != null) 'has_chronic_condition': hasChronicCondition,
+        if (hasChronicCondition != null)
+          'has_chronic_condition': hasChronicCondition,
         if (isSmoker != null) 'is_smoker': isSmoker,
         if (hadRecentSurgery != null) 'had_recent_surgery': hadRecentSurgery,
       };

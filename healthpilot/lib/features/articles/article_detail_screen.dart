@@ -126,7 +126,8 @@ class ArticleDetail extends StatelessWidget {
                                           Colors.white,
                                           BlendMode.srcIn,
                                         ),
-                                        child: Image.asset(AssetPaths.articleLikePng),
+                                        child: Image.asset(
+                                            AssetPaths.articleLikePng),
                                       ),
                                       SizedBox(width: screenWidth * 0.02),
                                       Text(

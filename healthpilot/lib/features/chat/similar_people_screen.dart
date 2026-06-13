@@ -64,18 +64,17 @@ class _SimilarPeopleScreenState extends State<SimilarPeopleScreen> {
                   : peers.isEmpty
                       ? const Center(child: Text('No users found.'))
                       : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(
-                          20, 15, 20, 24),
-                      itemCount: peers.length,
-                      itemBuilder: (context, index) {
-                        final peer = peers[index];
-                        return _DiscoverablePeerCard(peer: peer);
-                      },
-                    ),
+                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 24),
+                          itemCount: peers.length,
+                          itemBuilder: (context, index) {
+                            final peer = peers[index];
+                            return _DiscoverablePeerCard(peer: peer);
+                          },
+                        ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: EdgeInsets.fromLTRB(
+                  20, 16, 20, 16 + MediaQuery.of(context).viewPadding.bottom),
               child: CustomeButton(
                   titleOfButton: 'Update Public Profile',
                   onPressed: () {
@@ -180,14 +179,15 @@ class _DiscoverablePeerCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          '${peer.age} yrs',
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 10,
-                            color: cs.onSurfaceVariant,
+                        if (peer.age != null)
+                          Text(
+                            '${peer.age} yrs',
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 10,
+                              color: cs.onSurfaceVariant,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ],
@@ -223,8 +223,7 @@ class _DiscoverablePeerCard extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            UserDetailScreen(peer: peer),
+                        builder: (context) => UserDetailScreen(peer: peer),
                       ));
                     },
                     child: Text(

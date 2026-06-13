@@ -58,7 +58,6 @@ import 'package:healthpilot/features/profile/personal_information_screen.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:healthpilot/features/profile/repositories/mock_contacts_repository.dart';
 import 'package:healthpilot/features/profile/repositories/mock_profile_repository.dart';
-import 'package:healthpilot/features/profile/user_profile.dart';
 
 import 'package:healthpilot/features/subscription/repositories/mock_subscription_repository.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';

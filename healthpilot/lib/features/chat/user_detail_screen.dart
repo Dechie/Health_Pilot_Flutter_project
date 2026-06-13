@@ -83,8 +83,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             child: FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>
-                        ChatScreen(senderId: peer.id.toString(), userId: '123')));
+                    builder: (context) => ChatScreen(
+                        senderId: peer.id.toString(), userId: '123')));
               },
               backgroundColor: const Color.fromRGBO(110, 182, 255, 0.25),
               elevation: 0,
@@ -139,7 +139,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                             )
                           : const Icon(Icons.person_add_outlined, size: 18),
                       label: Text(
-                        _connecting ? 'Connecting...' : 'Send Connection Request',
+                        _connecting
+                            ? 'Connecting...'
+                            : 'Send Connection Request',
                         style: const TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
                           fontSize: 13,

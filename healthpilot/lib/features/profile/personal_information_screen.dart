@@ -61,8 +61,8 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
     super.initState();
     final profile = context.read<ProfileProvider>().profile;
     _firstNameCtrl = TextEditingController(text: profile.firstName ?? '');
-    _lastNameCtrl  = TextEditingController(text: profile.lastName  ?? '');
-    _emailCtrl     = TextEditingController(text: profile.email     ?? '');
+    _lastNameCtrl = TextEditingController(text: profile.lastName ?? '');
+    _emailCtrl = TextEditingController(text: profile.email ?? '');
   }
 
   @override
@@ -96,7 +96,8 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
       );
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.userMessage)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.userMessage)));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -191,271 +192,276 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.only(bottom: 32),
               children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          screenWidth * 0.04,
-                          screenHeight * 0.02,
-                          0,
-                          0,
-                        ),
-                        child: Container(
-                          width: screenWidth * 0.1,
-                          height: screenWidth * 0.1,
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(110, 182, 255, 0.25),
-                            borderRadius:
-                                BorderRadius.circular(screenWidth * 0.05),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            icon: const Icon(Icons.arrow_back),
-                            color: const Color.fromRGBO(110, 182, 255, 1),
-                            iconSize: screenWidth * 0.055,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          screenWidth * 0.05,
-                          screenHeight * 0.03,
-                          0,
-                          0,
-                        ),
-                        child: Text(
-                          "Personal Information",
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.05,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: "PlusJakartaSans",
-                            color: cs.onSurface,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: screenHeight * 0.04,
-                          left: screenWidth * 0.2,
-                        ),
-                        child: GestureDetector(
-                          onTap: () => openLanguageScreen(context),
-                          child: SizedBox(
-                            width: screenWidth * 0.04,
-                            height: screenWidth * 0.04,
-                            child: SvgPicture.asset(
-                              translateIcon,
-                              fit: BoxFit.contain,
-                              colorFilter: ColorFilter.mode(
-                                cs.onSurface,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: screenHeight * 0.03,
-                  ),
-                  GestureDetector(
-                    onTap: _pickProfilePhoto,
-                    child: Stack(
+                Column(
+                  children: [
+                    Row(
                       children: [
-                        SizedBox(
-                          width: screenWidth * 0.3,
-                          height: screenWidth * 0.3,
-                          child: ClipRRect(
-                            borderRadius:
-                                BorderRadius.circular(screenWidth * 0.15),
-                            child: _profileImagePath != null
-                                ? Image.file(
-                                    File(_profileImagePath!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : const Image(
-                                    image: AssetImage(
-                                      'assets/images/personel.png',
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            screenWidth * 0.04,
+                            screenHeight * 0.02,
+                            0,
+                            0,
+                          ),
+                          child: Container(
+                            width: screenWidth * 0.1,
+                            height: screenWidth * 0.1,
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(110, 182, 255, 0.25),
+                              borderRadius:
+                                  BorderRadius.circular(screenWidth * 0.05),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              icon: const Icon(Icons.arrow_back),
+                              color: const Color.fromRGBO(110, 182, 255, 1),
+                              iconSize: screenWidth * 0.055,
+                            ),
                           ),
                         ),
-                        Positioned(
-                          bottom: screenWidth * 0.000,
-                          right: screenWidth * 0.03,
-                          child: Container(
-                            width: screenWidth * 0.05,
-                            height: screenWidth * 0.05,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                screenWidth * 0.025,
-                              ),
-                              color: Colors.white,
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            screenWidth * 0.05,
+                            screenHeight * 0.03,
+                            0,
+                            0,
+                          ),
+                          child: Text(
+                            "Personal Information",
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "PlusJakartaSans",
+                              color: cs.onSurface,
                             ),
-                            child: Icon(
-                              LineIcons.edit,
-                              size: screenWidth * 0.03,
-                              color: const Color.fromARGB(255, 73, 70, 70),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: screenHeight * 0.04,
+                            left: screenWidth * 0.2,
+                          ),
+                          child: GestureDetector(
+                            onTap: () => openLanguageScreen(context),
+                            child: SizedBox(
+                              width: screenWidth * 0.04,
+                              height: screenWidth * 0.04,
+                              child: SvgPicture.asset(
+                                translateIcon,
+                                fit: BoxFit.contain,
+                                colorFilter: ColorFilter.mode(
+                                  cs.onSurface,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: screenHeight * 0.02),
-                    child: Text(
-                      "Tap to upload your profile photo",
-                      style: TextStyle(
-                        fontFamily: "PlusJakartaSans",
-                        fontWeight: FontWeight.w400,
-                        fontSize: screenWidth * 0.041,
-                        color: cs.onSurfaceVariant,
+                    SizedBox(
+                      height: screenHeight * 0.03,
+                    ),
+                    GestureDetector(
+                      onTap: _pickProfilePhoto,
+                      child: Stack(
+                        children: [
+                          SizedBox(
+                            width: screenWidth * 0.3,
+                            height: screenWidth * 0.3,
+                            child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(screenWidth * 0.15),
+                              child: _profileImagePath != null
+                                  ? Image.file(
+                                      File(_profileImagePath!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const Image(
+                                      image: AssetImage(
+                                        'assets/images/personel.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: screenWidth * 0.000,
+                            right: screenWidth * 0.03,
+                            child: Container(
+                              width: screenWidth * 0.05,
+                              height: screenWidth * 0.05,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  screenWidth * 0.025,
+                                ),
+                                color: Colors.white,
+                              ),
+                              child: Icon(
+                                LineIcons.edit,
+                                size: screenWidth * 0.03,
+                                color: const Color.fromARGB(255, 73, 70, 70),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: screenHeight * 0.05,
-                  ),
-                  InputFields(
-                    label: "First Name",
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    keyboardType: TextInputType.name,
-                    controller: _firstNameCtrl,
-                  ),
-                  SizedBox(
-                    height: screenHeight * 0.02,
-                  ),
-                  InputFields(
-                    label: "Last Name",
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    keyboardType: TextInputType.name,
-                    controller: _lastNameCtrl,
-                  ),
-                  SizedBox(
-                    height: screenHeight * 0.02,
-                  ),
-                  InputFields(
-                    label: "Email",
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _emailCtrl,
-                  ),
-                  SizedBox(
-                    height: screenHeight * 0.02,
-                  ),
-                  PhoneInputFields(
-                    label: "Phone Number",
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  SetupPromoCard(
-                    screenWidth: screenWidth,
-                    title: "Set up your Emergency Contacts",
-                    description:
-                        "Add trusted contacts so HealthPilot can reach them in an emergency.",
-                    icon: null,
-                    buttonText: "Start setup",
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              const contact.PersonalInformation()));
-                    },
-                  ),
-                  SetupPromoCard(
-                    screenWidth: screenWidth,
-                    title: "Set up your  personal doctor",
-                    description:
-                        "Add your doctor’s details so HealthPilot can include them in reports and care coordination.",
-                    icon: null,
-                    buttonText: "Start setup",
-                    onPressed: () {
-                      Navigator.of(context).push<void>(
-                        MaterialPageRoute<void>(
-                          builder: (context) => const SetupPersonalDoctor(),
+                    Padding(
+                      padding: EdgeInsets.only(top: screenHeight * 0.02),
+                      child: Text(
+                        "Tap to upload your profile photo",
+                        style: TextStyle(
+                          fontFamily: "PlusJakartaSans",
+                          fontWeight: FontWeight.w400,
+                          fontSize: screenWidth * 0.041,
+                          color: cs.onSurfaceVariant,
                         ),
-                      );
-                    },
-                  ),
-                  SetupPromoCard(
-                    screenWidth: screenWidth,
-                    title: SetupPromoCardCopy.foodNutritionTitle,
-                    description: SetupPromoCardCopy.foodNutritionDescription,
-                    icon: null,
-                    buttonText: "Start setup",
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) =>
-                              const FoodNutritionTrackingScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                    child: TextButton(
+                      ),
+                    ),
+                    SizedBox(
+                      height: screenHeight * 0.05,
+                    ),
+                    InputFields(
+                      label: "First Name",
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
+                      keyboardType: TextInputType.name,
+                      controller: _firstNameCtrl,
+                    ),
+                    SizedBox(
+                      height: screenHeight * 0.02,
+                    ),
+                    InputFields(
+                      label: "Last Name",
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
+                      keyboardType: TextInputType.name,
+                      controller: _lastNameCtrl,
+                    ),
+                    SizedBox(
+                      height: screenHeight * 0.02,
+                    ),
+                    InputFields(
+                      label: "Email",
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
+                      keyboardType: TextInputType.emailAddress,
+                      controller: _emailCtrl,
+                    ),
+                    SizedBox(
+                      height: screenHeight * 0.02,
+                    ),
+                    PhoneInputFields(
+                      label: "Phone Number",
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
+                      keyboardType: TextInputType.phone,
+                    ),
+                    SetupPromoCard(
+                      screenWidth: screenWidth,
+                      title: "Set up your Emergency Contacts",
+                      description:
+                          "Add trusted contacts so HealthPilot can reach them in an emergency.",
+                      icon: null,
+                      buttonText: "Start setup",
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                const contact.PersonalInformation()));
+                      },
+                    ),
+                    SetupPromoCard(
+                      screenWidth: screenWidth,
+                      title: "Set up your  personal doctor",
+                      description:
+                          "Add your doctor’s details so HealthPilot can include them in reports and care coordination.",
+                      icon: null,
+                      buttonText: "Start setup",
+                      onPressed: () {
+                        Navigator.of(context).push<void>(
+                          MaterialPageRoute<void>(
+                            builder: (context) => const SetupPersonalDoctor(),
+                          ),
+                        );
+                      },
+                    ),
+                    SetupPromoCard(
+                      screenWidth: screenWidth,
+                      title: SetupPromoCardCopy.foodNutritionTitle,
+                      description: SetupPromoCardCopy.foodNutritionDescription,
+                      icon: null,
+                      buttonText: "Start setup",
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (context) =>
-                                const FoodNutritionHistoryScreen(),
+                                const FoodNutritionTrackingScreen(),
                           ),
                         );
                       },
-                      child: const Text(
-                        'View nutrition history',
-                        style: TextStyle(
-                          fontFamily: 'PlusJakartaSans',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          color: Color.fromRGBO(110, 182, 255, 1),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (context) =>
+                                  const FoodNutritionHistoryScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'View nutrition history',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  InkWell(
-                    onTap: _saving ? null : _save,
-                    child: Container(
-                      width: 231,
-                      height: 47,
-                      margin: const EdgeInsets.only(
-                          top: 35, left: 23, bottom: 25, right: 2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: const Color.fromRGBO(110, 182, 255, 1),
-                      ),
-                      child: Center(
-                        child: _saving
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
+                    InkWell(
+                      onTap: _saving ? null : _save,
+                      child: Container(
+                        width: 231,
+                        height: 47,
+                        margin: const EdgeInsets.only(
+                            top: 35, left: 23, bottom: 25, right: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: const Color.fromRGBO(110, 182, 255, 1),
+                        ),
+                        child: Center(
+                          child: _saving
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Save',
+                                  style: TextStyle(
+                                    fontFamily: "PlusJakartaSans",
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              )
-                            : const Text(
-                                'Save',
-                                style: TextStyle(
-                                  fontFamily: "PlusJakartaSans",
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ],
             );
           },
         ),
@@ -682,266 +688,270 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             reverse: true,
             padding: const EdgeInsets.only(bottom: 32),
             children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.04,
-                        screenHeight * 0.02,
-                        0,
-                        0,
-                      ),
-                      child: Container(
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                        decoration: BoxDecoration(
-                          color: cs.primary.withValues(alpha: 0.25),
-                          borderRadius:
-                              BorderRadius.circular(screenWidth * 0.05),
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                          color: cs.primary,
-                          iconSize: screenWidth * 0.055,
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          screenWidth * 0.05,
-                          screenHeight * 0.03,
-                          0,
-                          0,
-                        ),
-                        child: Text(
-                          "Checkout",
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.05,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: "PlusJakartaSans",
-                            color: cs.onSurface,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: screenHeight * 0.04,
-                        left: screenWidth * 0.37,
-                      ),
-                      child: GestureDetector(
-                        onTap: () => openLanguageScreen(context),
-                        child: SizedBox(
-                          width: screenWidth * 0.045,
-                          height: screenWidth * 0.045,
-                          child: SvgPicture.asset(
-                            translateIcon,
-                            fit: BoxFit.contain,
-                            colorFilter: ColorFilter.mode(
-                              cs.onSurface,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                PageTitlesInPayment(
-                  title: "Select your payment method",
-                  screenWidth: screenWidth,
-                  screenHeight: screenHeight,
-                ),
-                Row(
-                  children: [
-                    PaymentMethodButtons(
-                        screenWidth: screenWidth,
-                        screenHeight: screenHeight,
-                        isChecked: isPaymentChecked,
-                        icons: Icons.payment_outlined,
-                        pngAssetPath: null,
-                        checker: () {
-                          setState(() {
-                            isPaymentChecked = true;
-                            isPaypalChecked = false;
-                            isChappaChecked = false;
-                          });
-                        }),
-                    PaymentMethodButtons(
-                        screenWidth: screenWidth,
-                        screenHeight: screenHeight,
-                        isChecked: isPaypalChecked,
-                        icons: Icons.paypal_outlined,
-                        pngAssetPath: null,
-                        checker: () {
-                          setState(() {
-                            isPaymentChecked = false;
-                            isPaypalChecked = true;
-                            isChappaChecked = false;
-                          });
-                        }),
-                    PaymentMethodButtons(
-                        screenWidth: screenWidth,
-                        screenHeight: screenHeight,
-                        isChecked: isChappaChecked,
-                        icons: null,
-                        pngAssetPath: "assets/Icons/chapa.svg",
-                        checker: () {
-                          setState(() {
-                            isPaymentChecked = false;
-                            isPaypalChecked = false;
-                            isChappaChecked = true;
-                          });
-                        }),
-                  ],
-                ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              Column(
+                children: [
+                  Row(
                     children: [
-                      PageTitlesInPayment(
-                        title: "Enter your card information",
-                        screenWidth: screenWidth,
-                        screenHeight: screenHeight,
-                      ),
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-                        child: PaymentInputFields(
-                          screenWidth: screenWidth * 0.5,
-                          screenHeight: screenHeight,
-                          keyboardType: TextInputType.emailAddress,
-                          hintText: "Card number",
-                          suffixIcon: null,
-                          prefixIcon: null,
-                          inputActiom: TextInputAction.next,
-                          isobscured: false,
-                          controller: _cardNumberController,
-                          iconPressed: null,
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.04,
+                          screenHeight * 0.02,
+                          0,
+                          0,
+                        ),
+                        child: Container(
+                          width: screenWidth * 0.1,
+                          height: screenWidth * 0.1,
+                          decoration: BoxDecoration(
+                            color: cs.primary.withValues(alpha: 0.25),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.05),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(Icons.arrow_back),
+                            color: cs.primary,
+                            iconSize: screenWidth * 0.055,
+                          ),
                         ),
                       ),
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-                        child: PaymentInputFields(
-                          screenWidth: screenWidth * 0.5,
-                          screenHeight: screenHeight,
-                          keyboardType: TextInputType.emailAddress,
-                          hintText: "Card holder’s name",
-                          suffixIcon: null,
-                          prefixIcon: null,
-                          inputActiom: TextInputAction.next,
-                          isobscured: false,
-                          controller: _cardHolderNameController,
-                          iconPressed: null,
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-                        child: PaymentInputFields(
-                          screenWidth: screenWidth * 0.5,
-                          screenHeight: screenHeight,
-                          keyboardType: TextInputType.emailAddress,
-                          hintText: "Expiry date",
-                          suffixIcon: null,
-                          prefixIcon: null,
-                          inputActiom: TextInputAction.next,
-                          isobscured: false,
-                          controller: _expiryDateController,
-                          iconPressed: null,
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-                        child: PaymentInputFields(
-                          screenWidth: screenWidth * 0.5,
-                          screenHeight: screenHeight,
-                          keyboardType: TextInputType.emailAddress,
-                          hintText: "CVC",
-                          suffixIcon: null,
-                          prefixIcon: null,
-                          inputActiom: TextInputAction.next,
-                          isobscured: false,
-                          controller: _cvcController,
-                          iconPressed: null,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.05,
-                            vertical: screenHeight * 0.013),
-                        child: Row(
-                          children: [
-                            CustomCheckBox(
-                              onChange: (value) {
-                                isChecked = value;
-                              },
-                              isChecked: isChecked,
-                              screenWidth: screenWidth,
+                      Flexible(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            screenWidth * 0.05,
+                            screenHeight * 0.03,
+                            0,
+                            0,
+                          ),
+                          child: Text(
+                            "Checkout",
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: "PlusJakartaSans",
+                              color: cs.onSurface,
                             ),
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(left: screenWidth * 0.02),
-                              child: Text(
-                                'Remember payment information',
-                                style: TextStyle(
-                                  fontFamily: 'PlusJakartaSans',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  height:
-                                      1.25, // Calculated based on line height: 20 / 16
-                                  letterSpacing: -0.165,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
-                                textAlign: TextAlign.left,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: screenHeight * 0.04,
+                          left: screenWidth * 0.37,
+                        ),
+                        child: GestureDetector(
+                          onTap: () => openLanguageScreen(context),
+                          child: SizedBox(
+                            width: screenWidth * 0.045,
+                            height: screenWidth * 0.045,
+                            child: SvgPicture.asset(
+                              translateIcon,
+                              fit: BoxFit.contain,
+                              colorFilter: ColorFilter.mode(
+                                cs.onSurface,
+                                BlendMode.srcIn,
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: screenHeight * 0.06),
-                    child: PaymentButton(
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                      buttonText: "Next",
-                      buttonAction: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => PaymentReviewScreen(
-                                  paymentInfo: PersonalPaymentInformations(
-                                      cardNumber: _cardNumberController.text,
-                                      cardholdersName:
-                                          _cardHolderNameController.text,
-                                      expirydate: _expiryDateController.text,
-                                      cvc: _cvcController.text,
-                                      isChappaChecked: isChappaChecked,
-                                      isPaymentChecked: isPaymentChecked,
-                                      isPaypalChecked: isPaypalChecked),
-                                )));
-                      },
+                  PageTitlesInPayment(
+                    title: "Select your payment method",
+                    screenWidth: screenWidth,
+                    screenHeight: screenHeight,
+                  ),
+                  Row(
+                    children: [
+                      PaymentMethodButtons(
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          isChecked: isPaymentChecked,
+                          icons: Icons.payment_outlined,
+                          pngAssetPath: null,
+                          checker: () {
+                            setState(() {
+                              isPaymentChecked = true;
+                              isPaypalChecked = false;
+                              isChappaChecked = false;
+                            });
+                          }),
+                      PaymentMethodButtons(
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          isChecked: isPaypalChecked,
+                          icons: Icons.paypal_outlined,
+                          pngAssetPath: null,
+                          checker: () {
+                            setState(() {
+                              isPaymentChecked = false;
+                              isPaypalChecked = true;
+                              isChappaChecked = false;
+                            });
+                          }),
+                      PaymentMethodButtons(
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          isChecked: isChappaChecked,
+                          icons: null,
+                          pngAssetPath: "assets/Icons/chapa.svg",
+                          checker: () {
+                            setState(() {
+                              isPaymentChecked = false;
+                              isPaypalChecked = false;
+                              isChappaChecked = true;
+                            });
+                          }),
+                    ],
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        PageTitlesInPayment(
+                          title: "Enter your card information",
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.01),
+                          child: PaymentInputFields(
+                            screenWidth: screenWidth * 0.5,
+                            screenHeight: screenHeight,
+                            keyboardType: TextInputType.emailAddress,
+                            hintText: "Card number",
+                            suffixIcon: null,
+                            prefixIcon: null,
+                            inputActiom: TextInputAction.next,
+                            isobscured: false,
+                            controller: _cardNumberController,
+                            iconPressed: null,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.01),
+                          child: PaymentInputFields(
+                            screenWidth: screenWidth * 0.5,
+                            screenHeight: screenHeight,
+                            keyboardType: TextInputType.emailAddress,
+                            hintText: "Card holder’s name",
+                            suffixIcon: null,
+                            prefixIcon: null,
+                            inputActiom: TextInputAction.next,
+                            isobscured: false,
+                            controller: _cardHolderNameController,
+                            iconPressed: null,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.01),
+                          child: PaymentInputFields(
+                            screenWidth: screenWidth * 0.5,
+                            screenHeight: screenHeight,
+                            keyboardType: TextInputType.emailAddress,
+                            hintText: "Expiry date",
+                            suffixIcon: null,
+                            prefixIcon: null,
+                            inputActiom: TextInputAction.next,
+                            isobscured: false,
+                            controller: _expiryDateController,
+                            iconPressed: null,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.01),
+                          child: PaymentInputFields(
+                            screenWidth: screenWidth * 0.5,
+                            screenHeight: screenHeight,
+                            keyboardType: TextInputType.emailAddress,
+                            hintText: "CVC",
+                            suffixIcon: null,
+                            prefixIcon: null,
+                            inputActiom: TextInputAction.next,
+                            isobscured: false,
+                            controller: _cvcController,
+                            iconPressed: null,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.05,
+                              vertical: screenHeight * 0.013),
+                          child: Row(
+                            children: [
+                              CustomCheckBox(
+                                onChange: (value) {
+                                  isChecked = value;
+                                },
+                                isChecked: isChecked,
+                                screenWidth: screenWidth,
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsets.only(left: screenWidth * 0.02),
+                                child: Text(
+                                  'Remember payment information',
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    height:
+                                        1.25, // Calculated based on line height: 20 / 16
+                                    letterSpacing: -0.165,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                Padding(
-                    padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom))
-              ],
+                  Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.06),
+                      child: PaymentButton(
+                        screenWidth: screenWidth,
+                        screenHeight: screenHeight,
+                        buttonText: "Next",
+                        buttonAction: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PaymentReviewScreen(
+                                    paymentInfo: PersonalPaymentInformations(
+                                        cardNumber: _cardNumberController.text,
+                                        cardholdersName:
+                                            _cardHolderNameController.text,
+                                        expirydate: _expiryDateController.text,
+                                        cvc: _cvcController.text,
+                                        isChappaChecked: isChappaChecked,
+                                        isPaymentChecked: isPaymentChecked,
+                                        isPaypalChecked: isPaypalChecked),
+                                  )));
+                        },
+                      ),
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom))
+                ],
+              ),
+            ],
           );
         }),
       ),
@@ -1220,22 +1230,24 @@ class PaymentMethodButtons extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             border: Border.all(
-                color: isChecked ? cs.primary : cs.outline.withValues(alpha: 0.5),
+                color:
+                    isChecked ? cs.primary : cs.outline.withValues(alpha: 0.5),
                 width: 1),
             color: isChecked
                 ? cs.primary
                 : (Theme.of(context).brightness == Brightness.light
                     ? cs.surface
                     : cs.surfaceContainerHighest),
-            boxShadow: Theme.of(context).brightness == Brightness.light && !isChecked
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
+            boxShadow:
+                Theme.of(context).brightness == Brightness.light && !isChecked
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
           ),
           child: Center(
             child: pngAssetPath != null

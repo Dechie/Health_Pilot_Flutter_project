@@ -112,26 +112,26 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
                       child: ElevatedButton(
                         onPressed: _canProceed
                             ? () async {
-                          try {
-                            await context
-                                .read<ProfileProvider>()
-                                .saveOnboardingStep2(
-                                  hypertensionAnswer: hypertensionAnswer,
-                                  accidentsAnswer: accidentsAnswer,
-                                  smokingAnswer: smokingAnswer,
-                                  diabetesAnswer: diabetesAnswer,
+                                try {
+                                  await context
+                                      .read<ProfileProvider>()
+                                      .saveOnboardingStep2(
+                                        hypertensionAnswer: hypertensionAnswer,
+                                        accidentsAnswer: accidentsAnswer,
+                                        smokingAnswer: smokingAnswer,
+                                        diabetesAnswer: diabetesAnswer,
+                                      );
+                                } catch (_) {
+                                  // Don't block onboarding if the save fails.
+                                }
+                                if (!context.mounted) return;
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const InitialInfoThird()),
                                 );
-                          } catch (_) {
-                            // Don't block onboarding if the save fails.
-                          }
-                          if (!context.mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const InitialInfoThird()),
-                          );
-                            }
+                              }
                             : null,
                         style: ElevatedButton.styleFrom(
                             backgroundColor:

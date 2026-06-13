@@ -133,10 +133,9 @@ class ChatGroup {
         membersId: (json['members_id'] as List<dynamic>? ?? [])
             .map((e) => e as String)
             .toList(),
-        groupChatHistory:
-            (json['group_chat_history'] as List<dynamic>? ?? [])
-                .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
-                .toList(),
+        groupChatHistory: (json['group_chat_history'] as List<dynamic>? ?? [])
+            .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
+            .toList(),
       );
 }
 

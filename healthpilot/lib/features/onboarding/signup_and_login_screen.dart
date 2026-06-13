@@ -50,7 +50,8 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
     if (widget.initialEmail != null) {
       emailController.text = widget.initialEmail!;
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) => _resumePendingActivation());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _resumePendingActivation());
   }
 
   /// Registration already succeeded — keep the user on activation, not signup.
@@ -155,23 +156,21 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
           final screenHeight = size.height;
           return ListView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            reverse: true,
             padding: const EdgeInsets.only(bottom: 32),
             children: [
+              Column(children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(
-                          top: screenHeight * 0.05, left: screenWidth * 0.14),
+                      padding: EdgeInsets.only(top: screenHeight * 0.05),
                       child: Image.asset(
                         'assets/images/image_4.png',
                         width: screenWidth * 0.6,
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(
-                          top: screenHeight * 0.013, left: screenWidth * 0.025),
+                      padding: EdgeInsets.only(top: screenHeight * 0.013),
                       child: SvgPicture.asset('assets/images/Vector.svg'),
                     ),
                   ],
@@ -202,11 +201,11 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                 ),
                 if (showActivationBanner) ...[
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
                     child: Material(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                       child: ListTile(
                         title: const Text('Activation pending'),
@@ -316,7 +315,8 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                               commandTexts: "Reset now",
                               login: () {
                                 Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const ForgotPasswordScreen(),
+                                  builder: (context) =>
+                                      const ForgotPasswordScreen(),
                                 ));
                               },
                               fontSize: 17,
@@ -352,9 +352,8 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                         screenWidth: screenWidth,
                         screenHeight: screenHeight,
                         buttonText: _isLogin ? "Login" : "Sign Up",
-                        buttonAction: _isLoading
-                            ? null
-                            : (_isLogin ? _login : _register),
+                        buttonAction:
+                            _isLoading ? null : (_isLogin ? _login : _register),
                         buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
                         isLoading: _isLoading,
                       ),
@@ -458,7 +457,8 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                 Padding(
                     padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom))
-              ],
+              ]),
+            ],
           );
         }),
       ),
@@ -480,9 +480,11 @@ class ConfirmEmailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: LayoutBuilder(
-        // ignore: non_constant_identifier_names
-        builder: (context, Constraints) {
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        child: LayoutBuilder(
+            // ignore: non_constant_identifier_names
+            builder: (context, Constraints) {
           final size = Constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
@@ -490,135 +492,138 @@ class ConfirmEmailScreen extends StatelessWidget {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.only(bottom: 32),
             children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.04,
-                        screenHeight * 0.02,
-                        0,
-                        0,
-                      ),
-                      child: Container(
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(110, 182, 255, 0.25),
-                          borderRadius:
-                              BorderRadius.circular(screenWidth * 0.05),
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                          color: const Color.fromRGBO(110, 182, 255, 1),
-                          iconSize: screenWidth * 0.055,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.05,
-                        screenHeight * 0.03,
-                        0,
-                        0,
-                      ),
-                      child: Text(
-                        "Confirm Email",
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: "PlusJakartaSans",
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: screenHeight * 0.04,
-                        left: screenWidth * 0.32,
-                      ),
-                      child: SizedBox(
-                        width: screenWidth * 0.04,
-                        height: screenWidth * 0.04,
-                        child: SvgPicture.asset(
-                          'assets/images/Vector.svg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SvgPicture.asset('assets/images/confirmemail.svg'),
-                const Text(
-                  'Check your email',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    height: 1.25, // Equivalent to line height of 25px
-                    letterSpacing:
-                        -0.165, // You might need to adjust this value
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.15,
-                      vertical: screenHeight * 0.02),
-                  child: const Text(
-                    'Please confirm your email to finish setting up your account. ',
-                    style: TextStyle(
-                      fontFamily: 'PlusJakartaSans',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      height: 1.25, // Equivalent to line height of 20px
-                      letterSpacing: -0.165,
-                      color: Color.fromRGBO(
-                          42, 42, 42, 0.5), // Set your desired text color
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
-                  child: Column(
+              Column(
+                children: [
+                  Row(
                     children: [
-                      const Text(
-                        'Didn’t receive an email?',
-                        style: TextStyle(
-                          fontFamily: 'PlusJakartaSans',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25,
-                          letterSpacing: -0.165,
-                          color: Colors.black,
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.04,
+                          screenHeight * 0.02,
+                          0,
+                          0,
                         ),
-                        textAlign: TextAlign.left,
+                        child: Container(
+                          width: screenWidth * 0.1,
+                          height: screenWidth * 0.1,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(110, 182, 255, 0.25),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.05),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(Icons.arrow_back),
+                            color: const Color.fromRGBO(110, 182, 255, 1),
+                            iconSize: screenWidth * 0.055,
+                          ),
+                        ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: screenHeight * 0.03),
-                        child: Button(
-                          fontsize: 18,
-                          textColor: Colors.white,
-                          screenWidth: screenWidth,
-                          screenHeight: screenHeight,
-                          buttonText: "Return to login",
-                          buttonAction: () {
-                            Navigator.of(context).pop();
-                          },
-                          buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.05,
+                          screenHeight * 0.03,
+                          0,
+                          0,
+                        ),
+                        child: Text(
+                          "Confirm Email",
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: "PlusJakartaSans",
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: screenHeight * 0.04,
+                          left: screenWidth * 0.32,
+                        ),
+                        child: SizedBox(
+                          width: screenWidth * 0.04,
+                          height: screenWidth * 0.04,
+                          child: SvgPicture.asset(
+                            'assets/images/Vector.svg',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  SvgPicture.asset('assets/images/confirmemail.svg'),
+                  const Text(
+                    'Check your email',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      height: 1.25, // Equivalent to line height of 25px
+                      letterSpacing:
+                          -0.165, // You might need to adjust this value
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.15,
+                        vertical: screenHeight * 0.02),
+                    child: const Text(
+                      'Please confirm your email to finish setting up your account. ',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        height: 1.25, // Equivalent to line height of 20px
+                        letterSpacing: -0.165,
+                        color: Color.fromRGBO(
+                            42, 42, 42, 0.5), // Set your desired text color
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Didn’t receive an email?',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            height: 1.25,
+                            letterSpacing: -0.165,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.03),
+                          child: Button(
+                            fontsize: 18,
+                            textColor: Colors.white,
+                            screenWidth: screenWidth,
+                            screenHeight: screenHeight,
+                            buttonText: "Return to login",
+                            buttonAction: () {
+                              Navigator.of(context).pop();
+                            },
+                            buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           );
-        },
-      )),
-      resizeToAvoidBottomInset: false,
+        }),
+      ),
     );
   }
 }

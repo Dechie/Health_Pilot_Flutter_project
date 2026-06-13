@@ -1,6 +1,7 @@
 /// Central list of bundled asset paths. Prefer [AssetPaths.field] over string literals.
 abstract final class AssetPaths {
   static const welcomeLogo = 'assets/images/image_4.png';
+
   /// Alias for [welcomeLogo]; no separate SVG is bundled.
   static const welcomeLogoSvg = 'assets/images/image_4.png';
   static const physicalTherapy = 'assets/images/Physical_therapy.png';
@@ -29,7 +30,8 @@ abstract final class AssetPaths {
       'assets/images/Mobile_inbox.svg';
 
   // Assessment flow illustrations
-  static const assessmentSummaryIllustration = 'assets/images/assessment_summary.svg';
+  static const assessmentSummaryIllustration =
+      'assets/images/assessment_summary.svg';
   static const backToHomeIllustration = 'assets/images/back_to_home.svg';
 
   /// Article UI (PNG). Use lowercase `assets/icons/` so builds work on
@@ -70,7 +72,8 @@ abstract final class AssetPaths {
   static const expandIcon = 'assets/Icons/expand-icon.svg';
   static const cameraRotateIcon = 'assets/Icons/camera-rotate-icon.svg';
 
-  static const audioCallBackground = 'assets/images/audio-call-background-pic.png';
+  static const audioCallBackground =
+      'assets/images/audio-call-background-pic.png';
   static const videoCallBackground = 'assets/images/video-call-icon.png';
   static const videoCallerImage = 'assets/images/video-caller-img.png';
 

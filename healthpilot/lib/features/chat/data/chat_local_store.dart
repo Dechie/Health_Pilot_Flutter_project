@@ -118,7 +118,8 @@ class ChatLocalStore {
     return fallback;
   }
 
-  Future<void> insertGroupMessage(String threadId, DirectMessage message) async {
+  Future<void> insertGroupMessage(
+      String threadId, DirectMessage message) async {
     final db = await _database.database;
     await db.insert('group_messages', {
       'thread_id': threadId,
@@ -162,7 +163,8 @@ class ChatLocalStore {
         ),
       );
 
-  DirectMessage _directMessageFromRow(Map<String, Object?> row) => DirectMessage(
+  DirectMessage _directMessageFromRow(Map<String, Object?> row) =>
+      DirectMessage(
         senderId: row['sender_id']! as String,
         content: row['content']! as String,
         timestamp: DateTime.parse(row['timestamp']! as String),

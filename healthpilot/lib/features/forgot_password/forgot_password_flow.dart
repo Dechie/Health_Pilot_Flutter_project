@@ -90,81 +90,87 @@ class _EmailStep extends StatelessWidget {
           bottom: MediaQuery.viewInsetsOf(context).bottom + 24,
         ),
         children: [
-            ForgotPasswordHeader(
-              screenWidth: screenWidth,
-              screenHeight: screenHeight,
-              title: 'Forgot Password',
-              onBack: () => Navigator.of(context).maybePop(),
-              onTranslate: onTranslate,
-            ),
-            SizedBox(
-              height: screenHeight * 0.36,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
-                child: SafeSvgAsset(
-                  forgotPasswordIllustration,
-                  fit: BoxFit.contain,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ForgotPasswordHeader(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                title: 'Forgot Password',
+                onBack: () => Navigator.of(context).maybePop(),
+                onTranslate: onTranslate,
+              ),
+              SizedBox(
+                height: screenHeight * 0.36,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+                  child: SafeSvgAsset(
+                    forgotPasswordIllustration,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
-              child: Text(
-                "We'll send you an email with instructions on how to reset your password.",
-                textAlign: TextAlign.center,
-                style: AppTheme.bodyMuted(context),
-              ),
-            ),
-            SizedBox(height: screenHeight * 0.028),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
-              child: TextFormField(
-                controller: controller.emailController,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.done,
-                validator: controller.validateEmailField,
-                onFieldSubmitted: (_) => controller.submitEmail(),
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  hintStyle: tt.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w300,
-                  ),
-                  prefixIcon: Padding(
-                    padding: EdgeInsets.only(left: screenWidth * 0.02),
-                    child: Icon(Icons.email_outlined, color: cs.onSurfaceVariant),
-                  ),
-                  prefixIconConstraints: const BoxConstraints(
-                    minWidth: 48,
-                    minHeight: 48,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: cs.outline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: cs.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: cs.primary, width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 12,
-                  ),
-                  isDense: true,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                child: Text(
+                  "We'll send you an email with instructions on how to reset your password.",
+                  textAlign: TextAlign.center,
+                  style: AppTheme.bodyMuted(context),
                 ),
               ),
-            ),
-            SizedBox(height: screenHeight * 0.06),
-            ForgotPasswordPrimaryButton(
-              screenWidth: screenWidth,
-              label: 'Next',
-              onPressed: () =>
-                  context.read<ForgotPasswordController>().submitEmail(),
-            ),
-          ],
+              SizedBox(height: screenHeight * 0.028),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                child: TextFormField(
+                  controller: controller.emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.done,
+                  validator: controller.validateEmailField,
+                  onFieldSubmitted: (_) => controller.submitEmail(),
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    hintStyle: tt.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w300,
+                    ),
+                    prefixIcon: Padding(
+                      padding: EdgeInsets.only(left: screenWidth * 0.02),
+                      child: Icon(Icons.email_outlined,
+                          color: cs.onSurfaceVariant),
+                    ),
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: cs.outline),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: cs.outline),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 12,
+                    ),
+                    isDense: true,
+                  ),
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.06),
+              ForgotPasswordPrimaryButton(
+                screenWidth: screenWidth,
+                label: 'Next',
+                onPressed: () =>
+                    context.read<ForgotPasswordController>().submitEmail(),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

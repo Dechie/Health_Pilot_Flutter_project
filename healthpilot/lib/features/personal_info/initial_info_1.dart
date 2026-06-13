@@ -440,28 +440,30 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                         onPressed: selectedGender == null
                             ? null
                             : () async {
-                          final double heightCm = selectedHeight.toDouble();
-                          final double weightKg = selectedWeight.toDouble();
-                          try {
-                            await context
-                                .read<ProfileProvider>()
-                                .saveOnboardingStep1(
-                                  gender: selectedGender,
-                                  age: selectedAge,
-                                  heightCm: heightCm,
-                                  weightKg: weightKg,
+                                final double heightCm =
+                                    selectedHeight.toDouble();
+                                final double weightKg =
+                                    selectedWeight.toDouble();
+                                try {
+                                  await context
+                                      .read<ProfileProvider>()
+                                      .saveOnboardingStep1(
+                                        gender: selectedGender,
+                                        age: selectedAge,
+                                        heightCm: heightCm,
+                                        weightKg: weightKg,
+                                      );
+                                } catch (_) {
+                                  // Don't block onboarding if the save fails.
+                                }
+                                if (!context.mounted) return;
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const InitialInfoSecond()),
                                 );
-                          } catch (_) {
-                            // Don't block onboarding if the save fails.
-                          }
-                          if (!context.mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const InitialInfoSecond()),
-                          );
-                        },
+                              },
                         style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromRGBO(110, 182, 255, 1),
@@ -529,7 +531,9 @@ class _GenderOption extends StatelessWidget {
               fontFamily: 'PlusJakartaSans',
               fontWeight: FontWeight.w500,
               fontSize: 14,
-              color: selected ? selectedColor : const Color.fromRGBO(42, 42, 42, 0.7),
+              color: selected
+                  ? selectedColor
+                  : const Color.fromRGBO(42, 42, 42, 0.7),
             ),
           ),
         ],

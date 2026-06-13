@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:healthpilot/core/repositories/i_assessment_repository.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/features/chat/general_chat_screen.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
@@ -18,9 +17,6 @@ import 'package:healthpilot/features/health_assessment/health_assessment_flow_sc
 import 'package:healthpilot/features/health_assessment/health_assessment_models.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_subject.dart';
 import 'package:healthpilot/features/health_assessment/repositories/mock_assessment_repository.dart';
-import 'package:healthpilot/features/chat/chat_provider.dart';
-import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart';
-import 'package:healthpilot/features/chatbot/ai_assistant_provider.dart';
 import 'package:healthpilot/features/chatbot/chatbot_models.dart';
 import 'package:healthpilot/features/chatbot/repositories/mock_ai_assistant_repository.dart';
 

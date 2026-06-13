@@ -6,8 +6,7 @@ sealed class ApiException implements Exception {
   /// 5xx and unknown errors return a generic string so internal
   /// server details are never exposed to users.
   String get userMessage => switch (this) {
-        ServerError(:final statusCode, :final message)
-            when statusCode < 500 =>
+        ServerError(:final statusCode, :final message) when statusCode < 500 =>
           message,
         ServerError() =>
           'Something went wrong on our end. Please try again later.',
@@ -29,7 +28,8 @@ final class ServerError extends ApiException {
   final int statusCode;
   final String? code;
   final String message;
-  const ServerError({required this.statusCode, this.code, required this.message});
+  const ServerError(
+      {required this.statusCode, this.code, required this.message});
 
   @override
   String toString() => 'ServerError($statusCode: $message)';

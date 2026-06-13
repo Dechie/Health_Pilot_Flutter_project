@@ -41,8 +41,7 @@ class HealthTrackingScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(size.width * 0.015),
                 ),
               ),
-              onPressed: () =>
-                  context.read<HealthProvider>().clearConditions(),
+              onPressed: () => context.read<HealthProvider>().clearConditions(),
               child: const Text(
                 'Clear History',
                 style: TextStyle(

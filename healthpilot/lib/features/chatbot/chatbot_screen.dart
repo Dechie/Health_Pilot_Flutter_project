@@ -169,11 +169,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: cs.primary,
-                            border:
-                                Border.all(color: cs.onPrimary, width: 2),
+                            border: Border.all(color: cs.onPrimary, width: 2),
                           ),
-                          child:
-                              Icon(LineIcons.robot, color: cs.onPrimary),
+                          child: Icon(LineIcons.robot, color: cs.onPrimary),
                         ),
                       ],
                     ),
@@ -259,8 +257,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: _kSuggestionLabels.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(width: 8),
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
                         itemBuilder: (context, i) {
                           final label = _kSuggestionLabels[i];
                           return ActionChip(
@@ -281,15 +278,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               ),
             // ── input bar ────────────────────────────────────────────────────
             Container(
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(28),
-                border:
-                    Border.all(color: cs.outline.withValues(alpha: 0.4)),
+                border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
               ),
               child: Row(
                 children: [
@@ -308,8 +302,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           color: cs.onSurfaceVariant,
                         ),
                         border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                     ),
                   ),
@@ -333,14 +326,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       body: msg.body,
       time: _formatTime(msg.sentAt),
       footerLabel: msg.showSentLabel ? 'Sent' : null,
-      nipPosition:
-          msg.fromUser ? BubbleNip.rightBottom : BubbleNip.leftBottom,
+      nipPosition: msg.fromUser ? BubbleNip.rightBottom : BubbleNip.leftBottom,
     );
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Align(
-        alignment:
-            msg.fromUser ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: msg.fromUser ? Alignment.centerRight : Alignment.centerLeft,
         child: FractionallySizedBox(
           widthFactor: 0.92,
           alignment:
@@ -350,5 +341,4 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       ),
     );
   }
-
 }

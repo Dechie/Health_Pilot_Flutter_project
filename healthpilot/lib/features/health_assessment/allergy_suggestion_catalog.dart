@@ -37,9 +37,6 @@ abstract final class AllergySuggestionCatalog {
   static List<String> matching(String query, {int limit = 20}) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return const [];
-    return names
-        .where((e) => e.toLowerCase().contains(q))
-        .take(limit)
-        .toList();
+    return names.where((e) => e.toLowerCase().contains(q)).take(limit).toList();
   }
 }

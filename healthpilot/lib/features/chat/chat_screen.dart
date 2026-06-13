@@ -276,129 +276,128 @@ class ChatList extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Expanded(
       child: GroupedListView(
-          elements: chatList,
-          groupBy: (chat) => DateFormat.MMMd().format(chat.timestamp),
-          groupSeparatorBuilder: (chat) => SizedBox(
-                width: double.infinity,
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: size.width * 0.1),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.25),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          DateFormat.MMMd().format(DateTime.now()) == chat
-                              ? 'Today'
-                              : chat,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 10,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.25),
-                        ),
-                      ),
-                    ],
+        elements: chatList,
+        groupBy: (chat) => DateFormat.MMMd().format(chat.timestamp),
+        groupSeparatorBuilder: (chat) => SizedBox(
+          width: double.infinity,
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: size.width * 0.1),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.25),
                   ),
                 ),
-              ),
-          itemBuilder: (context, chat) {
-            final isIncoming = int.parse(chat.senderId) != int.parse(userId);
-            final cs = Theme.of(context).colorScheme;
-            final isDark = Theme.of(context).brightness == Brightness.dark;
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    DateFormat.MMMd().format(DateTime.now()) == chat
+                        ? 'Today'
+                        : chat,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 10,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.25),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        itemBuilder: (context, chat) {
+          final isIncoming = int.parse(chat.senderId) != int.parse(userId);
+          final cs = Theme.of(context).colorScheme;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
 
-            final bubbleDecoration = isIncoming
-                ? BoxDecoration(
-                    color: cs.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
-                  )
-                : BoxDecoration(
-                    gradient: AppTheme.chatBubbleGradient(context),
-                    borderRadius: BorderRadius.circular(10),
-                  );
+          final bubbleDecoration = isIncoming
+              ? BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(10),
+                )
+              : BoxDecoration(
+                  gradient: AppTheme.chatBubbleGradient(context),
+                  borderRadius: BorderRadius.circular(10),
+                );
 
-            return Bubble(
-              alignment:
-                  isIncoming ? Alignment.centerLeft : Alignment.centerRight,
-              radius: const Radius.circular(10),
-              nip: isIncoming ? BubbleNip.leftBottom : BubbleNip.rightBottom,
-              margin: const BubbleEdges.symmetric(vertical: 5),
-              padding: const BubbleEdges.all(0),
-              showNip: true,
-              color: Colors.transparent,
-              shadowColor: Colors.transparent,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                decoration: bubbleDecoration,
-                child: isIncoming
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Flexible(
-                            child: ChatMarkdownBody(
-                              rawText: chat.content,
-                              textColor: cs.onSurface,
-                              fontSize: 12,
-                            ),
+          return Bubble(
+            alignment:
+                isIncoming ? Alignment.centerLeft : Alignment.centerRight,
+            radius: const Radius.circular(10),
+            nip: isIncoming ? BubbleNip.leftBottom : BubbleNip.rightBottom,
+            margin: const BubbleEdges.symmetric(vertical: 5),
+            padding: const BubbleEdges.all(0),
+            showNip: true,
+            color: Colors.transparent,
+            shadowColor: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              decoration: bubbleDecoration,
+              child: isIncoming
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: ChatMarkdownBody(
+                            rawText: chat.content,
+                            textColor: cs.onSurface,
+                            fontSize: 12,
                           ),
-                          const SizedBox(width: 10),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          DateFormat('hh:mm a').format(chat.timestamp),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w400,
+                            color: cs.onSurface.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ChatMarkdownBody(
+                          rawText: chat.content,
+                          textColor: isDark ? cs.onPrimary : cs.onSurface,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        if (chat.isDelivered) ...[
+                          const SizedBox(height: 4),
                           Text(
-                            DateFormat('hh:mm a').format(chat.timestamp),
+                            'Sent',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 8,
                               fontWeight: FontWeight.w400,
-                              color: cs.onSurface.withValues(alpha: 0.8),
+                              color: (isDark ? cs.onPrimary : cs.onSurface)
+                                  .withValues(alpha: 0.8),
                             ),
                           ),
                         ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ChatMarkdownBody(
-                            rawText: chat.content,
-                            textColor: isDark ? cs.onPrimary : cs.onSurface,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          if (chat.isDelivered) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              'Sent',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 8,
-                                fontWeight: FontWeight.w400,
-                                color: (isDark ? cs.onPrimary : cs.onSurface)
-                                    .withValues(alpha: 0.8),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-              ),
-            );
-          },
-        ),
+                      ],
+                    ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -432,33 +431,33 @@ class _SendMessageState extends State<SendMessage> {
         ),
         Expanded(
           child: Container(
-          padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.01, horizontal: size.width * 0.04),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: cs.outline, width: 1),
-              color: cs.surfaceContainerHighest),
-          height: size.height * 0.06,
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                message = value;
-              });
-            },
-            maxLines: 1,
-            style: TextStyle(color: cs.onSurface),
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Message',
-                hintStyle: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w400,
-                  color: cs.onSurfaceVariant,
-                  fontSize: 12,
-                )),
+            padding: EdgeInsets.symmetric(
+                vertical: size.height * 0.01, horizontal: size.width * 0.04),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: cs.outline, width: 1),
+                color: cs.surfaceContainerHighest),
+            height: size.height * 0.06,
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  message = value;
+                });
+              },
+              maxLines: 1,
+              style: TextStyle(color: cs.onSurface),
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Message',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w400,
+                    color: cs.onSurfaceVariant,
+                    fontSize: 12,
+                  )),
+            ),
           ),
-        ),
         ),
         InkWell(
           onTap: () => widget.sendMessage(message),

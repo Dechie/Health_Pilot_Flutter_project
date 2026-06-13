@@ -248,8 +248,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     final cs = Theme.of(context).colorScheme;
     return FloatingActionButton(
       onPressed: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
       },
       backgroundColor: cs.primary,
       child: Icon(

@@ -64,7 +64,8 @@ abstract final class AppNavigation {
   }
 
   /// Replaces the current route with the login/signup screen.
-  static void replaceWithLogin(BuildContext context, {bool useRootNavigator = true}) {
+  static void replaceWithLogin(BuildContext context,
+      {bool useRootNavigator = true}) {
     Navigator.of(context, rootNavigator: useRootNavigator).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const SignupAndLoginScreen()),
       (_) => false,

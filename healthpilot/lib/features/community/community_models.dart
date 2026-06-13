@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class SuggestedPeer {
   final int id;
   final String fullName;
-  final int age;
+  final int? age;
   final int score;
   final String reason;
 
@@ -21,7 +21,7 @@ class SuggestedPeer {
     return SuggestedPeer(
       id: user['id'] as int,
       fullName: user['full_name'] as String,
-      age: user['age'] as int,
+      age: user['age'] as int?,
       score: json['score'] as int,
       reason: json['reason'] as String? ?? '',
     );

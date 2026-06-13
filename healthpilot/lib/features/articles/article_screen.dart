@@ -292,68 +292,70 @@ class ArticleCard extends StatelessWidget {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                              ColorFiltered(
-                                colorFilter:
-                                    ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
-                                child: Image.asset(AssetPaths.articleLikePng),
-                              ),
-                              SizedBox(width: screenWidth * 0.02),
-                              Text(
-                                '${item.likes}',
-                                style: const TextStyle(
-                                  fontFamily: 'PlusJakartaSans',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.0,
-                                  letterSpacing: -0.165,
+                                ColorFiltered(
+                                  colorFilter: ColorFilter.mode(
+                                      cs.onSurface, BlendMode.srcIn),
+                                  child: Image.asset(AssetPaths.articleLikePng),
                                 ),
-                              ),
+                                SizedBox(width: screenWidth * 0.02),
+                                Text(
+                                  '${item.likes}',
+                                  style: const TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.0,
+                                    letterSpacing: -0.165,
+                                  ),
+                                ),
                               ],
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                              ColorFiltered(
-                                colorFilter:
-                                    ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
-                                child: Image.asset(AssetPaths.articleCommentPng),
-                              ),
-                              SizedBox(width: screenWidth * 0.02),
-                              Text(
-                                '${item.commentsCount}',
-                                style: const TextStyle(
-                                  fontFamily: 'PlusJakartaSans',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.0,
-                                  letterSpacing: -0.165,
+                                ColorFiltered(
+                                  colorFilter: ColorFilter.mode(
+                                      cs.onSurface, BlendMode.srcIn),
+                                  child:
+                                      Image.asset(AssetPaths.articleCommentPng),
                                 ),
-                              ),
+                                SizedBox(width: screenWidth * 0.02),
+                                Text(
+                                  '${item.commentsCount}',
+                                  style: const TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.0,
+                                    letterSpacing: -0.165,
+                                  ),
+                                ),
                               ],
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                              SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: ColorFiltered(
-                                  colorFilter:
-                                      ColorFilter.mode(cs.onSurface, BlendMode.srcIn),
-                                  child: Image.asset('assets/Icons/stopwatch .png'),
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: ColorFiltered(
+                                    colorFilter: ColorFilter.mode(
+                                        cs.onSurface, BlendMode.srcIn),
+                                    child: Image.asset(
+                                        'assets/Icons/stopwatch .png'),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: screenWidth * 0.02),
-                              Text(
-                                '${item.readMinutes} min',
-                                style: const TextStyle(
-                                  fontFamily: 'PlusJakartaSans',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.0,
-                                  letterSpacing: -0.165,
+                                SizedBox(width: screenWidth * 0.02),
+                                Text(
+                                  '${item.readMinutes} min',
+                                  style: const TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.0,
+                                    letterSpacing: -0.165,
+                                  ),
                                 ),
-                              ),
                               ],
                             ),
                           ],
@@ -458,7 +460,8 @@ class _CommentInputFieldState extends State<CommentInputField> {
                     : null,
                 suffixIcon: widget.suffixIcon != null
                     ? IconButton(
-                        padding: EdgeInsets.only(right: widget.screenWidth * 0.02),
+                        padding:
+                            EdgeInsets.only(right: widget.screenWidth * 0.02),
                         onPressed: widget.onSuffixTap,
                         icon: SvgPicture.asset(
                           widget.suffixIcon!,

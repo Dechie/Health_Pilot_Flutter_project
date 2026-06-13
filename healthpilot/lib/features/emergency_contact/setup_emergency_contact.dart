@@ -155,7 +155,8 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                     ),
                     Flexible(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
+                        padding:
+                            EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
                         child: Text(
                           initial == null
                               ? 'Setup Emergency Contact'
@@ -199,6 +200,9 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
             vertical: size.width * 0.08,
           ),
           children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 _labeledField(
                   label: 'First Name',
                   child: TextFormField(
@@ -286,8 +290,10 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                 ),
-        ],
-      ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

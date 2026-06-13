@@ -132,7 +132,10 @@ class SetupPromoCard extends StatelessWidget {
     final columnChildren = <Widget>[
       titleRow,
       descriptionBlock,
-      if (expandVertically) SizedBox(height: screenWidth * 0.04) else const Spacer(),
+      if (expandVertically)
+        SizedBox(height: screenWidth * 0.04)
+      else
+        const Spacer(),
       button,
     ];
 

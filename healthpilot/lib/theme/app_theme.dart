@@ -140,7 +140,8 @@ abstract final class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: scheme.primary,
           foregroundColor: scheme.onPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           textStyle: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
       ),
@@ -148,7 +149,8 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: scheme.onSurface,
           side: BorderSide(color: scheme.outline),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           textStyle: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
@@ -175,7 +177,8 @@ abstract final class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: isLight ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+        color:
+            isLight ? scheme.primaryContainer : scheme.surfaceContainerHighest,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
@@ -185,7 +188,8 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         titleTextStyle: textTheme.titleMedium,
-        contentTextStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurface),
+        contentTextStyle:
+            textTheme.bodyMedium?.copyWith(color: scheme.onSurface),
       ),
       dividerTheme: DividerThemeData(
         color: scheme.onSurface.withValues(alpha: isLight ? 0.12 : 0.18),

@@ -49,8 +49,8 @@ class CommunityProvider extends ChangeNotifier {
   }
 
   Future<void> respondToConnection(int requestId, bool accept) async {
-    final updated =
-        await _repo.respondToConnection(requestId, accept ? 'accept' : 'reject');
+    final updated = await _repo.respondToConnection(
+        requestId, accept ? 'accept' : 'reject');
     _connections = [
       for (final c in _connections)
         if (c.id == requestId) updated else c,

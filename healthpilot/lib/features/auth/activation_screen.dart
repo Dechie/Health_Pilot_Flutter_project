@@ -129,138 +129,146 @@ class _ActivationScreenState extends State<ActivationScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.fromLTRB(w * 0.1, 0, w * 0.1, 24),
               children: [
-                  SizedBox(height: h * 0.06),
-                  Text(
-                    'Activate Account',
-                    style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: h * 0.06),
-                  Icon(
-                    Icons.mark_email_read_outlined,
-                    size: 56,
-                    color: cs.primary,
-                  ),
-                  SizedBox(height: h * 0.03),
-                  Text(
-                    'Check your email',
-                    style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: h * 0.015),
-                  Text(
-                    pendingEmail.isNotEmpty
-                        ? 'We sent an activation link to $pendingEmail. '
-                            'Tap the link in that email — it activates your account '
-                            'automatically. Then return here and log in.'
-                        : 'We sent an activation link to your email. '
-                            'Tap the link to activate your account, then log in.',
-                    style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (_loading) ...[
-                    SizedBox(height: h * 0.05),
-                    const Center(child: CircularProgressIndicator()),
-                    SizedBox(height: h * 0.02),
-                    Text(
-                      'Activating your account…',
-                      textAlign: TextAlign.center,
-                      style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  ],
-                  if (_info != null) ...[
-                    SizedBox(height: h * 0.03),
-                    Text(
-                      _info!,
-                      textAlign: TextAlign.center,
-                      style: tt.bodyMedium?.copyWith(color: cs.primary),
-                    ),
-                  ],
-                  if (_error != null) ...[
-                    SizedBox(height: h * 0.03),
-                    Text(
-                      _error!,
-                      textAlign: TextAlign.center,
-                      style: tt.bodyMedium?.copyWith(color: cs.error),
-                    ),
-                  ],
-                  SizedBox(height: h * 0.04),
-                  OutlinedButton.icon(
-                    onPressed: _resending || _loading ? null : _resendEmail,
-                    icon: _resending
-                        ? SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: cs.primary,
-                            ),
-                          )
-                        : const Icon(Icons.refresh),
-                    label: const Text('Resend activation email'),
-                  ),
-                  SizedBox(height: h * 0.02),
-                  TextButton(
-                    onPressed: _goToLogin,
-                    child: Text(
-                      'Already activated? Log in',
-                      style: TextStyle(color: cs.primary),
-                    ),
-                  ),
-                  SizedBox(height: h * 0.02),
-                  TextButton(
-                    onPressed: () =>
-                        setState(() => _showManualToken = !_showManualToken),
-                    child: Text(
-                      _showManualToken
-                          ? 'Hide manual token entry'
-                          : 'Having trouble? Enter token manually',
-                      style: TextStyle(
-                        color: cs.onSurfaceVariant,
-                        fontSize: 13,
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: h * 0.06),
+                      Text(
+                        'Activate Account',
+                        style: tt.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ),
-                  if (_showManualToken) ...[
-                    SizedBox(height: h * 0.02),
-                    TextField(
-                      controller: _tokenController,
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _activate(),
-                      decoration: InputDecoration(
-                        hintText: 'Activation token',
-                        prefixIcon:
-                            Icon(Icons.key_outlined, color: cs.onSurfaceVariant),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      SizedBox(height: h * 0.06),
+                      Icon(
+                        Icons.mark_email_read_outlined,
+                        size: 56,
+                        color: cs.primary,
+                      ),
+                      SizedBox(height: h * 0.03),
+                      Text(
+                        'Check your email',
+                        style: tt.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: h * 0.015),
+                      Text(
+                        pendingEmail.isNotEmpty
+                            ? 'We sent an activation link to $pendingEmail. '
+                                'Tap the link in that email — it activates your account '
+                                'automatically. Then return here and log in.'
+                            : 'We sent an activation link to your email. '
+                                'Tap the link to activate your account, then log in.',
+                        style:
+                            tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (_loading) ...[
+                        SizedBox(height: h * 0.05),
+                        const Center(child: CircularProgressIndicator()),
+                        SizedBox(height: h * 0.02),
+                        Text(
+                          'Activating your account…',
+                          textAlign: TextAlign.center,
+                          style: tt.bodySmall
+                              ?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                      if (_info != null) ...[
+                        SizedBox(height: h * 0.03),
+                        Text(
+                          _info!,
+                          textAlign: TextAlign.center,
+                          style: tt.bodyMedium?.copyWith(color: cs.primary),
+                        ),
+                      ],
+                      if (_error != null) ...[
+                        SizedBox(height: h * 0.03),
+                        Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: tt.bodyMedium?.copyWith(color: cs.error),
+                        ),
+                      ],
+                      SizedBox(height: h * 0.04),
+                      OutlinedButton.icon(
+                        onPressed: _resending || _loading ? null : _resendEmail,
+                        icon: _resending
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: cs.primary,
+                                ),
+                              )
+                            : const Icon(Icons.refresh),
+                        label: const Text('Resend activation email'),
+                      ),
+                      SizedBox(height: h * 0.02),
+                      TextButton(
+                        onPressed: _goToLogin,
+                        child: Text(
+                          'Already activated? Log in',
+                          style: TextStyle(color: cs.primary),
                         ),
                       ),
-                    ),
-                    SizedBox(height: h * 0.03),
-                    SizedBox(
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: _loading ? null : () => _activate(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: cs.primary,
-                          foregroundColor: cs.onPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          'Activate with token',
+                      SizedBox(height: h * 0.02),
+                      TextButton(
+                        onPressed: () => setState(
+                            () => _showManualToken = !_showManualToken),
+                        child: Text(
+                          _showManualToken
+                              ? 'Hide manual token entry'
+                              : 'Having trouble? Enter token manually',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                            color: cs.onSurfaceVariant,
+                            fontSize: 13,
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ],
-              );
+                      if (_showManualToken) ...[
+                        SizedBox(height: h * 0.02),
+                        TextField(
+                          controller: _tokenController,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _activate(),
+                          decoration: InputDecoration(
+                            hintText: 'Activation token',
+                            prefixIcon: Icon(Icons.key_outlined,
+                                color: cs.onSurfaceVariant),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: h * 0.03),
+                        SizedBox(
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: _loading ? null : () => _activate(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: cs.primary,
+                              foregroundColor: cs.onPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Activate with token',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ]),
+              ],
+            );
           }),
         ),
       ),

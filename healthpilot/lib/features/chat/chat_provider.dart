@@ -45,8 +45,7 @@ class ChatProvider extends ChangeNotifier {
 
   ChatUser findUser(String id) => _users.firstWhere((u) => u.userId == id);
 
-  ChatGroup findGroup(String id) =>
-      _groups.firstWhere((g) => g.groupId == id);
+  ChatGroup findGroup(String id) => _groups.firstWhere((g) => g.groupId == id);
 
   Future<void> load() async {
     if (_loadStarted) return;
@@ -101,7 +100,8 @@ class ChatProvider extends ChangeNotifier {
     await _localStore.insertDirectMessage(targetUserId, message);
     await _repo.sendDirectMessage(targetUserId, message);
     _markDirectDelivered(targetUserId, message.timestamp);
-    await _localStore.markDirectMessageDelivered(targetUserId, message.timestamp);
+    await _localStore.markDirectMessageDelivered(
+        targetUserId, message.timestamp);
     notifyListeners();
   }
 

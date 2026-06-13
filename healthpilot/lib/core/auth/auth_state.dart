@@ -28,7 +28,7 @@ class AuthState extends ChangeNotifier {
   bool _healthInfoCompleted = false;
   bool _activationPending = false;
   String _pendingActivationEmail = '';
-  int  _onboardingStep = 0;
+  int _onboardingStep = 0;
   String get firstName => _firstName;
   String get lastName => _lastName;
   bool get isGuest => _isGuest;
@@ -36,10 +36,9 @@ class AuthState extends ChangeNotifier {
   bool get isHealthInfoCompleted => _healthInfoCompleted;
   bool get isActivationPending => _activationPending;
   String get pendingActivationEmail => _pendingActivationEmail;
-  int  get onboardingStep => _onboardingStep;
-  String get fullName => [_firstName, _lastName]
-      .where((s) => s.isNotEmpty)
-      .join(' ');
+  int get onboardingStep => _onboardingStep;
+  String get fullName =>
+      [_firstName, _lastName].where((s) => s.isNotEmpty).join(' ');
 
   AuthState({
     required IAuthRepository repo,
@@ -56,16 +55,17 @@ class AuthState extends ChangeNotifier {
       return;
     }
     final token = await _tokenStore.getAccessToken();
-    _status = token != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
-    _firstName           = await _tokenStore.getFirstName() ?? '';
-    _lastName            = await _tokenStore.getLastName()  ?? '';
-    _isGuest             = await _tokenStore.getIsGuest();
+    _status =
+        token != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
+    _firstName = await _tokenStore.getFirstName() ?? '';
+    _lastName = await _tokenStore.getLastName() ?? '';
+    _isGuest = await _tokenStore.getIsGuest();
     _onboardingCompleted = await _tokenStore.getOnboardingCompleted();
     _healthInfoCompleted = await _tokenStore.getHealthInfoCompleted();
-    _activationPending   = await _tokenStore.getActivationPending();
+    _activationPending = await _tokenStore.getActivationPending();
     _pendingActivationEmail =
         await _tokenStore.getPendingActivationEmail() ?? '';
-    _onboardingStep      = await _tokenStore.getOnboardingStep();
+    _onboardingStep = await _tokenStore.getOnboardingStep();
     notifyListeners();
   }
 

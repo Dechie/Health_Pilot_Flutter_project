@@ -20,7 +20,7 @@ class ChatMarkdownService {
       (_) => '- ',
     );
 
-  // Ensure list blocks are separated from preceding paragraphs (not list items).
+    // Ensure list blocks are separated from preceding paragraphs (not list items).
     final lines = text.split('\n');
     final normalizedLines = <String>[];
     for (var i = 0; i < lines.length; i++) {

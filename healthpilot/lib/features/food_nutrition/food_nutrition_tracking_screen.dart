@@ -29,8 +29,8 @@ class _FoodNutritionTrackingScreenState
     final s = context.read<NutritionProvider>().settings;
     _frequency = s.frequency;
     _pushNotifications = s.pushNotificationsEnabled;
-    _diets = Set<String>.from(
-        s.diets.where(kFoodNutritionDietChoices.contains));
+    _diets =
+        Set<String>.from(s.diets.where(kFoodNutritionDietChoices.contains));
     if (_diets.isEmpty) _diets.addAll({'Vegetarian', 'Vegan'});
   }
 
@@ -191,8 +191,7 @@ class _FoodNutritionTrackingScreenState
                               }
                             });
                           },
-                          selectedColor:
-                              scheme.primary.withValues(alpha: 0.35),
+                          selectedColor: scheme.primary.withValues(alpha: 0.35),
                           checkmarkColor: scheme.primary,
                           labelStyle:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -234,9 +233,7 @@ class _FoodNutritionTrackingScreenState
         child: Row(
           children: [
             Icon(
-              selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_off,
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
               color: scheme.primary,
               size: 22,
             ),
@@ -245,8 +242,7 @@ class _FoodNutritionTrackingScreenState
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight:
-                          selected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                       color: selected ? scheme.primary : scheme.onSurface,
                     ),
               ),

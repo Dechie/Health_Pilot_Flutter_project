@@ -31,4 +31,3 @@ abstract final class AppLocales {
     'ar',
   ];
 }
-
