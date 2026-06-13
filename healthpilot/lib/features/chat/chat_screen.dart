@@ -9,6 +9,7 @@ import 'package:healthpilot/features/chat/chat_models.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/widgets/chat_markdown_body.dart';
 import 'package:healthpilot/features/chat/user_detail_screen.dart';
+import 'package:healthpilot/features/community/community_models.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -124,7 +125,13 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => UserDetailScreen(
-                          id: senderId,
+                          peer: SuggestedPeer(
+                            id: int.parse(senderId),
+                            fullName: title,
+                            age: 0,
+                            score: 0,
+                            reason: '',
+                          ),
                         )));
               },
               child: Container(

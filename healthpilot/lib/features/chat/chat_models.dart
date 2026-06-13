@@ -157,6 +157,53 @@ class ChatThread {
   });
 }
 
+class PrivateChatParticipant {
+  final int id;
+  final String fullName;
+  final String email;
+  final String? profilePicture;
+
+  const PrivateChatParticipant({
+    required this.id,
+    required this.fullName,
+    required this.email,
+    this.profilePicture,
+  });
+
+  factory PrivateChatParticipant.fromJson(Map<String, dynamic> json) =>
+      PrivateChatParticipant(
+        id: json['id'] as int,
+        fullName: json['full_name'] as String,
+        email: json['email'] as String,
+        profilePicture: json['profile_picture'] as String?,
+      );
+}
+
+@immutable
+class PrivateChat {
+  final String id;
+  final List<PrivateChatParticipant> participants;
+  final String? lastMessage;
+  final DateTime createdAt;
+
+  const PrivateChat({
+    required this.id,
+    required this.participants,
+    this.lastMessage,
+    required this.createdAt,
+  });
+
+  factory PrivateChat.fromJson(Map<String, dynamic> json) => PrivateChat(
+        id: json['id'] as String,
+        participants: (json['participants'] as List<dynamic>)
+            .map((e) =>
+                PrivateChatParticipant.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        lastMessage: json['last_message'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+      );
+}
+
 // Seed data used by MockChatRepository
 final kSeedUsers = [
   ChatUser(

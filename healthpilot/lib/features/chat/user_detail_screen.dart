@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
-import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
-import 'package:intl/intl.dart';
+import 'package:healthpilot/features/chat/vidoe_call_screen.dart';
+import 'package:healthpilot/features/community/community_models.dart';
+import 'package:healthpilot/features/community/community_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/constants.dart';
-import 'vidoe_call_screen.dart';
 
 Widget _profileSharedTabPlaceholder(String message) {
   return Center(
@@ -27,14 +27,54 @@ Widget _profileSharedTabPlaceholder(String message) {
   );
 }
 
-class UserDetailScreen extends StatelessWidget {
-  final String id;
-  const UserDetailScreen({super.key, required this.id});
+class UserDetailScreen extends StatefulWidget {
+  final SuggestedPeer peer;
+  const UserDetailScreen({super.key, required this.peer});
+
+  @override
+  State<UserDetailScreen> createState() => _UserDetailScreenState();
+}
+
+class _UserDetailScreenState extends State<UserDetailScreen> {
+  bool _connecting = false;
+
+  Future<void> _connectToUser() async {
+    setState(() => _connecting = true);
+    try {
+      final provider = context.read<CommunityProvider>();
+      await provider.sendConnectionRequest(widget.peer.id);
+      if (mounted) {
+        setState(() => _connecting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Connection request sent.'),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _connecting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to connect. Please try again.'),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final user = context.read<ChatProvider>().findUser(id);
+    final peer = widget.peer;
     return Scaffold(
         floatingActionButton: Padding(
           padding: EdgeInsets.only(bottom: size.height * 0.65),
@@ -44,7 +84,7 @@ class UserDetailScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) =>
-                        ChatScreen(senderId: user.userId, userId: '123')));
+                        ChatScreen(senderId: peer.id.toString(), userId: '123')));
               },
               backgroundColor: const Color.fromRGBO(110, 182, 255, 0.25),
               elevation: 0,
@@ -55,24 +95,22 @@ class UserDetailScreen extends StatelessWidget {
         appBar: PreferredSize(
             preferredSize: Size(double.infinity, size.height * 0.25),
             child: CustomeAppBarForUserDetailScreen(
-              title: user.displayName,
+              title: peer.fullName,
               profileImageUrl: devsImage,
               audioCall: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => AudioCallScreen(
-                          id: id,
+                          id: peer.id.toString(),
                         )));
               },
               videoCall: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => VideoCallScreen(
-                          id: id,
+                          id: peer.id.toString(),
                         )));
               },
               more: () {},
-              subTitle: user.chatHistory.isNotEmpty
-                  ? DateFormat.MMMMd().format(user.chatHistory.last.timestamp)
-                  : '',
+              subTitle: '',
             )),
         body: SafeArea(
           bottom: true,
@@ -81,10 +119,39 @@ class UserDetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const UserProfileInfo(
-                  mobile: '+251905221804',
-                  id: 'ID15463164946',
+                UserProfileInfo(
+                  mobile: '',
+                  id: 'ID${peer.id}',
                   notification: false,
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _connecting ? null : _connectToUser,
+                      icon: _connecting
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.person_add_outlined, size: 18),
+                      label: Text(
+                        _connecting ? 'Connecting...' : 'Send Connection Request',
+                        style: const TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 13,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 TabBar(
                   unselectedLabelColor: const Color.fromRGBO(42, 42, 42, 0.45),
@@ -305,7 +372,6 @@ class UserProfileInfo extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
-        // mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           InfoBuilder(
             content: mobile,

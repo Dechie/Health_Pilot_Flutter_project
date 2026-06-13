@@ -42,4 +42,13 @@ class RemoteChatRepository implements IChatRepository {
     );
     return DirectMessage.fromJson(data as Map<String, dynamic>);
   }
+
+  @override
+  Future<PrivateChat> startPrivateChat(int userId) async {
+    final data = await _api.post(
+      '${ApiConstants.chatBase}/private/',
+      data: {'user_id': userId},
+    );
+    return PrivateChat.fromJson(data as Map<String, dynamic>);
+  }
 }

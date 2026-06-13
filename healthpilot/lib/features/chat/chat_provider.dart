@@ -146,6 +146,9 @@ class ChatProvider extends ChangeNotifier {
     ];
   }
 
+  Future<PrivateChat> startPrivateChat(int userId) =>
+      _repo.startPrivateChat(userId);
+
   void _markGroupDelivered(String groupId, DateTime timestamp) {
     _groups = [
       for (final g in _groups)

@@ -7,4 +7,5 @@ abstract class IChatRepository {
       String targetUserId, DirectMessage message);
   Future<DirectMessage> sendGroupMessage(
       String groupId, DirectMessage message);
+  Future<PrivateChat> startPrivateChat(int userId);
 }

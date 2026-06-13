@@ -9,6 +9,7 @@ import 'package:healthpilot/core/repositories/i_ai_assistant_repository.dart';
 import 'package:healthpilot/core/repositories/i_assessment_repository.dart';
 import 'package:healthpilot/core/repositories/i_article_repository.dart';
 import 'package:healthpilot/core/repositories/i_chat_repository.dart';
+import 'package:healthpilot/core/repositories/i_community_repository.dart';
 import 'package:healthpilot/core/repositories/i_contacts_repository.dart';
 import 'package:healthpilot/core/repositories/i_nutrition_repository.dart';
 import 'package:healthpilot/core/repositories/i_health_repository.dart';
@@ -22,6 +23,9 @@ import 'package:healthpilot/features/articles/repositories/remote_article_reposi
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart';
 import 'package:healthpilot/features/chat/repositories/remote_chat_repository.dart';
+import 'package:healthpilot/features/community/community_provider.dart';
+import 'package:healthpilot/features/community/repositories/mock_community_repository.dart';
+import 'package:healthpilot/features/community/repositories/remote_community_repository.dart';
 import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/features/food_nutrition/repositories/mock_nutrition_repository.dart';
 import 'package:healthpilot/features/food_nutrition/repositories/remote_nutrition_repository.dart';
@@ -236,6 +240,21 @@ abstract final class RepositoryLocator {
                 ? RemoteSubscriptionRepository(apiClient)
                     as ISubscriptionRepository
                 : MockSubscriptionRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 12 — Community / Peers; auto-loads suggested peers and connections.
+        ChangeNotifierProxyProvider<AuthState, CommunityProvider>(
+          create: (_) => CommunityProvider(
+            FeatureFlags.community
+                ? RemoteCommunityRepository(apiClient) as ICommunityRepository
+                : MockCommunityRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {

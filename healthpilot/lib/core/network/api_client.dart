@@ -22,13 +22,16 @@ class ApiClient {
       connectTimeout: ApiConstants.connectTimeout,
       receiveTimeout: ApiConstants.receiveTimeout,
     ));
+    final authInterceptor = AuthInterceptor(
+      dio: dio,
+      tokenStore: tokenStore,
+      onAuthExpired: onAuthExpired,
+    );
     dio.interceptors.addAll([
+      // AuthInterceptor must come BEFORE LoggingInterceptor so the log
+      // sees the final headers (including Authorization) when it fires.
+      authInterceptor,
       LoggingInterceptor(),
-      AuthInterceptor(
-        dio: dio,
-        tokenStore: tokenStore,
-        onAuthExpired: onAuthExpired,
-      ),
       EnvelopeInterceptor(),
     ]);
     _instance = ApiClient._internal(dio);
