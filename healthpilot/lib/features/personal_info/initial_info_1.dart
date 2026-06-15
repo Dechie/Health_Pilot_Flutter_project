@@ -19,6 +19,7 @@ class InitialInfoFirst extends StatefulWidget {
 
 class _InitialInfoFirstState extends State<InitialInfoFirst> {
   Color textColor = const Color.fromRGBO(42, 42, 42, 0.5);
+  bool _loading = false;
 
   double tickWidth = 1.0;
   String? selectedGender;
@@ -437,9 +438,10 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                     Padding(
                       padding: const EdgeInsets.only(top: 48.0, bottom: 48),
                       child: ElevatedButton(
-                        onPressed: selectedGender == null
+                        onPressed: (selectedGender == null || _loading)
                             ? null
                             : () async {
+                                setState(() => _loading = true);
                                 final double heightCm =
                                     selectedHeight.toDouble();
                                 final double weightKg =
@@ -474,7 +476,16 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             ),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
-                        child: const Text('Next'),
+                        child: _loading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Next'),
                       ),
                     ),
                   ],

@@ -12,26 +12,29 @@ class RemoteCommunityRepository implements ICommunityRepository {
     final data = await _api.get(
       '${ApiConstants.communityBase}/peers/suggested/',
     );
-    return (data as List<dynamic>)
-        .map((e) => SuggestedPeer.fromJson(e as Map<String, dynamic>))
-        .toList();
+    if (data is List) {
+      return data
+          .map((e) => SuggestedPeer.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
   }
 
   @override
   Future<ConnectionRequest> sendConnectionRequest(int userId) async {
     final data = await _api.post(
       '${ApiConstants.communityBase}/peers/connect/',
-      data: {'user_id': userId},
+      data: {'receiver_id': userId},
     );
     return ConnectionRequest.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<ConnectionRequest> respondToConnection(
-      int requestId, String action) async {
+      int requestId, String status) async {
     final data = await _api.patch(
       '${ApiConstants.communityBase}/peers/$requestId/',
-      data: {'action': action},
+      data: {'status': status},
     );
     return ConnectionRequest.fromJson(data as Map<String, dynamic>);
   }
@@ -41,8 +44,25 @@ class RemoteCommunityRepository implements ICommunityRepository {
     final data = await _api.get(
       '${ApiConstants.communityBase}/peers/connections/',
     );
-    return (data['results'] as List<dynamic>)
-        .map((e) => ConnectionRequest.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final raw = data['results'];
+    if (raw is List) {
+      return raw
+          .map((e) => ConnectionRequest.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
+  }
+
+  @override
+  Future<List<ConnectionRequest>> fetchIncomingRequests() async {
+    final data = await _api.get(
+      '${ApiConstants.communityBase}/peers/requests/',
+    );
+    if (data is List) {
+      return data
+          .map((e) => ConnectionRequest.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
   }
 }

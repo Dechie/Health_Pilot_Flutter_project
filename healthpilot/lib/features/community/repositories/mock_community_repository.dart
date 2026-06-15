@@ -66,4 +66,16 @@ class MockCommunityRepository implements ICommunityRepository {
           createdAt: DateTime.now().subtract(const Duration(days: 1)),
         ),
       ];
+
+  @override
+  Future<List<ConnectionRequest>> fetchIncomingRequests() async => [
+        ConnectionRequest(
+          id: 2,
+          fromUserId: 56,
+          fromUserFullName: 'puls minds',
+          toUserId: 123,
+          status: 'pending',
+          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+        ),
+      ];
 }

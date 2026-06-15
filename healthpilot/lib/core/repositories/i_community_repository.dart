@@ -5,4 +5,5 @@ abstract class ICommunityRepository {
   Future<ConnectionRequest> sendConnectionRequest(int userId);
   Future<ConnectionRequest> respondToConnection(int requestId, String action);
   Future<List<ConnectionRequest>> getConnections();
+  Future<List<ConnectionRequest>> fetchIncomingRequests();
 }

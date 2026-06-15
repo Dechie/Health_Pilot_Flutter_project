@@ -5,9 +5,11 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/chat_models.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
+import 'package:healthpilot/features/chat/connection_requests_screen.dart';
 import 'package:healthpilot/features/chat/group_chat_screen.dart';
 import 'package:healthpilot/features/chat/similar_people_screen.dart';
 import 'package:healthpilot/features/chat/widgets/custom_profile_tile.dart';
+import 'package:healthpilot/features/community/community_provider.dart';
 import 'package:provider/provider.dart';
 
 class GeneralChatScreen extends StatefulWidget {
@@ -67,6 +69,18 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             title: _buildTabBar(),
             centerTitle: true,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: _RequestsBadge(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const ConnectionRequestsScreen(),
+                    ));
+                  },
+                ),
+              ),
+            ],
           ),
           floatingActionButton: _buildFloatingActionButton(),
           body: Column(children: [
@@ -297,5 +311,62 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             text: 'Groups',
           ),
         ]);
+  }
+}
+
+class _RequestsBadge extends StatelessWidget {
+  final VoidCallback onTap;
+  const _RequestsBadge({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final count = context.watch<CommunityProvider>().incomingRequests.length;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: SizedBox(
+        height: 40,
+        width: 40,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Center(
+              child: Icon(
+                Icons.person_add_alt_1_outlined,
+                size: 24,
+                color: cs.onSurface,
+              ),
+            ),
+            if (count > 0)
+              Positioned(
+                right: 0,
+                top: 2,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    count > 9 ? '9+' : '$count',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Plus Jakarta Sans',
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

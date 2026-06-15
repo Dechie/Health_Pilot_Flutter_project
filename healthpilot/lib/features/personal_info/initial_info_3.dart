@@ -20,6 +20,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
   List<String> selectedAllergies = [];
   String chronicConditionAnswer = '';
   String? selectedBloodType;
+  bool _loading = false;
 
   static const _bloodTypes = [
     'A+',
@@ -392,8 +393,9 @@ class _InitialInfoThird extends State<InitialInfoThird> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _canFinish
+                  onPressed: (_canFinish && !_loading)
                       ? () async {
+                          setState(() => _loading = true);
                           try {
                             await context
                                 .read<ProfileProvider>()
@@ -426,10 +428,19 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text(
-                    'Finish',
-                    style: TextStyle(color: cs.onPrimary),
-                  ),
+                  child: _loading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Finish',
+                          style: TextStyle(color: cs.onPrimary),
+                        ),
                 ),
               ),
             ),
