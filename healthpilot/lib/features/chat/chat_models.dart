@@ -50,6 +50,7 @@ class ChatUser {
   final bool isOnline;
   final String bio;
   final bool isPro;
+  final String? chatId;
   final List<DirectMessage> chatHistory;
 
   ChatUser({
@@ -60,10 +61,15 @@ class ChatUser {
     required this.isOnline,
     required this.bio,
     required this.isPro,
+    this.chatId,
     required this.chatHistory,
   });
 
-  ChatUser copyWith({List<DirectMessage>? chatHistory}) => ChatUser(
+  ChatUser copyWith({
+    List<DirectMessage>? chatHistory,
+    String? chatId,
+  }) =>
+      ChatUser(
         userId: userId,
         displayName: displayName,
         profilePictureUrl: profilePictureUrl,
@@ -71,6 +77,7 @@ class ChatUser {
         isOnline: isOnline,
         bio: bio,
         isPro: isPro,
+        chatId: chatId ?? this.chatId,
         chatHistory: chatHistory ?? this.chatHistory,
       );
 
@@ -82,6 +89,7 @@ class ChatUser {
         isOnline: json['is_online'] as bool? ?? false,
         bio: json['bio'] as String? ?? '',
         isPro: json['is_pro'] as bool? ?? false,
+        chatId: json['chat_id'] as String?,
         chatHistory: (json['chat_history'] as List<dynamic>? ?? [])
             .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -95,6 +103,7 @@ class ChatUser {
         'is_online': isOnline,
         'bio': bio,
         'is_pro': isPro,
+        if (chatId != null) 'chat_id': chatId,
         'chat_history': chatHistory.map((m) => m.toJson()).toList(),
       };
 }

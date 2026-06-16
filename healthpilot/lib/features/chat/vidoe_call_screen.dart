@@ -47,6 +47,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = context.read<ChatProvider>().findUser(widget.id);
+    final displayName = user?.displayName ?? 'Unknown';
+    final userId = user?.userId ?? widget.id;
     return Scaffold(
       // appBar: AppBar(),
       body: Stack(
@@ -68,7 +70,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 child: Row(
                   children: [
                     Text(
-                      user.displayName,
+                      displayName,
                       style: GoogleFonts.plusJakartaSans(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -118,7 +120,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     customButton(voiceIcon, () {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
                           builder: (context) =>
-                              AudioCallScreen(id: user.userId)));
+                              AudioCallScreen(id: userId)));
                     }, const Color.fromRGBO(110, 182, 255, 1),
                         EdgeInsets.all(20)),
                     ElevatedButton(
@@ -139,7 +141,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     customButton(profileChatIcon, () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ChatScreen(
-                                senderId: user.userId,
+                                senderId: userId,
                                 userId: '123',
                               )));
                     }, const Color.fromRGBO(110, 182, 255, 1),

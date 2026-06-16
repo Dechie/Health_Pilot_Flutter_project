@@ -760,7 +760,7 @@ void main() {
         (tester) async {
       final chatP = await createTestChatProvider();
       await chatP.sendDirect('1', '999', 'Hi from test');
-      final user = chatP.findUser('1');
+      final user = chatP.findUser('1')!;
       expect(
         user.chatHistory.any((m) => m.content == 'Hi from test'),
         isTrue,
@@ -773,7 +773,7 @@ void main() {
       final chatP = await createTestChatProvider();
       await chatP.sendDirect('1', '999', 'Persistent message');
       // Same provider instance — in-memory state is unchanged.
-      final user = chatP.findUser('1');
+      final user = chatP.findUser('1')!;
       expect(
         user.chatHistory.any((m) => m.content == 'Persistent message'),
         isTrue,

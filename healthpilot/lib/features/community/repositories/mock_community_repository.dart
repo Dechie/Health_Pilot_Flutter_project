@@ -37,6 +37,7 @@ class MockCommunityRepository implements ICommunityRepository {
       fromUserId: 123,
       fromUserFullName: 'Current User',
       toUserId: userId,
+      toUserFullName: 'Peer User',
       status: 'pending',
       createdAt: DateTime.now(),
     );
@@ -50,7 +51,8 @@ class MockCommunityRepository implements ICommunityRepository {
       fromUserId: 5,
       fromUserFullName: 'Sara M.',
       toUserId: 123,
-      status: action == 'accept' ? 'accepted' : 'rejected',
+      toUserFullName: 'Current User',
+      status: action == 'accepted' ? 'accepted' : 'rejected',
       createdAt: DateTime.now(),
     );
   }
@@ -62,6 +64,7 @@ class MockCommunityRepository implements ICommunityRepository {
           fromUserId: 2,
           fromUserFullName: 'Sara M.',
           toUserId: 123,
+          toUserFullName: 'Current User',
           status: 'accepted',
           createdAt: DateTime.now().subtract(const Duration(days: 1)),
         ),
@@ -74,6 +77,7 @@ class MockCommunityRepository implements ICommunityRepository {
           fromUserId: 56,
           fromUserFullName: 'puls minds',
           toUserId: 123,
+          toUserFullName: 'Current User',
           status: 'pending',
           createdAt: DateTime.now().subtract(const Duration(hours: 2)),
         ),

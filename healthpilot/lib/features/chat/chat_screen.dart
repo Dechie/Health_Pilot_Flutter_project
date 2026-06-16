@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,17 +16,57 @@ import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   final String senderId;
   final String userId;
 
   const ChatScreen({super.key, required this.senderId, required this.userId});
 
   @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ChatProvider>().fetchPrivateMessages(widget.senderId);
+    });
+    _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) return;
+      context.read<ChatProvider>().fetchPrivateMessages(widget.senderId);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final provider = context.watch<ChatProvider>();
-    final user = provider.findUser(senderId);
+    final user = provider.findUser(widget.senderId);
+    if (user == null) {
+      return Scaffold(
+        body: Center(
+          child: Text(
+            'User not found',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size(size.width, size.height * 0.15),
@@ -36,7 +78,7 @@ class ChatScreen extends StatelessWidget {
             profileImageUrl: devsImage,
             callNow: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => AudioCallScreen(id: senderId)));
+                  builder: (context) => AudioCallScreen(id: widget.senderId)));
             },
             more: () {},
             senderId: user.userId,
@@ -50,8 +92,8 @@ class ChatScreen extends StatelessWidget {
               user.chatHistory.isEmpty
                   ? const EmptyChat()
                   : ChatList(
-                      senderId: senderId,
-                      userId: userId,
+                      senderId: widget.senderId,
+                      userId: widget.userId,
                       chatList: user.chatHistory),
               SendMessage(
                 attach: () {
@@ -60,7 +102,7 @@ class ChatScreen extends StatelessWidget {
                 sendMessage: (message) {
                   context
                       .read<ChatProvider>()
-                      .sendDirect(senderId, userId, message);
+                      .sendDirect(widget.senderId, widget.userId, message);
                 },
               ),
             ],

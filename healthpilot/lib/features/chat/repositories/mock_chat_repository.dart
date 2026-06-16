@@ -10,8 +10,18 @@ class MockChatRepository implements IChatRepository {
 
   @override
   Future<DirectMessage> sendDirectMessage(
-          String targetUserId, DirectMessage message) async =>
-      message;
+      String chatId, String content) async {
+    return DirectMessage(
+      senderId: '123',
+      content: content,
+      timestamp: DateTime.now(),
+    );
+  }
+
+  @override
+  Future<List<DirectMessage>> fetchPrivateMessages(String chatId) async {
+    return [];
+  }
 
   @override
   Future<DirectMessage> sendGroupMessage(

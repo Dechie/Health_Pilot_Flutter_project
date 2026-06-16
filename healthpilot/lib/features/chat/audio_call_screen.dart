@@ -31,6 +31,8 @@ class AudioCallScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = context.read<ChatProvider>().findUser(id);
+    final displayName = user?.displayName ?? 'Unknown';
+    final userId = user?.userId ?? id;
     return Scaffold(
       // appBar: AppBar(),
       body: Stack(
@@ -48,7 +50,7 @@ class AudioCallScreen extends StatelessWidget {
                 height: size.height * 0.1,
               ),
               Text(
-                user.displayName,
+                displayName,
                 style: GoogleFonts.plusJakartaSans(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -107,7 +109,7 @@ class AudioCallScreen extends StatelessWidget {
                     customButton(profileChatIcon, () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ChatScreen(
-                                senderId: user.userId,
+                                senderId: userId,
                                 userId: '123',
                               )));
                     }),

@@ -23,9 +23,10 @@ class ChatDatabase {
   }
 
   /// In-memory database for widget/unit tests.
-  static Future<ChatDatabase> openInMemory() async {
+  /// Pass a unique [path] to isolate test databases from each other.
+  static Future<ChatDatabase> openInMemory([String? path]) async {
     final db = await openDatabase(
-      inMemoryDatabasePath,
+      path ?? inMemoryDatabasePath,
       version: 1,
       onCreate: onCreate,
     );

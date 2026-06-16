@@ -25,12 +25,22 @@ class RemoteChatRepository implements IChatRepository {
 
   @override
   Future<DirectMessage> sendDirectMessage(
-      String targetUserId, DirectMessage message) async {
+      String chatId, String content) async {
     final data = await _api.post(
-      '${ApiConstants.chatBase}/direct/$targetUserId/messages/',
-      data: message.toJson(),
+      '${ApiConstants.chatBase}/private/$chatId/messages/',
+      data: {'content': content},
     );
     return DirectMessage.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<DirectMessage>> fetchPrivateMessages(String chatId) async {
+    final data = await _api.get(
+      '${ApiConstants.chatBase}/private/$chatId/messages/',
+    );
+    return (data as List<dynamic>)
+        .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   @override

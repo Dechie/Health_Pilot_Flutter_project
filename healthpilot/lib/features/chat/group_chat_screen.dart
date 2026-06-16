@@ -275,11 +275,7 @@ class _GroupChatList extends StatelessWidget {
 
           String senderName = '';
           if (isIncoming) {
-            try {
-              senderName = provider.findUser(chat.senderId).displayName;
-            } catch (_) {
-              senderName = chat.senderId;
-            }
+            senderName = provider.findUser(chat.senderId)?.displayName ?? chat.senderId;
           }
 
           return Bubble(

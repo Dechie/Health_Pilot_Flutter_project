@@ -33,6 +33,7 @@ class ConnectionRequest {
   final int fromUserId;
   final String fromUserFullName;
   final int toUserId;
+  final String toUserFullName;
   final String status;
   final DateTime createdAt;
 
@@ -41,6 +42,7 @@ class ConnectionRequest {
     required this.fromUserId,
     required this.fromUserFullName,
     required this.toUserId,
+    required this.toUserFullName,
     required this.status,
     required this.createdAt,
   });
@@ -54,10 +56,20 @@ class ConnectionRequest {
       fromUserFullName:
           requester?['full_name'] as String? ?? json['from_user_full_name'] as String? ?? '',
       toUserId: receiver?['id'] as int? ?? json['to_user_id'] as int,
+      toUserFullName:
+          receiver?['full_name'] as String? ?? json['to_user_full_name'] as String? ?? '',
       status: json['status'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
+
+  /// The other person's user ID from the perspective of [currentUserId].
+  int peerIdOf(String currentUserId) =>
+      fromUserId.toString() == currentUserId ? toUserId : fromUserId;
+
+  /// The other person's full name from the perspective of [currentUserId].
+  String peerNameOf(String currentUserId) =>
+      fromUserId.toString() == currentUserId ? toUserFullName : fromUserFullName;
 }
 
 enum CommunityStatus { idle, loading, loaded, error }

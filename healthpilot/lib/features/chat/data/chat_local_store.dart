@@ -51,18 +51,28 @@ class ChatLocalStore {
     return rows.map(_directMessageFromRow).toList();
   }
 
-  /// Loads SQLite history, or seeds from [fallback] once when empty.
+  /// Loads SQLite history and merges in [apiMessages] that aren't already stored.
   Future<List<DirectMessage>> loadDirectMessages(
     String threadId,
-    List<DirectMessage> fallback,
+    List<DirectMessage> apiMessages,
   ) async {
     final local = await fetchDirectMessages(threadId);
-    if (local.isNotEmpty) return local;
-    if (fallback.isEmpty) return local;
-    for (final message in fallback) {
-      await insertDirectMessage(threadId, message);
+    if (apiMessages.isEmpty && local.isNotEmpty) return local;
+    // Deduplicate by (timestamp, senderId, content)
+    final seen = local
+        .map((m) => '${m.timestamp}:${m.senderId}:${m.content}')
+        .toSet();
+    final merged = [
+      ...local,
+      for (final m in apiMessages)
+        if (!seen.contains('${m.timestamp}:${m.senderId}:${m.content}')) m,
+    ];
+    for (final m in merged) {
+      if (!seen.contains('${m.timestamp}:${m.senderId}:${m.content}')) {
+        await insertDirectMessage(threadId, m);
+      }
     }
-    return fallback;
+    return merged;
   }
 
   Future<void> insertDirectMessage(
@@ -107,15 +117,24 @@ class ChatLocalStore {
 
   Future<List<DirectMessage>> loadGroupMessages(
     String threadId,
-    List<DirectMessage> fallback,
+    List<DirectMessage> apiMessages,
   ) async {
     final local = await fetchGroupMessages(threadId);
-    if (local.isNotEmpty) return local;
-    if (fallback.isEmpty) return local;
-    for (final message in fallback) {
-      await insertGroupMessage(threadId, message);
+    if (apiMessages.isEmpty && local.isNotEmpty) return local;
+    final seen = local
+        .map((m) => '${m.timestamp}:${m.senderId}:${m.content}')
+        .toSet();
+    final merged = [
+      ...local,
+      for (final m in apiMessages)
+        if (!seen.contains('${m.timestamp}:${m.senderId}:${m.content}')) m,
+    ];
+    for (final m in merged) {
+      if (!seen.contains('${m.timestamp}:${m.senderId}:${m.content}')) {
+        await insertGroupMessage(threadId, m);
+      }
     }
-    return fallback;
+    return merged;
   }
 
   Future<void> insertGroupMessage(

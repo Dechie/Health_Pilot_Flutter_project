@@ -27,6 +27,24 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
   String _query = '';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshCommunity());
+  }
+
+  Future<void> _refreshCommunity() async {
+    if (!mounted) return;
+    final community = context.read<CommunityProvider>();
+    await community.refreshConnections();
+    if (mounted) {
+      // TODO: replace '123' with real user ID once AuthState exposes it
+      await context
+          .read<ChatProvider>()
+          .syncAcceptedConnections(community.connections, '123');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final provider = context.watch<ChatProvider>();
@@ -83,7 +101,9 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             ],
           ),
           floatingActionButton: _buildFloatingActionButton(),
-          body: Column(children: [
+          body: RefreshIndicator(
+            onRefresh: _refreshCommunity,
+            child: Column(children: [
             _buildSearchBar(context),
             Expanded(
               child: TabBarView(children: [
@@ -224,6 +244,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
               ]),
             )
           ]),
+        ),
         ),
       ),
     );

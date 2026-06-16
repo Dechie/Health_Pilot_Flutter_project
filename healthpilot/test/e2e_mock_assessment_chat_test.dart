@@ -256,7 +256,7 @@ void main() {
 
       expect(find.textContaining('E2E hello from DM'), findsWidgets);
 
-      final user = chatP.findUser('1');
+      final user = chatP.findUser('1')!;
       expect(
         user.chatHistory.any((m) => m.content == 'E2E hello from DM'),
         isTrue,
@@ -298,7 +298,7 @@ void main() {
 
       expect(find.textContaining('Hi Emma'), findsWidgets);
       expect(
-        chatP.findUser('2').chatHistory.any((m) => m.content == 'Hi Emma'),
+        chatP.findUser('2')!.chatHistory.any((m) => m.content == 'Hi Emma'),
         isTrue,
       );
     });

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:healthpilot/core/repositories/i_chat_repository.dart';
 import 'package:healthpilot/features/chat/chat_models.dart';
 import 'package:healthpilot/features/chat/data/chat_local_store.dart';
+import 'package:healthpilot/features/community/community_models.dart';
 
 enum ChatLoadStatus { idle, loading, loaded, error }
 
@@ -43,7 +44,13 @@ class ChatProvider extends ChangeNotifier {
     ChatLocalStore? localStore,
   }) : _localStore = localStore ?? ChatLocalStore.instance;
 
-  ChatUser findUser(String id) => _users.firstWhere((u) => u.userId == id);
+  ChatUser? findUser(String id) {
+    try {
+      return _users.firstWhere((u) => u.userId == id);
+    } catch (_) {
+      return null;
+    }
+  }
 
   ChatGroup findGroup(String id) => _groups.firstWhere((g) => g.groupId == id);
 
@@ -81,27 +88,85 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> refresh() async {
+    _loadStarted = false;
+    await load();
+  }
+
+  void addConnection(int userId, String fullName, String chatId) {
+    final id = userId.toString();
+    if (_users.any((u) => u.userId == id)) return;
+    _users = [
+      ChatUser(
+        userId: id,
+        displayName: fullName,
+        chatId: chatId,
+        profilePictureUrl: '',
+        status: '',
+        isOnline: false,
+        bio: '',
+        isPro: false,
+        chatHistory: [],
+      ),
+      ..._users,
+    ];
+    notifyListeners();
+  }
+
   Future<void> sendDirect(
       String targetUserId, String currentUserId, String content) async {
+    final userIdx = _users.indexWhere((u) => u.userId == targetUserId);
+    if (userIdx == -1) return;
+    String chatId = _users[userIdx].chatId ?? '';
+    if (chatId.isEmpty) {
+      final userId = int.tryParse(targetUserId);
+      if (userId == null) return;
+      final chat = await _repo.startPrivateChat(userId);
+      chatId = chat.id;
+      _users[userIdx] = _users[userIdx].copyWith(chatId: chatId);
+    }
     final message = DirectMessage(
       senderId: currentUserId,
       content: content,
       timestamp: DateTime.now(),
       isDelivered: false,
     );
+    _users[userIdx] = _users[userIdx].copyWith(
+      chatHistory: [..._users[userIdx].chatHistory, message],
+    );
+    notifyListeners();
+    await _localStore.insertDirectMessage(targetUserId, message);
+    await _repo.sendDirectMessage(chatId, content);
+    // Mark delivered in-memory using server-confirmed data
+    _users[userIdx] = _users[userIdx].copyWith(
+      chatHistory: [
+        for (final m in _users[userIdx].chatHistory)
+          if (m.timestamp == message.timestamp && m.content == message.content)
+            m.copyWith(isDelivered: true)
+          else
+            m,
+      ],
+    );
+    await _localStore.markDirectMessageDelivered(
+        targetUserId, message.timestamp);
+    notifyListeners();
+  }
+
+  Future<void> fetchPrivateMessages(String targetUserId) async {
+    final user = _users.firstWhere((u) => u.userId == targetUserId);
+    if (user.chatId == null) return;
+    final messages = await _repo.fetchPrivateMessages(user.chatId!);
+    final merged = await _localStore.loadDirectMessages(
+      targetUserId,
+      messages,
+    );
     _users = [
       for (final u in _users)
         if (u.userId == targetUserId)
-          u.copyWith(chatHistory: [...u.chatHistory, message])
+          u.copyWith(chatHistory: merged)
         else
           u,
     ];
-    notifyListeners();
-    await _localStore.insertDirectMessage(targetUserId, message);
-    await _repo.sendDirectMessage(targetUserId, message);
-    _markDirectDelivered(targetUserId, message.timestamp);
-    await _localStore.markDirectMessageDelivered(
-        targetUserId, message.timestamp);
     notifyListeners();
   }
 
@@ -128,26 +193,24 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _markDirectDelivered(String targetUserId, DateTime timestamp) {
-    _users = [
-      for (final u in _users)
-        if (u.userId == targetUserId)
-          u.copyWith(
-            chatHistory: [
-              for (final m in u.chatHistory)
-                if (m.timestamp == timestamp && !m.isDelivered)
-                  m.copyWith(isDelivered: true)
-                else
-                  m,
-            ],
-          )
-        else
-          u,
-    ];
-  }
-
   Future<PrivateChat> startPrivateChat(int userId) =>
       _repo.startPrivateChat(userId);
+
+  Future<void> syncAcceptedConnections(
+      List<ConnectionRequest> connections,
+      String currentUserId) async {
+    for (final conn in connections) {
+      if (conn.status != 'accepted') continue;
+      final peerId = conn.peerIdOf(currentUserId);
+      final peerName = conn.peerNameOf(currentUserId);
+      final userId = peerId.toString();
+      if (_users.any((u) => u.userId == userId)) continue;
+      try {
+        final chat = await _repo.startPrivateChat(peerId);
+        addConnection(peerId, peerName, chat.id);
+      } catch (_) {}
+    }
+  }
 
   void _markGroupDelivered(String groupId, DateTime timestamp) {
     _groups = [

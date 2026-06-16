@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/public_profile_screen.dart';
+import 'package:healthpilot/features/community/community_models.dart';
 import 'package:healthpilot/features/community/community_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -22,11 +24,20 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen> {
     });
   }
 
-  Future<void> _handleRespond(int requestId, bool accept) async {
+  Future<void> _handleRespond(ConnectionRequest request, bool accept) async {
     final provider = context.read<CommunityProvider>();
     try {
-      await provider.respondToConnection(requestId, accept);
+      await provider.respondToConnection(request.id, accept);
       if (context.mounted) {
+        if (accept) {
+          final chatP = context.read<ChatProvider>();
+          final chat = await chatP.startPrivateChat(request.fromUserId);
+          chatP.addConnection(
+            request.fromUserId,
+            request.fromUserFullName,
+            chat.id,
+          );
+        }
         _showRequestSnackBar(
           context,
           backgroundColor: const Color.fromRGBO(76, 217, 100, 1),
@@ -100,8 +111,8 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen> {
                 return _RequestCard(
                   fullName: request.fromUserFullName,
                   createdAt: request.createdAt,
-                  onAccept: () => _handleRespond(request.id, true),
-                  onReject: () => _handleRespond(request.id, false),
+                  onAccept: () => _handleRespond(request, true),
+                  onReject: () => _handleRespond(request, false),
                 );
               },
             ),

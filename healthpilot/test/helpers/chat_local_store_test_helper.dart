@@ -6,8 +6,15 @@ import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart
 import 'package:healthpilot/features/chatbot/ai_assistant_provider.dart';
 import 'package:healthpilot/features/chatbot/repositories/mock_ai_assistant_repository.dart';
 
+int _storeCounter = 0;
+
+/// Creates a fresh in-memory [ChatLocalStore].
+///
+/// Each call gets its own SQLite in-memory database (sqflite_common_ffi
+/// reuses `inMemoryDatabasePath = ""`, so we generate unique paths).
 Future<ChatLocalStore> createTestChatLocalStore() async {
-  final database = await ChatDatabase.openInMemory();
+  final path = 'test_${_storeCounter++}_${DateTime.now().microsecondsSinceEpoch}';
+  final database = await ChatDatabase.openInMemory(path);
   return ChatLocalStore(database);
 }
 
