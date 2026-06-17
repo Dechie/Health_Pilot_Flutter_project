@@ -47,7 +47,7 @@ class AuthInterceptor extends Interceptor {
 
     final refreshToken = await _tokenStore.getRefreshToken();
     if (refreshToken == null) {
-      await _tokenStore.clearAll();
+      await _tokenStore.clearAuthSession();
       await _onAuthExpired();
       handler.reject(err);
       return;
@@ -70,7 +70,7 @@ class AuthInterceptor extends Interceptor {
       final retryResponse = await _dio.fetch(retryOptions);
       handler.resolve(retryResponse);
     } catch (_) {
-      await _tokenStore.clearAll();
+      await _tokenStore.clearAuthSession();
       await _onAuthExpired();
       handler.reject(err);
     }

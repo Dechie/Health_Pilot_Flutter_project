@@ -153,7 +153,8 @@ class AuthState extends ChangeNotifier {
     } catch (_) {
       // Best-effort — always clear local tokens regardless.
     }
-    await _clearSession();
+    await _clearUserSession();
+    _healthInfoCompleted = false;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
   }
@@ -185,8 +186,11 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clears auth-session data but preserves onboarding and health-info
+  /// progress so the user doesn't have to re-enter them after a session
+  /// expiry or re-login.
   Future<void> _clearSession() async {
-    await _tokenStore.clearAll();
+    await _tokenStore.clearAuthSession();
     _firstName = '';
     _lastName = '';
     _userId = '';
@@ -194,9 +198,20 @@ class AuthState extends ChangeNotifier {
     _sessionExpired = false;
     _activationPending = false;
     _pendingActivationEmail = '';
-    _onboardingCompleted = false;
+  }
+
+  /// Like [_clearSession] but also clears user-specific profile flags
+  /// (health-info) so a different account doesn't inherit them.
+  Future<void> _clearUserSession() async {
+    await _tokenStore.clearUserSession();
+    _firstName = '';
+    _lastName = '';
+    _userId = '';
+    _isGuest = false;
+    _sessionExpired = false;
+    _activationPending = false;
+    _pendingActivationEmail = '';
     _healthInfoCompleted = false;
-    _onboardingStep = 0;
   }
 
   Future<void> _storeTokens(AuthTokens tokens) async {

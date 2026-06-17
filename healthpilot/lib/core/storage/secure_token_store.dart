@@ -68,6 +68,37 @@ class SecureTokenStore {
   Future<void> clearPendingActivationEmail() =>
       _storage.delete(key: _pendingActivationEmailKey);
 
+  /// Clears all auth-session data (tokens, credentials, activation state).
+  /// Onboarding progress is preserved so the user doesn't have to re-enter
+  /// it after a session expiry or re-login.
+  Future<void> clearAuthSession() => Future.wait([
+        _storage.delete(key: _accessKey),
+        _storage.delete(key: _refreshKey),
+        _storage.delete(key: _userIdKey),
+        _storage.delete(key: _firstNameKey),
+        _storage.delete(key: _lastNameKey),
+        _storage.delete(key: _isGuestKey),
+        _storage.delete(key: _activationPendingKey),
+        _storage.delete(key: _pendingActivationEmailKey),
+      ]);
+
+  /// Like [clearAuthSession] but also deletes user-specific profile flags
+  /// (health-info) so a different account doesn't inherit them.
+  /// Onboarding is still preserved (it is a device-level setup).
+  Future<void> clearUserSession() => Future.wait([
+        _storage.delete(key: _accessKey),
+        _storage.delete(key: _refreshKey),
+        _storage.delete(key: _userIdKey),
+        _storage.delete(key: _firstNameKey),
+        _storage.delete(key: _lastNameKey),
+        _storage.delete(key: _isGuestKey),
+        _storage.delete(key: _activationPendingKey),
+        _storage.delete(key: _pendingActivationEmailKey),
+        _storage.delete(key: _healthInfoCompletedKey),
+      ]);
+
+  /// Deletes everything including onboarding/health-info progress.
+  /// Use only for account deletion / factory reset scenarios.
   Future<void> clearAll() => Future.wait([
         _storage.delete(key: _accessKey),
         _storage.delete(key: _refreshKey),
