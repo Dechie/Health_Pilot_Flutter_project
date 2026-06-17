@@ -26,15 +26,21 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
   int selectedAge = 20;
   int selectedWeight = 50;
   int selectedHeight = 140;
+  int selectedHeartbeat = 72;
+  double selectedSleepHours = 8;
   RulerPickerController? _rulerPickerAgeController;
   RulerPickerController? _rulerPickerHeightController;
   RulerPickerController? _rulerPickerWeightController;
+  RulerPickerController? _rulerPickerHeartbeatController;
+  RulerPickerController? _rulerPickerSleepController;
 
   @override
   void initState() {
     _rulerPickerAgeController = RulerPickerController(value: selectedAge);
     _rulerPickerHeightController = RulerPickerController(value: selectedHeight);
     _rulerPickerWeightController = RulerPickerController(value: selectedWeight);
+    _rulerPickerHeartbeatController = RulerPickerController(value: selectedHeartbeat);
+    _rulerPickerSleepController = RulerPickerController(value: selectedSleepHours);
     super.initState();
     if (FeatureFlags.auth) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -435,6 +441,196 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                         // onBuildRulerScaleText: (int index, num rulerScaleValue) {  },
                       ),
                     ),
+                    SizedBox(
+                      height: size.height * 0.04,
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.favorite,
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            size: 24),
+                        SizedBox(width: size.height * 0.02),
+                        const Text(
+                          "Heartbeat",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "bpm",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$selectedHeartbeat',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: RulerPicker(
+                        rulerBackgroundColor: Colors.transparent,
+                        marker: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: size.height * 0.01),
+                            SvgPicture.asset(triangleMarker),
+                            SvgPicture.asset(lineMarker, height: 10),
+                          ],
+                        ),
+                        ranges: const [
+                          RulerRange(begin: 40, end: 220, scale: 1),
+                        ],
+                        controller: _rulerPickerHeartbeatController,
+                        rulerScaleTextStyle: const TextStyle(
+                          fontFamily: ' PlusJakartaSans',
+                          color: Color.fromRGBO(42, 42, 42, 1),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        scaleLineStyleList: const [
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1.5,
+                            height: 20,
+                            scale: 0,
+                          ),
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1,
+                            height: 15,
+                            scale: 5,
+                          ),
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1,
+                            height: 10,
+                            scale: -1,
+                          ),
+                        ],
+                        onValueChanged: (value) {
+                          setState(() {
+                            selectedHeartbeat = value.toInt();
+                          });
+                        },
+                        width: size.width,
+                        height: size.height * 0.06,
+                        rulerMarginTop: 15,
+                        onBuildRulerScaleText:
+                            (int index, num rulerScaleValue) {
+                          return rulerScaleValue.toInt().toString();
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: size.height * 0.04,
+                    ),
+                    Row(
+                      children: [
+                        SvgPicture.asset(bedIcon),
+                        SizedBox(width: size.height * 0.02),
+                        const Text(
+                          "Sleep",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "hours",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${selectedSleepHours.toInt()}',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: RulerPicker(
+                        rulerBackgroundColor: Colors.transparent,
+                        marker: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: size.height * 0.01),
+                            SvgPicture.asset(triangleMarker),
+                            SvgPicture.asset(lineMarker, height: 10),
+                          ],
+                        ),
+                        ranges: const [
+                          RulerRange(begin: 0, end: 24, scale: 1),
+                        ],
+                        controller: _rulerPickerSleepController,
+                        rulerScaleTextStyle: const TextStyle(
+                          fontFamily: ' PlusJakartaSans',
+                          color: Color.fromRGBO(42, 42, 42, 1),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        scaleLineStyleList: const [
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1.5,
+                            height: 20,
+                            scale: 0,
+                          ),
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1,
+                            height: 15,
+                            scale: 5,
+                          ),
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1,
+                            height: 10,
+                            scale: -1,
+                          ),
+                        ],
+                        onValueChanged: (value) {
+                          setState(() {
+                            selectedSleepHours = value.toDouble();
+                          });
+                        },
+                        width: size.width,
+                        height: size.height * 0.06,
+                        rulerMarginTop: 15,
+                        onBuildRulerScaleText:
+                            (int index, num rulerScaleValue) {
+                          return rulerScaleValue.toInt().toString();
+                        },
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 48.0, bottom: 48),
                       child: ElevatedButton(
@@ -446,6 +642,8 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                                     selectedHeight.toDouble();
                                 final double weightKg =
                                     selectedWeight.toDouble();
+                                final bmi = weightKg /
+                                    ((heightCm / 100) * (heightCm / 100));
                                 try {
                                   await context
                                       .read<ProfileProvider>()
@@ -454,12 +652,13 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                                         age: selectedAge,
                                         heightCm: heightCm,
                                         weightKg: weightKg,
+                                        bmi: double.parse(bmi.toStringAsFixed(1)),
                                       );
                                 } catch (_) {
                                   // Don't block onboarding if the save fails.
                                 }
                                 if (!context.mounted) return;
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>

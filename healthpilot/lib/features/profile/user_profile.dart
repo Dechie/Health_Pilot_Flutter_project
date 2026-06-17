@@ -53,6 +53,7 @@ class UserProfile {
     this.hasHypertension,
     this.hasDiabetes,
     this.hasChronicCondition,
+    this.bmi,
     this.isSmoker,
     this.hadRecentSurgery,
     this.aboutMe,
@@ -70,6 +71,7 @@ class UserProfile {
   final int? age;
   final double? weightKg;
   final double? heightCm;
+  final double? bmi;
   final String? allergies;
   final String? bloodType;
   final String? hasHypertension;
@@ -101,6 +103,7 @@ class UserProfile {
       age: _parseApiInt(data['age']),
       weightKg: _parseApiDouble(data['weight_kg']),
       heightCm: _parseApiDouble(data['height_cm']),
+      bmi: _parseApiDouble(data['bmi']),
       allergies: data['allergies'] as String?,
       bloodType: data['blood_type'] as String?,
       hasHypertension: data['has_hypertension'] as String?,
@@ -171,6 +174,7 @@ class UserProfile {
         age: other.age ?? age,
         weightKg: other.weightKg ?? weightKg,
         heightCm: other.heightCm ?? heightCm,
+        bmi: other.bmi ?? bmi,
         allergies: other.allergies ?? allergies,
         bloodType: other.bloodType ?? bloodType,
         hasHypertension: other.hasHypertension ?? hasHypertension,
@@ -194,6 +198,7 @@ class UserProfile {
     int? age,
     double? weightKg,
     double? heightCm,
+    double? bmi,
     String? allergies,
     String? bloodType,
     String? hasHypertension,
@@ -216,6 +221,7 @@ class UserProfile {
         age: age ?? this.age,
         weightKg: weightKg ?? this.weightKg,
         heightCm: heightCm ?? this.heightCm,
+        bmi: bmi ?? this.bmi,
         allergies: allergies ?? this.allergies,
         bloodType: bloodType ?? this.bloodType,
         hasHypertension: hasHypertension ?? this.hasHypertension,
@@ -236,6 +242,7 @@ class UserProfile {
         if (dateOfBirth != null) 'date_of_birth': _formatApiDate(dateOfBirth!),
         if (weightKg != null) 'weight_kg': weightKg,
         if (heightCm != null) 'height_cm': heightCm,
+        if (bmi != null) 'bmi': bmi,
         if (allergies != null) 'allergies': allergies,
         if (bloodType != null) 'blood_type': bloodType,
         if (hasHypertension != null) 'has_hypertension': hasHypertension,

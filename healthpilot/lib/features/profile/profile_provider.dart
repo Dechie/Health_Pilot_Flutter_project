@@ -59,12 +59,13 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Onboarding step 1 — gender, date_of_birth (from age), height, weight.
+  /// Onboarding step 1 — gender, date_of_birth (from age), height, weight, bmi.
   Future<void> saveOnboardingStep1({
     required String? gender,
     required int age,
     required double heightCm,
     required double weightKg,
+    double? bmi,
   }) async {
     final apiGender = genderToApi(gender);
     final dob = DateTime.tryParse(dateOfBirthFromAge(age));
@@ -73,6 +74,7 @@ class ProfileProvider extends ChangeNotifier {
       dateOfBirth: dob,
       heightCm: heightCm,
       weightKg: weightKg,
+      bmi: bmi,
     );
     final saved = await _repo.updateMe(partial);
     _profile = _profile.mergeWith(saved);

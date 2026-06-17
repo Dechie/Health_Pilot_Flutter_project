@@ -27,6 +27,7 @@ import 'package:healthpilot/core/widgets/setup_promo_card.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
+import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/features/personal_doctor/setup_personal_doctor.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
@@ -388,20 +389,25 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                         );
                       },
                     ),
-                    SetupPromoCard(
-                      screenWidth: screenWidth,
-                      title: SetupPromoCardCopy.foodNutritionTitle,
-                      description: SetupPromoCardCopy.foodNutritionDescription,
-                      icon: null,
-                      buttonText: "Start setup",
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (context) =>
-                                const FoodNutritionTrackingScreen(),
-                          ),
-                        );
-                      },
+                    Consumer<NutritionProvider>(
+                      builder: (context, nutrition, _) => SetupPromoCard(
+                        screenWidth: screenWidth,
+                        title: SetupPromoCardCopy.foodNutritionTitle,
+                        description:
+                            SetupPromoCardCopy.foodNutritionDescription,
+                        icon: null,
+                        buttonText: nutrition.setupCompleted
+                            ? "Edit setup"
+                            : "Start setup",
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (context) =>
+                                  const FoodNutritionTrackingScreen(),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                     Padding(
                       padding:

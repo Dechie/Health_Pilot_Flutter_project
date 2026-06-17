@@ -5,8 +5,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
+import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/widgets/setup_promo_card.dart';
+import 'package:provider/provider.dart';
 
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl_mobile_field/intl_mobile_field.dart';
@@ -579,23 +581,28 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   SizedBox(
                     height: size.height * 0.03,
                   ),
-                  SetupPromoCard(
-                    screenWidth: size.width,
-                    width: double.infinity,
-                    expandVertically: true,
-                    margin: EdgeInsets.zero,
-                    title: SetupPromoCardCopy.foodNutritionTitle,
-                    description: SetupPromoCardCopy.foodNutritionDescription,
-                    icon: null,
-                    buttonText: 'Start setup',
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) =>
-                              const FoodNutritionTrackingScreen(),
-                        ),
-                      );
-                    },
+                  Consumer<NutritionProvider>(
+                    builder: (context, nutrition, _) => SetupPromoCard(
+                      screenWidth: size.width,
+                      width: double.infinity,
+                      expandVertically: true,
+                      margin: EdgeInsets.zero,
+                      title: SetupPromoCardCopy.foodNutritionTitle,
+                      description:
+                          SetupPromoCardCopy.foodNutritionDescription,
+                      icon: null,
+                      buttonText: nutrition.setupCompleted
+                          ? "Edit setup"
+                          : "Start setup",
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) =>
+                                const FoodNutritionTrackingScreen(),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   SizedBox(
                     height: size.height * 0.07,

@@ -22,6 +22,7 @@ class _FoodNutritionTrackingScreenState
   late FoodReportFrequency _frequency;
   late bool _pushNotifications;
   late Set<String> _diets;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -35,14 +36,19 @@ class _FoodNutritionTrackingScreenState
   }
 
   Future<void> _onFinish() async {
-    await context.read<NutritionProvider>().updateSettings(
-          FoodNutritionSettings(
-            frequency: _frequency,
-            pushNotificationsEnabled: _pushNotifications,
-            diets: Set<String>.from(_diets),
-          ),
-        );
-    if (mounted) Navigator.of(context).pop();
+    setState(() => _saving = true);
+    try {
+      await context.read<NutritionProvider>().updateSettings(
+            FoodNutritionSettings(
+              frequency: _frequency,
+              pushNotificationsEnabled: _pushNotifications,
+              diets: Set<String>.from(_diets),
+            ),
+          );
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -208,8 +214,17 @@ class _FoodNutritionTrackingScreenState
                     ),
                     const SizedBox(height: 32),
                     FilledButton(
-                      onPressed: _onFinish,
-                      child: const Text('Finish'),
+                      onPressed: _saving ? null : _onFinish,
+                      child: _saving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Finish'),
                     ),
                     const SizedBox(height: 24),
                   ],

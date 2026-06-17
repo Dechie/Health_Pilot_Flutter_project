@@ -10,7 +10,14 @@ import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 class InitialInfoThird extends StatefulWidget {
-  const InitialInfoThird({super.key});
+  final String hypertensionAnswer;
+  final String diabetesAnswer;
+
+  const InitialInfoThird({
+    super.key,
+    this.hypertensionAnswer = '',
+    this.diabetesAnswer = '',
+  });
 
   @override
   State<InitialInfoThird> createState() => _InitialInfoThird();
@@ -38,6 +45,10 @@ class _InitialInfoThird extends State<InitialInfoThird> {
 
   @override
   void initState() {
+    if (widget.hypertensionAnswer == 'Yes' ||
+        widget.diabetesAnswer == 'Yes') {
+      chronicConditionAnswer = 'Yes';
+    }
     super.initState();
     if (FeatureFlags.auth) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -409,7 +420,7 @@ class _InitialInfoThird extends State<InitialInfoThird> {
                             // Don't block onboarding if the save fails.
                           }
                           if (!context.mounted) return;
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const InitialInfoFinal(),

@@ -10,7 +10,8 @@ class RemoteNutritionRepository implements INutritionRepository {
   @override
   Future<List<FoodDayLog>> fetchHistory() async {
     final data = await _api.get('${ApiConstants.nutritionBase}/history/');
-    return (data as List<dynamic>)
+    final raw = data is Map<String, dynamic> ? data['results'] : data;
+    return (raw as List<dynamic>)
         .map((e) => FoodDayLog.fromJson(e as Map<String, dynamic>))
         .toList();
   }

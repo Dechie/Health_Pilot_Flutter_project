@@ -128,11 +128,14 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
                                   // Don't block onboarding if the save fails.
                                 }
                                 if (!context.mounted) return;
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const InitialInfoThird()),
+                                    builder: (context) => InitialInfoThird(
+                                      hypertensionAnswer: hypertensionAnswer,
+                                      diabetesAnswer: diabetesAnswer,
+                                    ),
+                                  ),
                                 );
                               }
                             : null,
