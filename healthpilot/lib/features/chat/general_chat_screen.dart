@@ -10,6 +10,7 @@ import 'package:healthpilot/features/chat/group_chat_screen.dart';
 import 'package:healthpilot/features/chat/similar_people_screen.dart';
 import 'package:healthpilot/features/chat/widgets/custom_profile_tile.dart';
 import 'package:healthpilot/features/community/community_provider.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:provider/provider.dart';
 
 class GeneralChatScreen extends StatefulWidget {
@@ -37,10 +38,10 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     final community = context.read<CommunityProvider>();
     await community.refreshConnections();
     if (mounted) {
-      // TODO: replace '123' with real user ID once AuthState exposes it
+      final currentUserId = context.read<AuthState>().userId;
       await context
           .read<ChatProvider>()
-          .syncAcceptedConnections(community.connections, '123');
+          .syncAcceptedConnections(community.connections, currentUserId);
     }
   }
 
@@ -127,18 +128,22 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                 profilePic: devsImage,
                                 chat: c.lastMessage,
                                 onPressed: () {
+                                  final currentUserId =
+                                      context.read<AuthState>().userId;
                                   if (!c.isGroupChat) {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => ChatScreen(
-                                            senderId: c.id, userId: '123'),
+                                            senderId: c.id,
+                                            userId: currentUserId),
                                       ),
                                     );
                                   } else {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => GroupChatScreen(
-                                            groupId: c.id, userId: '1'),
+                                            groupId: c.id,
+                                            userId: currentUserId),
                                       ),
                                     );
                                   }
@@ -177,10 +182,12 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                             ? u.chatHistory.last.content
                             : '',
                         onPressed: () {
+                          final currentUserId =
+                              context.read<AuthState>().userId;
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) =>
-                                  ChatScreen(senderId: u.userId, userId: '123'),
+                                  ChatScreen(senderId: u.userId, userId: currentUserId),
                             ),
                           );
                         },
@@ -220,9 +227,12 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                     ? g.groupChatHistory.last.content
                                     : '',
                                 onPressed: () {
+                                  final currentUserId =
+                                      context.read<AuthState>().userId;
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => GroupChatScreen(
-                                          groupId: g.groupId, userId: '1')));
+                                          groupId: g.groupId,
+                                          userId: currentUserId)));
                                 },
                               );
                             },

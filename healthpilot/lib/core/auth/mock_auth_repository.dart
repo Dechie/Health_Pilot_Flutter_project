@@ -5,6 +5,7 @@ class MockAuthRepository implements IAuthRepository {
   static const _tokens = AuthTokens(
     access: 'mock_access_token',
     refresh: 'mock_refresh_token',
+    userId: '123',
   );
 
   static const _demoUser = <String, dynamic>{

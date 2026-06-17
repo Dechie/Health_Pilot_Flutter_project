@@ -23,16 +23,20 @@ class AuthState extends ChangeNotifier {
 
   String _firstName = '';
   String _lastName = '';
+  String _userId = '';
   bool _isGuest = false;
   bool _onboardingCompleted = false;
   bool _healthInfoCompleted = false;
   bool _activationPending = false;
+  bool _sessionExpired = false;
   String _pendingActivationEmail = '';
   int _onboardingStep = 0;
   String get firstName => _firstName;
   String get lastName => _lastName;
+  String get userId => _userId;
   bool get isGuest => _isGuest;
   bool get isOnboardingCompleted => _onboardingCompleted;
+  bool get sessionExpired => _sessionExpired;
   bool get isHealthInfoCompleted => _healthInfoCompleted;
   bool get isActivationPending => _activationPending;
   String get pendingActivationEmail => _pendingActivationEmail;
@@ -59,6 +63,7 @@ class AuthState extends ChangeNotifier {
         token != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
     _firstName = await _tokenStore.getFirstName() ?? '';
     _lastName = await _tokenStore.getLastName() ?? '';
+    _userId = await _tokenStore.getUserId() ?? '';
     _isGuest = await _tokenStore.getIsGuest();
     _onboardingCompleted = await _tokenStore.getOnboardingCompleted();
     _healthInfoCompleted = await _tokenStore.getHealthInfoCompleted();
@@ -136,6 +141,7 @@ class AuthState extends ChangeNotifier {
     await _clearSession();
     await _tokenStore.setIsGuest(true);
     _isGuest = true;
+    _sessionExpired = false;
     _status = AuthStatus.authenticated;
     notifyListeners();
   }
@@ -155,6 +161,7 @@ class AuthState extends ChangeNotifier {
   /// Called by ApiClient interceptor when the refresh token is expired or missing.
   Future<void> onAuthExpired() async {
     await _clearSession();
+    _sessionExpired = true;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
   }
@@ -182,7 +189,9 @@ class AuthState extends ChangeNotifier {
     await _tokenStore.clearAll();
     _firstName = '';
     _lastName = '';
+    _userId = '';
     _isGuest = false;
+    _sessionExpired = false;
     _activationPending = false;
     _pendingActivationEmail = '';
     _onboardingCompleted = false;
@@ -196,7 +205,10 @@ class AuthState extends ChangeNotifier {
     // Always overwrite — clears previous user's name when switching accounts.
     await _tokenStore.setFirstName(tokens.firstName);
     await _tokenStore.setLastName(tokens.lastName);
+    await _tokenStore.setUserId(tokens.userId);
     _firstName = tokens.firstName;
     _lastName = tokens.lastName;
+    _userId = tokens.userId;
+    _sessionExpired = false;
   }
 }

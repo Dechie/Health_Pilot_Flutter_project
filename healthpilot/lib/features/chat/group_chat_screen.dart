@@ -37,6 +37,14 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     final size = MediaQuery.of(context).size;
     final provider = context.watch<ChatProvider>();
     final group = provider.findGroup(widget.groupId);
+    if (group == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Group Not Found'),
+        ),
+        body: const Center(child: Text('This group no longer exists.')),
+      );
+    }
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size(size.width, size.height * 0.15),

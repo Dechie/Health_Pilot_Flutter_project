@@ -99,10 +99,35 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
         auth.status == AuthStatus.unauthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        AppNavigation.replaceWithLogin(
-          _navigatorKey.currentContext!,
-          useRootNavigator: false,
-        );
+        if (auth.sessionExpired) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (alertContext) => AlertDialog(
+              title: const Text('Session Expired'),
+              content: const Text(
+                'Your session has expired. Please log in again.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(alertContext).pop();
+                    AppNavigation.replaceWithLogin(
+                      _navigatorKey.currentContext!,
+                      useRootNavigator: false,
+                    );
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          AppNavigation.replaceWithLogin(
+            _navigatorKey.currentContext!,
+            useRootNavigator: false,
+          );
+        }
       });
     }
     _prevAuthStatus = auth.status;

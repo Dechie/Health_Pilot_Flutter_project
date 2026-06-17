@@ -52,7 +52,13 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  ChatGroup findGroup(String id) => _groups.firstWhere((g) => g.groupId == id);
+  ChatGroup? findGroup(String id) {
+    try {
+      return _groups.firstWhere((g) => g.groupId == id);
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<void> load() async {
     if (_loadStarted) return;
