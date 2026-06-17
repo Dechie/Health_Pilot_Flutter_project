@@ -393,12 +393,13 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: const [
-                    OverviewCard(
-                      icon: LineIcons.heart,
-                      overviewResult: '120',
-                      overviewUnit: 'BPM',
-                    ),
-                    SizedBox(width: 12),
+                    // BPM card — hidden until gadget integration
+                    // OverviewCard(
+                    //   icon: LineIcons.heart,
+                    //   overviewResult: '120',
+                    //   overviewUnit: 'BPM',
+                    // ),
+                    // SizedBox(width: 12),
                     OverviewCard(
                       icon: LineIcons.weight,
                       overviewResult: '21.6',
