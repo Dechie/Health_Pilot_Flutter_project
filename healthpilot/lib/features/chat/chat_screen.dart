@@ -412,30 +412,34 @@ class ChatList extends StatelessWidget {
                         ),
                       ],
                     )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ChatMarkdownBody(
-                          rawText: chat.content,
-                          textColor: isDark ? cs.onPrimary : cs.onSurface,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        if (chat.isDelivered) ...[
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ChatMarkdownBody(
+                            rawText: chat.content,
+                            textColor: isDark ? cs.onPrimary : cs.onSurface,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                           const SizedBox(height: 4),
                           Text(
-                            'Sent',
+                            chat.sendFailed
+                                ? 'Failed'
+                                : chat.isDelivered
+                                    ? 'Sent'
+                                    : 'Sending…',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 8,
                               fontWeight: FontWeight.w400,
-                              color: (isDark ? cs.onPrimary : cs.onSurface)
-                                  .withValues(alpha: 0.8),
+                              color: chat.sendFailed
+                                  ? cs.error
+                                  : (isDark ? cs.onPrimary : cs.onSurface)
+                                      .withValues(alpha: 0.8),
                             ),
                           ),
                         ],
-                      ],
-                    ),
+                      ),
             ),
           );
         },
@@ -445,7 +449,7 @@ class ChatList extends StatelessWidget {
 }
 
 class SendMessage extends StatefulWidget {
-  final Function sendMessage;
+  final void Function(String) sendMessage;
   final VoidCallback attach;
   const SendMessage(
       {super.key, required this.sendMessage, required this.attach});
@@ -455,7 +459,23 @@ class SendMessage extends StatefulWidget {
 }
 
 class _SendMessageState extends State<SendMessage> {
+  final _controller = TextEditingController();
   String message = '';
+
+  void _send() {
+    final trimmed = message.trim();
+    if (trimmed.isEmpty) return;
+    widget.sendMessage(trimmed);
+    _controller.clear();
+    setState(() => message = '');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -482,11 +502,13 @@ class _SendMessageState extends State<SendMessage> {
                 color: cs.surfaceContainerHighest),
             height: size.height * 0.06,
             child: TextField(
+              controller: _controller,
               onChanged: (value) {
                 setState(() {
                   message = value;
                 });
               },
+              onSubmitted: (_) => _send(),
               maxLines: 1,
               style: TextStyle(color: cs.onSurface),
               decoration: InputDecoration(
@@ -502,7 +524,7 @@ class _SendMessageState extends State<SendMessage> {
           ),
         ),
         InkWell(
-          onTap: () => widget.sendMessage(message),
+          onTap: _send,
           child: Icon(
             message.isEmpty
                 ? Icons.keyboard_voice_outlined

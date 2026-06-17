@@ -142,19 +142,30 @@ class ChatProvider extends ChangeNotifier {
     );
     notifyListeners();
     await _localStore.insertDirectMessage(targetUserId, message);
-    await _repo.sendDirectMessage(chatId, content);
-    // Mark delivered in-memory using server-confirmed data
-    _users[userIdx] = _users[userIdx].copyWith(
-      chatHistory: [
-        for (final m in _users[userIdx].chatHistory)
-          if (m.timestamp == message.timestamp && m.content == message.content)
-            m.copyWith(isDelivered: true)
-          else
-            m,
-      ],
-    );
-    await _localStore.markDirectMessageDelivered(
-        targetUserId, message.timestamp);
+    try {
+      await _repo.sendDirectMessage(chatId, content);
+      _users[userIdx] = _users[userIdx].copyWith(
+        chatHistory: [
+          for (final m in _users[userIdx].chatHistory)
+            if (m.timestamp == message.timestamp && m.content == message.content)
+              m.copyWith(isDelivered: true)
+            else
+              m,
+        ],
+      );
+      await _localStore.markDirectMessageDelivered(
+          targetUserId, message.timestamp);
+    } catch (_) {
+      _users[userIdx] = _users[userIdx].copyWith(
+        chatHistory: [
+          for (final m in _users[userIdx].chatHistory)
+            if (m.timestamp == message.timestamp && m.content == message.content)
+              m.copyWith(sendFailed: true)
+            else
+              m,
+        ],
+      );
+    }
     notifyListeners();
   }
 

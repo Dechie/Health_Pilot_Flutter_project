@@ -351,18 +351,22 @@ class _GroupChatList extends StatelessWidget {
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
-                            if (chat.isDelivered) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                'Sent',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w400,
-                                  color: (isDark ? cs.onPrimary : cs.onSurface)
-                                      .withValues(alpha: 0.8),
-                                ),
+                            const SizedBox(height: 4),
+                            Text(
+                              chat.sendFailed
+                                  ? 'Failed'
+                                  : chat.isDelivered
+                                      ? 'Sent'
+                                      : 'Sending…',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w400,
+                                color: chat.sendFailed
+                                    ? cs.error
+                                    : (isDark ? cs.onPrimary : cs.onSurface)
+                                        .withValues(alpha: 0.8),
                               ),
-                            ],
+                            ),
                           ],
                         ),
                 ],

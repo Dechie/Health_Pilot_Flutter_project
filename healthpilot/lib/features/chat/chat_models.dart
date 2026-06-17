@@ -9,11 +9,15 @@ class DirectMessage {
   /// True once the server has accepted the message (HTTP 2xx).
   final bool isDelivered;
 
+  /// True when the API call failed (message could not be sent).
+  final bool sendFailed;
+
   const DirectMessage({
     required this.senderId,
     required this.content,
     required this.timestamp,
     this.isDelivered = true,
+    this.sendFailed = false,
   });
 
   DirectMessage copyWith({
@@ -21,12 +25,14 @@ class DirectMessage {
     String? content,
     DateTime? timestamp,
     bool? isDelivered,
+    bool? sendFailed,
   }) =>
       DirectMessage(
         senderId: senderId ?? this.senderId,
         content: content ?? this.content,
         timestamp: timestamp ?? this.timestamp,
         isDelivered: isDelivered ?? this.isDelivered,
+        sendFailed: sendFailed ?? this.sendFailed,
       );
 
   factory DirectMessage.fromJson(Map<String, dynamic> json) => DirectMessage(
