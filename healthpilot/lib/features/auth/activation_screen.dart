@@ -19,17 +19,20 @@ class ActivationScreen extends StatefulWidget {
   State<ActivationScreen> createState() => _ActivationScreenState();
 }
 
-class _ActivationScreenState extends State<ActivationScreen> {
+class _ActivationScreenState extends State<ActivationScreen>
+    with WidgetsBindingObserver {
   final _tokenController = TextEditingController();
   bool _loading = false;
   bool _resending = false;
   bool _showManualToken = false;
+  bool _returnedFromEmail = false;
   String? _error;
   String? _info;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final token = widget.initialToken?.trim();
     if (token != null && token.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _activate(token));
@@ -40,7 +43,20 @@ class _ActivationScreenState extends State<ActivationScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_loading) {
+      setState(() {
+        _returnedFromEmail = true;
+        if (_error == null && _info == null) {
+          _info = 'Did you activate your account? Tap "Already activated? Log in" to sign in.';
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tokenController.dispose();
     super.dispose();
   }
@@ -216,11 +232,30 @@ class _ActivationScreenState extends State<ActivationScreen> {
                         label: const Text('Resend activation email'),
                       ),
                       SizedBox(height: h * 0.02),
-                      TextButton(
-                        onPressed: _goToLogin,
-                        child: Text(
-                          'Already activated? Log in',
-                          style: TextStyle(color: cs.primary),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton.icon(
+                          onPressed: _loading ? null : _goToLogin,
+                          icon: const Icon(Icons.login),
+                          label: const Text(
+                            'Already activated? Log in',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _returnedFromEmail
+                                ? cs.primary
+                                : cs.primaryContainer,
+                            foregroundColor: _returnedFromEmail
+                                ? cs.onPrimary
+                                : cs.onPrimaryContainer,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         ),
                       ),
                       SizedBox(height: h * 0.02),
