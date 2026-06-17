@@ -79,6 +79,19 @@ abstract final class AppNavigation {
     );
   }
 
+  /// Same as [replaceWithActivation] but passes the registered email so the
+  /// screen can show a registration-success message.
+  static void replaceWithActivationWithEmail(
+    BuildContext context, {
+    required String email,
+  }) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => ActivationScreen(registeredEmail: email),
+      ),
+    );
+  }
+
   /// Login screen for users who already registered but have not activated yet.
   static void replaceWithLoginAfterRegistration(
     BuildContext context, {

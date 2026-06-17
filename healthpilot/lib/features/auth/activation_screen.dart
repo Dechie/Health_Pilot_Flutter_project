@@ -6,10 +6,14 @@ import 'package:healthpilot/features/personal_info/initial_info_1.dart';
 import 'package:provider/provider.dart';
 
 class ActivationScreen extends StatefulWidget {
-  const ActivationScreen({super.key, this.initialToken});
+  const ActivationScreen({super.key, this.initialToken, this.registeredEmail});
 
   /// Token from an email deep link, if the app was opened via activation URL.
   final String? initialToken;
+
+  /// If set, this screen was reached right after registration so we show a
+  /// success confirmation.
+  final String? registeredEmail;
 
   @override
   State<ActivationScreen> createState() => _ActivationScreenState();
@@ -29,6 +33,9 @@ class _ActivationScreenState extends State<ActivationScreen> {
     final token = widget.initialToken?.trim();
     if (token != null && token.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _activate(token));
+    }
+    if (widget.registeredEmail != null) {
+      _info = 'Account created! Check your inbox to activate it.';
     }
   }
 
@@ -153,17 +160,19 @@ class _ActivationScreenState extends State<ActivationScreen> {
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: h * 0.015),
-                      Text(
-                        pendingEmail.isNotEmpty
-                            ? 'We sent an activation link to $pendingEmail. '
-                                'Tap the link in that email — it activates your account '
-                                'automatically. Then return here and log in.'
-                            : 'We sent an activation link to your email. '
-                                'Tap the link to activate your account, then log in.',
-                        style:
-                            tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                        textAlign: TextAlign.center,
-                      ),
+                          Text(
+                            pendingEmail.isNotEmpty
+                                ? 'We sent an activation link to $pendingEmail.\n\n'
+                                    'Tap the link in that email to activate your account. '
+                                    'After activating, come back here and tap '
+                                    '"Already activated? Log in" to sign in.'
+                                : 'We sent an activation link to your email.\n\n'
+                                    'Tap the link to activate your account, then come '
+                                    'back and tap "Already activated? Log in" to sign in.',
+                            style:
+                                tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                            textAlign: TextAlign.center,
+                          ),
                       if (_loading) ...[
                         SizedBox(height: h * 0.05),
                         const Center(child: CircularProgressIndicator()),

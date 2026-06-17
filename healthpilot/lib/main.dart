@@ -75,11 +75,12 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
       );
     } on Object {
       if (!ctx.mounted) return;
-      Navigator.of(ctx).pushAndRemoveUntil(
-        MaterialPageRoute<void>(
-          builder: (_) => ActivationScreen(initialToken: token),
-        ),
-        (_) => false,
+      // Token may have been consumed by browser already — send to login.
+      AppNavigation.replaceWithLoginAfterRegistration(
+        ctx,
+        email: auth.pendingActivationEmail.isNotEmpty
+            ? auth.pendingActivationEmail
+            : null,
       );
     }
   }

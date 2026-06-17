@@ -122,7 +122,10 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
           );
       if (!mounted) return;
       setState(() => _isLoading = false);
-      AppNavigation.replaceWithActivation(context);
+      AppNavigation.replaceWithActivationWithEmail(
+        context,
+        email: emailController.text.trim(),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
