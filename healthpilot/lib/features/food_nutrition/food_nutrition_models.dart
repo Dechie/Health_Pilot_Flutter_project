@@ -75,7 +75,8 @@ class FoodDayLog {
     final raw = json['meals'];
     final meals = raw is List
         ? raw
-            .map((e) => FoodMealEntry.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map((e) =>
+                FoodMealEntry.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList()
         : <FoodMealEntry>[];
     return FoodDayLog(
@@ -127,8 +128,7 @@ class FoodNutritionSettings {
   factory FoodNutritionSettings.fromJson(Map<String, dynamic> json) =>
       FoodNutritionSettings(
         frequency: parseFoodReportFrequency(json['frequency'] as String?),
-        pushNotificationsEnabled:
-            json['push_notifications'] as bool? ?? true,
+        pushNotificationsEnabled: json['push_notifications'] as bool? ?? true,
         diets: (json['diets'] as List<dynamic>? ?? [])
             .map((e) => e as String)
             .toSet(),
@@ -149,6 +149,7 @@ class FoodNutritionPrefs {
   static const _kPush = 'food_nutrition_push_v1';
   static const _kDiets = 'food_nutrition_diets_v1';
   static const _kHistory = 'food_nutrition_history_v1';
+  static const _kSetupDone = 'food_nutrition_setup_done_v1';
 
   static Future<FoodNutritionSettings> loadSettings() async {
     final p = await SharedPreferences.getInstance();
@@ -163,6 +164,16 @@ class FoodNutritionPrefs {
       pushNotificationsEnabled: push,
       diets: diets,
     );
+  }
+
+  static Future<bool> isSetupDone() async {
+    final p = await SharedPreferences.getInstance();
+    return p.getBool(_kSetupDone) ?? false;
+  }
+
+  static Future<void> markSetupDone() async {
+    final p = await SharedPreferences.getInstance();
+    await p.setBool(_kSetupDone, true);
   }
 
   static Future<void> saveSettings(FoodNutritionSettings s) async {

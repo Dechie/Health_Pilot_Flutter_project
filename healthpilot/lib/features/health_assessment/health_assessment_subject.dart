@@ -2,4 +2,3 @@ enum HealthAssessmentSubject {
   myself,
   someoneElse,
 }
-

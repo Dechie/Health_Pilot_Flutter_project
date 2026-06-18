@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/features/auth/activation_screen.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 
@@ -11,6 +12,14 @@ import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 /// - **Medication**: `MedicationScreen` — `medication/medications_screen.dart`
 /// - **Tutorials**: `TutorialsEntryScreen` — `tutorials/tutorials_entry_screen.dart`
 /// - **Health tab**: `HealthProfile` — `health/health_profile_screen.dart`
+abstract final class HomeTab {
+  static const int home = 0;
+  static const int health = 1;
+  static const int assessment = 2;
+  static const int chat = 3;
+  static const int profile = 4;
+}
+
 abstract final class AppNavigation {
   AppNavigation._();
 
@@ -21,20 +30,80 @@ abstract final class AppNavigation {
   static void replaceWithHome(
     BuildContext context, {
     bool isHelpPressed = false,
+    int initialTabIndex = HomeTab.home,
     bool useRootNavigator = true,
   }) {
     Navigator.of(context, rootNavigator: useRootNavigator).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (_) => HomePageScreen(isHelpPressed: isHelpPressed),
+        builder: (_) => HomePageScreen(
+          isHelpPressed: isHelpPressed,
+          initialTabIndex: initialTabIndex,
+        ),
+      ),
+    );
+  }
+
+  /// Pops assessment (and similar) flows back to the root shell, then replaces
+  /// it with a fresh [HomePageScreen] on [initialTabIndex] so back cannot return
+  /// to the previous flow.
+  static void replaceRootHomeTab(
+    BuildContext context, {
+    required int initialTabIndex,
+    bool isHelpPressed = false,
+  }) {
+    final nav = Navigator.of(context, rootNavigator: true);
+    nav.popUntil((route) => route.isFirst);
+    nav.pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => HomePageScreen(
+          isHelpPressed: isHelpPressed,
+          initialTabIndex: initialTabIndex,
+        ),
       ),
     );
   }
 
   /// Replaces the current route with the login/signup screen.
-  static void replaceWithLogin(BuildContext context, {bool useRootNavigator = true}) {
+  static void replaceWithLogin(BuildContext context,
+      {bool useRootNavigator = true}) {
     Navigator.of(context, rootNavigator: useRootNavigator).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const SignupAndLoginScreen()),
       (_) => false,
+    );
+  }
+
+  /// Replaces the current route with the email-activation screen.
+  static void replaceWithActivation(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const ActivationScreen()),
+    );
+  }
+
+  /// Same as [replaceWithActivation] but passes the registered email so the
+  /// screen can show a registration-success message.
+  static void replaceWithActivationWithEmail(
+    BuildContext context, {
+    required String email,
+  }) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => ActivationScreen(registeredEmail: email),
+      ),
+    );
+  }
+
+  /// Login screen for users who already registered but have not activated yet.
+  static void replaceWithLoginAfterRegistration(
+    BuildContext context, {
+    String? email,
+  }) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => SignupAndLoginScreen(
+          initialLogin: true,
+          initialEmail: email,
+        ),
+      ),
     );
   }
 }

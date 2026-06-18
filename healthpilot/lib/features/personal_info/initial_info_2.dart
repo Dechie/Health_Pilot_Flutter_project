@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/features/personal_info/initial_info_3.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
-import 'package:healthpilot/features/profile/language_translation.dart';
 
 class InitialInfoSecond extends StatefulWidget {
   const InitialInfoSecond({super.key});
@@ -18,6 +19,27 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
   String accidentsAnswer = "";
   String smokingAnswer = "";
   String diabetesAnswer = "";
+
+  bool _loading = false;
+
+  bool get _canProceed =>
+      hypertensionAnswer.isNotEmpty &&
+      accidentsAnswer.isNotEmpty &&
+      smokingAnswer.isNotEmpty &&
+      diabetesAnswer.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    if (FeatureFlags.auth) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final auth = context.read<AuthState>();
+        if (!auth.isOnboardingCompleted) auth.setOnboardingStep(2);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -43,18 +65,6 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
                 color: Colors.black),
             maxLines: 2,
           ),
-          actions: [
-            IconButton(
-              onPressed: () => openLanguageScreen(context),
-              icon: SvgPicture.asset(
-                translateIcon,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -102,14 +112,33 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
                       padding: EdgeInsets.only(
                           top: size.height * 0.01, bottom: size.height * 0.1),
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const InitialInfoThird()), // Navigate to the DestinationPage
-                          );
-                        },
+                        onPressed: (_canProceed && !_loading)
+                            ? () async {
+                                setState(() => _loading = true);
+                                try {
+                                  await context
+                                      .read<ProfileProvider>()
+                                      .saveOnboardingStep2(
+                                        hypertensionAnswer: hypertensionAnswer,
+                                        accidentsAnswer: accidentsAnswer,
+                                        smokingAnswer: smokingAnswer,
+                                        diabetesAnswer: diabetesAnswer,
+                                      );
+                                } catch (_) {
+                                  // Don't block onboarding if the save fails.
+                                }
+                                if (!context.mounted) return;
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InitialInfoThird(
+                                      hypertensionAnswer: hypertensionAnswer,
+                                      diabetesAnswer: diabetesAnswer,
+                                    ),
+                                  ),
+                                );
+                              }
+                            : null,
                         style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromRGBO(110, 182, 255, 1),
@@ -120,7 +149,16 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
                             ),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
-                        child: const Text('Next'),
+                        child: _loading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Next'),
                       ),
                     ),
                   ],
@@ -152,11 +190,11 @@ class _InitialInfoSecondState extends State<InitialInfoSecond> {
           height: size.height * 0.025,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             buildRadioButton("Yes", questionKey),
+            SizedBox(width: size.width * 0.12),
             buildRadioButton("No", questionKey),
-            buildRadioButton("I don't know", questionKey),
           ],
         ),
       ],

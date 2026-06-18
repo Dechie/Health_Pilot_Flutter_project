@@ -15,13 +15,17 @@ import 'package:healthpilot/features/health/health_profile_screen.dart';
 
 import 'package:healthpilot/features/health_assessment/assessment_history_screen.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
+import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/profile/profile_screen.dart';
 import 'package:healthpilot/features/tutorials/tutorials_entry_screen.dart';
 import 'package:healthpilot/features/home/overview_card.dart';
 import 'package:healthpilot/theme/app_theme.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../../data/contants.dart';
@@ -30,7 +34,15 @@ import 'blog_reccomendation._card.dart';
 
 class HomePageScreen extends StatefulWidget {
   final bool isHelpPressed;
-  const HomePageScreen({super.key, required this.isHelpPressed});
+
+  /// Bottom navigation index to show when this shell is first built (0–4).
+  final int initialTabIndex;
+
+  const HomePageScreen({
+    super.key,
+    required this.isHelpPressed,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<HomePageScreen> createState() => _HomePageScreenState();
@@ -48,6 +60,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   void initState() {
     super.initState();
+    _currentIndex = widget.initialTabIndex.clamp(0, 4);
     _tutorPrefsFuture = getTutorStatus();
     isOnHelp = widget.isHelpPressed;
   }
@@ -71,7 +84,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     },
   ];
 
-  final userName = "Mohammed";
   // showAiAlert is true if the screen is only at home page
 
   bool showAiAlert = true;
@@ -161,7 +173,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       shape: BoxShape.circle,
                       color: cs.primary,
                     ),
-                    child: const Icon(Icons.close, size: 12, color: Colors.white),
+                    child:
+                        const Icon(Icons.close, size: 12, color: Colors.white),
                   ),
                 ),
               ),
@@ -229,8 +242,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       isOnEmeregencyCalling = true;
       _emergencySecondsRemaining = 60;
     });
-    _emergencyCountdownTimer =
-        Timer.periodic(const Duration(seconds: 1), (_) {
+    _emergencyCountdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) {
         return;
       }
@@ -294,11 +306,38 @@ class _HomePageScreenState extends State<HomePageScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      'Hello, $userName',
-                      style: AppTheme.userGreeting(context),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: Builder(builder: (context) {
+                      final auth = context.watch<AuthState>();
+                      final greeting = auth.isGuest
+                          ? 'Hello, Guest'
+                          : 'Hello, ${auth.firstName}';
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            greeting,
+                            style: AppTheme.userGreeting(context),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (auth.isGuest)
+                            GestureDetector(
+                              onTap: () =>
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                SignupAndLoginScreen.routeName,
+                                (_) => false,
+                              ),
+                              child: Text(
+                                'Sign up for full access →',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontFamily: 'PlusJakartaSans',
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
                   ),
                   const SizedBox(width: 10),
                   Row(
@@ -354,19 +393,24 @@ class _HomePageScreenState extends State<HomePageScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: const [
-                    OverviewCard(
-                      icon: LineIcons.heart,
-                      overviewResult: '120',
-                      overviewUnit: 'BPM',
-                    ),
-                    SizedBox(width: 12),
-                    OverviewCard(
-                      icon: LineIcons.weight,
-                      overviewResult: '21.6',
-                      overviewUnit: 'BMI',
-                    ),
-                    SizedBox(width: 12),
+                  children: [
+                    // BPM card — hidden until gadget integration
+                    // OverviewCard(
+                    //   icon: LineIcons.heart,
+                    //   overviewResult: '120',
+                    //   overviewUnit: 'BPM',
+                    // ),
+                    // SizedBox(width: 12),
+                    Builder(builder: (context) {
+                      final p = context.watch<ProfileProvider>().profile;
+                      final bmi = p.bmi?.toStringAsFixed(1) ?? '21.6';
+                      return OverviewCard(
+                        icon: LineIcons.weight,
+                        overviewResult: bmi,
+                        overviewUnit: 'BMI',
+                      );
+                    }),
+                    const SizedBox(width: 12),
                     OverviewCard(
                       icon: LineIcons.bed,
                       overviewResult: '6.5',
@@ -497,8 +541,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
               selectedItemColor: Theme.of(context).colorScheme.primary,
               unselectedItemColor:
                   Theme.of(context).colorScheme.onSurfaceVariant,
-              selectedLabelStyle:
-                  const TextStyle(fontWeight: FontWeight.bold),
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
               elevation: 30,
               currentIndex: _currentIndex,
               onTap: _onTabTapped,
@@ -579,10 +622,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                       );
                     },
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primary,
-                    foregroundColor:
-                        Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     child: const Icon(LineIcons.robot),
                   )
                 : null,
@@ -811,9 +852,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                 controller: _pageControllerOfTutorial,
                                 count: _tutorialSlides.length,
                                 effect: ExpandingDotsEffect(
-                                    activeDotColor: Theme.of(context)
-                                        .colorScheme
-                                        .primary,
+                                    activeDotColor:
+                                        Theme.of(context).colorScheme.primary,
                                     dotColor: Theme.of(context)
                                         .colorScheme
                                         .primaryContainer),

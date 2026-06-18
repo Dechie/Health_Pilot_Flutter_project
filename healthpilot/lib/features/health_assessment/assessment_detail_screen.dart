@@ -18,9 +18,8 @@ class AssessmentDetailScreen extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final c = Theme.of(context).colorScheme;
 
-    final buttonColor = severity == AssessmentSeverity.urgent
-        ? Colors.red
-        : c.primary;
+    final buttonColor =
+        severity == AssessmentSeverity.urgent ? Colors.red : c.primary;
 
     return Scaffold(
       appBar: AppBar(
@@ -90,4 +89,3 @@ class AssessmentDetailScreen extends StatelessWidget {
     );
   }
 }
-

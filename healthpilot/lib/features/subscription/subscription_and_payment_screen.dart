@@ -865,22 +865,24 @@ class PaymentMethodButtons extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             border: Border.all(
-                color: isChecked ? cs.primary : cs.outline.withValues(alpha: 0.5),
+                color:
+                    isChecked ? cs.primary : cs.outline.withValues(alpha: 0.5),
                 width: 1),
             color: isChecked
                 ? cs.primary
                 : (Theme.of(context).brightness == Brightness.light
                     ? cs.surface
                     : cs.surfaceContainerHighest),
-            boxShadow: Theme.of(context).brightness == Brightness.light && !isChecked
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
+            boxShadow:
+                Theme.of(context).brightness == Brightness.light && !isChecked
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
           ),
           child: Center(
             child: pngAssetPath != null

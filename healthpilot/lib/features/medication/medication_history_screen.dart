@@ -14,9 +14,8 @@ class MedicationHistoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('${medication.medicationName} — History')),
       body: FutureBuilder<List<DoseLog>>(
-        future: context
-            .read<MedicationProvider>()
-            .fetchDoses(medication.id ?? -1),
+        future:
+            context.read<MedicationProvider>().fetchDoses(medication.id ?? -1),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

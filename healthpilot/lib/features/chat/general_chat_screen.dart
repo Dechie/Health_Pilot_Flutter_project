@@ -5,9 +5,12 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/chat_models.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
+import 'package:healthpilot/features/chat/connection_requests_screen.dart';
 import 'package:healthpilot/features/chat/group_chat_screen.dart';
 import 'package:healthpilot/features/chat/similar_people_screen.dart';
 import 'package:healthpilot/features/chat/widgets/custom_profile_tile.dart';
+import 'package:healthpilot/features/community/community_provider.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:provider/provider.dart';
 
 class GeneralChatScreen extends StatefulWidget {
@@ -23,6 +26,24 @@ class GeneralChatScreen extends StatefulWidget {
 
 class _GeneralChatScreenState extends State<GeneralChatScreen> {
   String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshCommunity());
+  }
+
+  Future<void> _refreshCommunity() async {
+    if (!mounted) return;
+    final community = context.read<CommunityProvider>();
+    await community.refreshConnections();
+    if (mounted) {
+      final currentUserId = context.read<AuthState>().userId;
+      await context
+          .read<ChatProvider>()
+          .syncAcceptedConnections(community.connections, currentUserId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +88,23 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             title: _buildTabBar(),
             centerTitle: true,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: _RequestsBadge(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const ConnectionRequestsScreen(),
+                    ));
+                  },
+                ),
+              ),
+            ],
           ),
           floatingActionButton: _buildFloatingActionButton(),
-          body: Column(children: [
+          body: RefreshIndicator(
+            onRefresh: _refreshCommunity,
+            child: Column(children: [
             _buildSearchBar(context),
             Expanded(
               child: TabBarView(children: [
@@ -89,22 +124,27 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                               return CustomChatProfileTile(
                                 name: c.name,
                                 isPro: c.isPro,
-                                unreadMessage: 3,
+                                unreadMessage: provider.unreadCount(c.id),
                                 profilePic: devsImage,
                                 chat: c.lastMessage,
                                 onPressed: () {
+                                  final currentUserId =
+                                      context.read<AuthState>().userId;
+                                  provider.markRead(c.id);
                                   if (!c.isGroupChat) {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => ChatScreen(
-                                            senderId: c.id, userId: '123'),
+                                            senderId: c.id,
+                                            userId: currentUserId),
                                       ),
                                     );
                                   } else {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => GroupChatScreen(
-                                            groupId: c.id, userId: '1'),
+                                            groupId: c.id,
+                                            userId: currentUserId),
                                       ),
                                     );
                                   }
@@ -137,16 +177,19 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                       return CustomChatProfileTile(
                         name: u.displayName,
                         isPro: u.isPro,
-                        unreadMessage: u.chatHistory.length,
+                        unreadMessage: provider.unreadCount(u.userId),
                         profilePic: devsImage,
                         chat: u.chatHistory.isNotEmpty
                             ? u.chatHistory.last.content
                             : '',
                         onPressed: () {
+                          final currentUserId =
+                              context.read<AuthState>().userId;
+                          provider.markRead(u.userId);
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) =>
-                                  ChatScreen(senderId: u.userId, userId: '123'),
+                                  ChatScreen(senderId: u.userId, userId: currentUserId),
                             ),
                           );
                         },
@@ -171,6 +214,17 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => _showCreateGroupDialog(context),
+                              icon: const Icon(Icons.add, size: 20),
+                              label: const Text('Create Group'),
+                            ),
+                          ),
+                        ),
                         Flexible(
                           child: GroupedListView<ChatGroup, String>(
                             elements: groups,
@@ -180,15 +234,19 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                               return CustomChatProfileTile(
                                 name: g.groupName,
                                 isPro: g.isPro,
-                                unreadMessage: g.groupChatHistory.length,
+                                unreadMessage: provider.unreadCount(g.groupId),
                                 profilePic: devsImage,
                                 chat: g.groupChatHistory.isNotEmpty
                                     ? g.groupChatHistory.last.content
                                     : '',
                                 onPressed: () {
+                                  final currentUserId =
+                                      context.read<AuthState>().userId;
+                                  provider.markRead(g.groupId);
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => GroupChatScreen(
-                                          groupId: g.groupId, userId: '1')));
+                                          groupId: g.groupId,
+                                          userId: currentUserId)));
                                 },
                               );
                             },
@@ -210,6 +268,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
               ]),
             )
           ]),
+        ),
         ),
       ),
     );
@@ -244,12 +303,67 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     );
   }
 
+  Future<void> _showCreateGroupDialog(BuildContext ctx) async {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: ctx,
+      builder: (dContext) => AlertDialog(
+        title: const Text('Create Group'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Group name',
+                hintText: 'Enter group name',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: descController,
+              decoration: const InputDecoration(
+                labelText: 'Description (optional)',
+                hintText: 'What is this group about?',
+              ),
+              maxLines: 2,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dContext).pop(true),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final name = nameController.text.trim();
+      if (name.isNotEmpty) {
+        await context.read<ChatProvider>().createGroup(
+              name,
+              descController.text.trim(),
+            );
+      }
+    }
+    nameController.dispose();
+    descController.dispose();
+  }
+
   Widget _buildFloatingActionButton() {
     final cs = Theme.of(context).colorScheme;
     return FloatingActionButton(
       onPressed: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
       },
       backgroundColor: cs.primary,
       child: Icon(
@@ -297,5 +411,62 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             text: 'Groups',
           ),
         ]);
+  }
+}
+
+class _RequestsBadge extends StatelessWidget {
+  final VoidCallback onTap;
+  const _RequestsBadge({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final count = context.watch<CommunityProvider>().incomingRequests.length;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: SizedBox(
+        height: 40,
+        width: 40,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Center(
+              child: Icon(
+                Icons.person_add_alt_1_outlined,
+                size: 24,
+                color: cs.onSurface,
+              ),
+            ),
+            if (count > 0)
+              Positioned(
+                right: 0,
+                top: 2,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    count > 9 ? '9+' : '$count',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Plus Jakarta Sans',
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

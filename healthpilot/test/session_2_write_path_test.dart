@@ -58,13 +58,14 @@ import 'package:healthpilot/features/profile/personal_information_screen.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:healthpilot/features/profile/repositories/mock_contacts_repository.dart';
 import 'package:healthpilot/features/profile/repositories/mock_profile_repository.dart';
-import 'package:healthpilot/features/profile/user_profile.dart';
 
 import 'package:healthpilot/features/subscription/repositories/mock_subscription_repository.dart';
 import 'package:healthpilot/features/subscription/subscription_and_payment_screen.dart';
 import 'package:healthpilot/features/subscription/subscription_provider.dart';
 
 import 'package:healthpilot/theme/app_theme.dart';
+
+import 'helpers/chat_local_store_test_helper.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -116,10 +117,16 @@ Future<void> _pump(
 
   final article = articleP ?? ArticleProvider(MockArticleRepository());
   await article.load();
-  final chat = chatP ?? ChatProvider(MockChatRepository());
-  await chat.load();
-  final ai = aiP ?? AiAssistantProvider(MockAiAssistantRepository());
-  await ai.load();
+  final localStore = await createTestChatLocalStore();
+  final chat = chatP ??
+      ChatProvider(MockChatRepository(), localStore: localStore);
+  if (chatP == null) await chat.load();
+  final ai = aiP ??
+      AiAssistantProvider(
+        MockAiAssistantRepository(),
+        localStore: localStore,
+      );
+  if (aiP == null) await ai.load();
   final nutrition = nutritionP ?? NutritionProvider(MockNutritionRepository());
   await nutrition.load();
   final health = healthP ?? HealthProvider(MockHealthRepository());
@@ -431,8 +438,7 @@ void main() {
 
     testWidgets('W17 send message — user message and bot reply appear',
         (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       final initial = aiP.messages.length;
       await tester.runAsync(() => aiP.send('Hello'));
       expect(aiP.messages.length, initial + 2);
@@ -442,8 +448,7 @@ void main() {
 
     testWidgets('W18 send 3 more messages — all present in order',
         (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       final initial = aiP.messages.length;
       await tester.runAsync(() async {
         await aiP.send('Msg 1');
@@ -458,8 +463,7 @@ void main() {
     });
 
     testWidgets('W19 thread is scrollable without crash', (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       await tester.runAsync(() async {
         for (int i = 0; i < 5; i++) {
           await aiP.send('Message $i');
@@ -475,8 +479,7 @@ void main() {
     });
 
     testWidgets('W20 empty message does not add to thread', (tester) async {
-      final aiP = AiAssistantProvider(MockAiAssistantRepository());
-      await aiP.load();
+      final aiP = await createTestAiProvider();
       final before = aiP.messages.length;
       // Empty/blank strings return early — no repo call, no delay.
       await aiP.send('');
@@ -645,7 +648,7 @@ void main() {
   // ── W31–W34: Contacts ────────────────────────────────────────────────────
 
   group('W31–W34 Contacts', () {
-    EmergencyContactEntry _stubContact(String id) => EmergencyContactEntry(
+    EmergencyContactEntry stubContact(String id) => EmergencyContactEntry(
           id: id,
           firstName: 'Alice',
           lastName: 'Smith',
@@ -654,7 +657,7 @@ void main() {
           relationship: 'Sister',
         );
 
-    PersonalDoctorEntry _stubDoctor(String id) => PersonalDoctorEntry(
+    PersonalDoctorEntry stubDoctor(String id) => PersonalDoctorEntry(
           id: id,
           firstName: 'Dr',
           lastName: 'Jones',
@@ -668,7 +671,7 @@ void main() {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
       expect(contactsP.contacts, isEmpty);
-      await contactsP.addContact(_stubContact('c1'));
+      await contactsP.addContact(stubContact('c1'));
       expect(contactsP.contacts.length, 1);
       expect(contactsP.contacts.first.firstName, 'Alice');
     });
@@ -677,7 +680,7 @@ void main() {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
       expect(contactsP.doctors, isEmpty);
-      await contactsP.addDoctor(_stubDoctor('d1'));
+      await contactsP.addDoctor(stubDoctor('d1'));
       expect(contactsP.doctors.length, 1);
       expect(contactsP.doctors.first.profession, 'Cardiologist');
     });
@@ -685,9 +688,9 @@ void main() {
     testWidgets('W33 update contact reflects new values', (tester) async {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
-      await contactsP.addContact(_stubContact('c1'));
+      await contactsP.addContact(stubContact('c1'));
       await contactsP.updateContact(
-        _stubContact('c1').copyWith(firstName: 'Alicia'),
+        stubContact('c1').copyWith(firstName: 'Alicia'),
       );
       expect(contactsP.contacts.first.firstName, 'Alicia');
     });
@@ -696,8 +699,8 @@ void main() {
         (tester) async {
       final contactsP = ContactsProvider(MockContactsRepository());
       await contactsP.load();
-      await contactsP.addContact(_stubContact('c1'));
-      await contactsP.addDoctor(_stubDoctor('d1'));
+      await contactsP.addContact(stubContact('c1'));
+      await contactsP.addDoctor(stubDoctor('d1'));
       await contactsP.deleteContact('c1');
       expect(contactsP.contacts, isEmpty);
       expect(contactsP.doctors.length, 1);
@@ -708,8 +711,7 @@ void main() {
 
   group('W35–W40 Chat', () {
     testWidgets('W35 search filters to matching user', (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await _pump(
         tester,
         const GeneralChatScreen(showBackButton: false),
@@ -733,8 +735,7 @@ void main() {
 
     testWidgets('W36 clearing chat search restores full user list',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await _pump(
         tester,
         const GeneralChatScreen(showBackButton: false),
@@ -757,10 +758,9 @@ void main() {
 
     testWidgets('W37 send direct message — appears in user chat history',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendDirect('1', '999', 'Hi from test');
-      final user = chatP.findUser('1');
+      final user = chatP.findUser('1')!;
       expect(
         user.chatHistory.any((m) => m.content == 'Hi from test'),
         isTrue,
@@ -770,11 +770,10 @@ void main() {
     testWidgets(
         'W38 reopening DM — message still present in same-session provider',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendDirect('1', '999', 'Persistent message');
       // Same provider instance — in-memory state is unchanged.
-      final user = chatP.findUser('1');
+      final user = chatP.findUser('1')!;
       expect(
         user.chatHistory.any((m) => m.content == 'Persistent message'),
         isTrue,
@@ -783,10 +782,9 @@ void main() {
 
     testWidgets('W39 send group message — appears in group chat history',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendGroup('g1', '999', 'Hello group');
-      final group = chatP.findGroup('g1');
+      final group = chatP.findGroup('g1')!;
       expect(
         group.groupChatHistory.any((m) => m.content == 'Hello group'),
         isTrue,
@@ -795,10 +793,9 @@ void main() {
 
     testWidgets('W40 reopening group — message still present same session',
         (tester) async {
-      final chatP = ChatProvider(MockChatRepository());
-      await chatP.load();
+      final chatP = await createTestChatProvider();
       await chatP.sendGroup('g1', '999', 'Group message');
-      final group = chatP.findGroup('g1');
+      final group = chatP.findGroup('g1')!;
       expect(
         group.groupChatHistory.any((m) => m.content == 'Group message'),
         isTrue,

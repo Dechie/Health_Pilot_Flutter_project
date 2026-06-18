@@ -10,6 +10,8 @@ abstract class IAuthRepository {
 
   Future<AuthTokens> activate({required String token});
 
+  Future<void> resendActivation({required String email});
+
   Future<AuthTokens> login({
     required String email,
     required String password,

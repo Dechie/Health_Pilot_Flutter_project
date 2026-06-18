@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
@@ -12,12 +13,20 @@ import 'package:healthpilot/features/subscription/subscription_and_payment_scree
 import 'package:provider/provider.dart';
 
 /// App settings and account-related actions (split from profile for clearer ownership).
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
-  Future<void> _logout(BuildContext context) async {
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _loggingOut = false;
+
+  Future<void> _logout() async {
+    setState(() => _loggingOut = true);
     await context.read<AuthState>().logout();
-    if (!context.mounted) return;
+    if (!mounted) return;
     AppNavigation.replaceWithLogin(context);
   }
 
@@ -111,12 +120,59 @@ class SettingsScreen extends StatelessWidget {
                       iconData: Icons.arrow_forward,
                       onpressed: null,
                     ),
-                    HealthInformationSettings(
-                      imageAdress: 'assets/Icons/profile.svg',
-                      settingAdress: 'Log Out',
-                      iconData: Icons.logout,
-                      onpressed: () => _logout(context),
-                    ),
+                    _loggingOut
+                        ? Padding(
+                            padding: const EdgeInsets.only(left: 30, right: 40),
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: SvgPicture.asset(
+                                    'assets/Icons/profile.svg',
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    'Logging out…',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                          fontSize: 12,
+                                          letterSpacing: -0.2,
+                                        ),
+                                  ),
+                                  horizontalTitleGap: 5,
+                                  trailing: const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  ),
+                                ),
+                                Divider(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.18),
+                                  thickness: 0.5,
+                                ),
+                              ],
+                            ),
+                          )
+                        : HealthInformationSettings(
+                            imageAdress: 'assets/Icons/profile.svg',
+                            settingAdress: 'Log Out',
+                            iconData: Icons.logout,
+                            onpressed: _logout,
+                          ),
                   ],
                 ),
               ),

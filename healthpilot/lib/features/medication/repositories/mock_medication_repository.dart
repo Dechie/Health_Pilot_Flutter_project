@@ -51,8 +51,7 @@ class MockMedicationRepository implements IMedicationRepository {
   Future<List<DoseLog>> fetchDoses(int medicationId) async => [];
 
   @override
-  Future<DoseLog> logDose(int medicationId, DoseLog dose) async =>
-      DoseLog(
+  Future<DoseLog> logDose(int medicationId, DoseLog dose) async => DoseLog(
         id: dose.id ?? _nextId++,
         status: dose.status,
         scheduledAt: dose.scheduledAt,

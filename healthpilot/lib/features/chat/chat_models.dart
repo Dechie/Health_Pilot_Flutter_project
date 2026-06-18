@@ -2,21 +2,52 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class DirectMessage {
+  final String? id;
   final String senderId;
   final String content;
   final DateTime timestamp;
 
+  /// True once the server has accepted the message (HTTP 2xx).
+  final bool isDelivered;
+
+  /// True when the API call failed (message could not be sent).
+  final bool sendFailed;
+
   const DirectMessage({
+    this.id,
     required this.senderId,
     required this.content,
     required this.timestamp,
+    this.isDelivered = true,
+    this.sendFailed = false,
   });
 
-  factory DirectMessage.fromJson(Map<String, dynamic> json) => DirectMessage(
-        senderId: json['sender_id'] as String,
-        content: json['content'] as String,
-        timestamp: DateTime.parse(json['timestamp'] as String),
+  DirectMessage copyWith({
+    String? id,
+    String? senderId,
+    String? content,
+    DateTime? timestamp,
+    bool? isDelivered,
+    bool? sendFailed,
+  }) =>
+      DirectMessage(
+        id: id ?? this.id,
+        senderId: senderId ?? this.senderId,
+        content: content ?? this.content,
+        timestamp: timestamp ?? this.timestamp,
+        isDelivered: isDelivered ?? this.isDelivered,
+        sendFailed: sendFailed ?? this.sendFailed,
       );
+
+  factory DirectMessage.fromJson(Map<String, dynamic> json) {
+    final rawSenderId = json['sender_id'];
+    return DirectMessage(
+      id: json['id'] as String?,
+      senderId: rawSenderId is int ? rawSenderId.toString() : rawSenderId as String,
+      content: json['content'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'sender_id': senderId,
@@ -33,6 +64,7 @@ class ChatUser {
   final bool isOnline;
   final String bio;
   final bool isPro;
+  final String? chatId;
   final List<DirectMessage> chatHistory;
 
   ChatUser({
@@ -43,10 +75,15 @@ class ChatUser {
     required this.isOnline,
     required this.bio,
     required this.isPro,
+    this.chatId,
     required this.chatHistory,
   });
 
-  ChatUser copyWith({List<DirectMessage>? chatHistory}) => ChatUser(
+  ChatUser copyWith({
+    List<DirectMessage>? chatHistory,
+    String? chatId,
+  }) =>
+      ChatUser(
         userId: userId,
         displayName: displayName,
         profilePictureUrl: profilePictureUrl,
@@ -54,6 +91,7 @@ class ChatUser {
         isOnline: isOnline,
         bio: bio,
         isPro: isPro,
+        chatId: chatId ?? this.chatId,
         chatHistory: chatHistory ?? this.chatHistory,
       );
 
@@ -65,6 +103,7 @@ class ChatUser {
         isOnline: json['is_online'] as bool? ?? false,
         bio: json['bio'] as String? ?? '',
         isPro: json['is_pro'] as bool? ?? false,
+        chatId: json['chat_id'] as String?,
         chatHistory: (json['chat_history'] as List<dynamic>? ?? [])
             .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -78,6 +117,7 @@ class ChatUser {
         'is_online': isOnline,
         'bio': bio,
         'is_pro': isPro,
+        if (chatId != null) 'chat_id': chatId,
         'chat_history': chatHistory.map((m) => m.toJson()).toList(),
       };
 }
@@ -85,6 +125,7 @@ class ChatUser {
 class ChatGroup {
   final String groupId;
   final String groupName;
+  final String? description;
   final bool isMuted;
   final bool isPro;
   final List<String> membersId;
@@ -93,34 +134,48 @@ class ChatGroup {
   ChatGroup({
     required this.groupId,
     required this.groupName,
-    required this.isMuted,
-    required this.isPro,
-    required this.membersId,
-    required this.groupChatHistory,
+    this.description,
+    this.isMuted = false,
+    this.isPro = false,
+    this.membersId = const [],
+    this.groupChatHistory = const [],
   });
 
-  ChatGroup copyWith({List<DirectMessage>? groupChatHistory}) => ChatGroup(
+  ChatGroup copyWith({
+    List<DirectMessage>? groupChatHistory,
+    String? description,
+    List<String>? membersId,
+    bool? isMuted,
+    bool? isPro,
+  }) =>
+      ChatGroup(
         groupId: groupId,
         groupName: groupName,
-        isMuted: isMuted,
-        isPro: isPro,
-        membersId: membersId,
+        description: description ?? this.description,
+        isMuted: isMuted ?? this.isMuted,
+        isPro: isPro ?? this.isPro,
+        membersId: membersId ?? this.membersId,
         groupChatHistory: groupChatHistory ?? this.groupChatHistory,
       );
 
-  factory ChatGroup.fromJson(Map<String, dynamic> json) => ChatGroup(
-        groupId: json['group_id'] as String,
-        groupName: json['group_name'] as String,
-        isMuted: json['is_muted'] as bool? ?? false,
-        isPro: json['is_pro'] as bool? ?? false,
-        membersId: (json['members_id'] as List<dynamic>? ?? [])
-            .map((e) => e as String)
-            .toList(),
-        groupChatHistory:
-            (json['group_chat_history'] as List<dynamic>? ?? [])
-                .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
-                .toList(),
-      );
+  factory ChatGroup.fromJson(Map<String, dynamic> json) {
+    final rawId = json['group_id'] ?? json['id'];
+    final rawName = json['group_name'] ?? json['name'];
+    return ChatGroup(
+      groupId: rawId as String,
+      groupName: rawName as String,
+      description: json['description'] as String?,
+      isMuted: json['is_muted'] as bool? ?? false,
+      isPro: json['is_pro'] as bool? ?? false,
+      membersId: (json['members_id'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      groupChatHistory: (json['group_chat_history'] as List<dynamic>? ?? [])
+          .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }
 
 @immutable
@@ -138,6 +193,55 @@ class ChatThread {
     required this.isPro,
     required this.isGroupChat,
   });
+}
+
+class PrivateChatParticipant {
+  final int id;
+  final String fullName;
+  final String email;
+  final String? profilePicture;
+
+  const PrivateChatParticipant({
+    required this.id,
+    required this.fullName,
+    required this.email,
+    this.profilePicture,
+  });
+
+  factory PrivateChatParticipant.fromJson(Map<String, dynamic> json) =>
+      PrivateChatParticipant(
+        id: json['id'] as int,
+        fullName: json['full_name'] as String,
+        email: json['email'] as String,
+        profilePicture: json['profile_picture'] as String?,
+      );
+}
+
+@immutable
+class PrivateChat {
+  final String id;
+  final List<PrivateChatParticipant> participants;
+  final String? lastMessage;
+  final DateTime createdAt;
+
+  const PrivateChat({
+    required this.id,
+    required this.participants,
+    this.lastMessage,
+    required this.createdAt,
+  });
+
+  factory PrivateChat.fromJson(Map<String, dynamic> json) => PrivateChat(
+        id: json['id'] as String,
+        participants: (json['participants'] as List<dynamic>)
+            .map((e) =>
+                PrivateChatParticipant.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        lastMessage: json['last_message'] is Map
+            ? (json['last_message'] as Map)['content'] as String?
+            : json['last_message'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+      );
 }
 
 // Seed data used by MockChatRepository

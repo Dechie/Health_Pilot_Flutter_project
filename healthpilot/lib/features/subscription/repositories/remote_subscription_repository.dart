@@ -9,29 +9,25 @@ class RemoteSubscriptionRepository implements ISubscriptionRepository {
 
   @override
   Future<List<SubscriptionPlan>> fetchPlans() async {
-    final response =
-        await _api.get('${ApiConstants.subscriptionsBase}/plans/');
-    return (response.data['data'] as List<dynamic>)
+    final data = await _api.get('${ApiConstants.subscriptionsBase}/plans/');
+    return (data as List<dynamic>)
         .map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   @override
   Future<SubscriptionStatus> fetchStatus() async {
-    final response =
-        await _api.get('${ApiConstants.subscriptionsBase}/status/');
-    return SubscriptionStatus.fromJson(
-        response.data['data'] as Map<String, dynamic>);
+    final data = await _api.get('${ApiConstants.subscriptionsBase}/status/');
+    return SubscriptionStatus.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<SubscriptionStatus> subscribe(String planId) async {
-    final response = await _api.post(
+    final data = await _api.post(
       '${ApiConstants.subscriptionsBase}/subscribe/',
       data: {'plan_id': planId},
     );
-    return SubscriptionStatus.fromJson(
-        response.data['data'] as Map<String, dynamic>);
+    return SubscriptionStatus.fromJson(data as Map<String, dynamic>);
   }
 
   @override

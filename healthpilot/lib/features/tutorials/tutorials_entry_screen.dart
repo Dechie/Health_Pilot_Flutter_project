@@ -85,7 +85,8 @@ class TutorialsEntryScreen extends StatelessWidget {
               ),
               title: Text(item.title),
               subtitle: Text(item.subtitle),
-              trailing: Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+              trailing:
+                  Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(

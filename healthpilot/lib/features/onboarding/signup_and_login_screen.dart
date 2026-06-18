@@ -5,7 +5,6 @@ import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/network/api_error.dart';
-import 'package:healthpilot/features/auth/activation_screen.dart';
 import 'package:healthpilot/features/onboarding/terms_dialogBox.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +12,18 @@ import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
 
 class SignupAndLoginScreen extends StatefulWidget {
   static const routeName = '/SignupandLogin';
-  const SignupAndLoginScreen({super.key});
+
+  /// When true, opens in login mode (e.g. from the activation screen).
+  final bool initialLogin;
+
+  /// Pre-fills the email field (e.g. pending registration email).
+  final String? initialEmail;
+
+  const SignupAndLoginScreen({
+    super.key,
+    this.initialLogin = false,
+    this.initialEmail,
+  });
 
   @override
   State<SignupAndLoginScreen> createState() => _SignupAndLoginScreenState();
@@ -24,6 +34,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
   bool? _isChecked = false;
   bool _isLogin = false;
   bool _isObscured = true;
+  bool _isConfirmObscured = true;
   bool _isLoading = false;
   final emailController = TextEditingController();
   final firstNameController = TextEditingController();
@@ -33,8 +44,23 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
 
   @override
   void initState() {
-    _isObscured = true;
     super.initState();
+    _isObscured = true;
+    _isLogin = widget.initialLogin;
+    if (widget.initialEmail != null) {
+      emailController.text = widget.initialEmail!;
+    }
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _resumePendingActivation());
+  }
+
+  /// Registration already succeeded — keep the user on activation, not signup.
+  void _resumePendingActivation() {
+    if (!mounted) return;
+    final auth = context.read<AuthState>();
+    if (auth.isActivationPending && !widget.initialLogin) {
+      AppNavigation.replaceWithActivation(context);
+    }
   }
 
   @override
@@ -76,6 +102,10 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
       _showError('Passwords do not match.');
       return;
     }
+    if (FeatureFlags.auth && context.read<AuthState>().isActivationPending) {
+      AppNavigation.replaceWithActivation(context);
+      return;
+    }
     if (!FeatureFlags.auth) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => const ConfirmEmailScreen()),
@@ -92,8 +122,9 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
           );
       if (!mounted) return;
       setState(() => _isLoading = false);
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => const ActivationScreen()),
+      AppNavigation.replaceWithActivationWithEmail(
+        context,
+        email: emailController.text.trim(),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -112,16 +143,13 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
     );
   }
 
-  String _apiErrorMessage(ApiException e) => switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        AuthExpired() => 'Session expired. Please log in again.',
-        UnknownError() => 'Something went wrong. Please try again.',
-      };
+  String _apiErrorMessage(ApiException e) => e.userMessage;
 
   @override
   Widget build(BuildContext context) {
-    //Signup and login sceen starts here
+    final auth = FeatureFlags.auth ? context.watch<AuthState>() : null;
+    final showActivationBanner =
+        _isLogin && auth != null && auth.isActivationPending;
 
     return Scaffold(
       body: SafeArea(
@@ -129,24 +157,23 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
           final size = constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
-          return SingleChildScrollView(
-            reverse: true,
-            child: Column(
-              children: [
-                Row(
+          return ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.only(bottom: 32),
+            children: [
+              Column(children: [
+                Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(
-                          top: screenHeight * 0.05, left: screenWidth * 0.14),
+                      padding: EdgeInsets.only(top: screenHeight * 0.05),
                       child: Image.asset(
                         'assets/images/image_4.png',
                         width: screenWidth * 0.6,
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(
-                          top: screenHeight * 0.013, left: screenWidth * 0.025),
+                      padding: EdgeInsets.only(top: screenHeight * 0.013),
                       child: SvgPicture.asset('assets/images/Vector.svg'),
                     ),
                   ],
@@ -175,6 +202,32 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                       horizontal: screenWidth * 0.1,
                       vertical: screenHeight * 0.02),
                 ),
+                if (showActivationBanner) ...[
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                    child: Material(
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                      child: ListTile(
+                        title: const Text('Activation pending'),
+                        subtitle: Text(
+                          auth.pendingActivationEmail.isNotEmpty
+                              ? 'Enter the token we sent to '
+                                  '${auth.pendingActivationEmail}.'
+                              : 'Enter the token from your activation email.',
+                        ),
+                        trailing: TextButton(
+                          onPressed: () =>
+                              AppNavigation.replaceWithActivation(context),
+                          child: const Text('Activate'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                ],
                 SizedBox(
                   height: screenHeight * 0.055,
                 ),
@@ -191,7 +244,7 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                         suffixIcon: null,
                         prefixIcon: Icons.email_outlined,
                         inputActiom: TextInputAction.next,
-                        isobscured: !_isObscured,
+                        isobscured: false,
                         controller: emailController,
                         iconPressed: null,
                       ),
@@ -247,15 +300,15 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                           screenHeight: screenHeight,
                           keyboardType: TextInputType.visiblePassword,
                           hintText: "Confirm Password",
-                          suffixIcon: _isObscured
+                          suffixIcon: _isConfirmObscured
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           prefixIcon: Icons.key,
                           inputActiom: TextInputAction.done,
-                          isobscured: _isObscured,
+                          isobscured: _isConfirmObscured,
                           controller: confirmPasswordController,
                           iconPressed: () => setState(() {
-                            _isObscured = !_isObscured;
+                            _isConfirmObscured = !_isConfirmObscured;
                           }),
                         ),
                       SizedBox(height: screenHeight * 0.03),
@@ -265,7 +318,8 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                               commandTexts: "Reset now",
                               login: () {
                                 Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const ForgotPasswordScreen(),
+                                  builder: (context) =>
+                                      const ForgotPasswordScreen(),
                                 ));
                               },
                               fontSize: 17,
@@ -301,9 +355,8 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                         screenWidth: screenWidth,
                         screenHeight: screenHeight,
                         buttonText: _isLogin ? "Login" : "Sign Up",
-                        buttonAction: _isLoading
-                            ? null
-                            : (_isLogin ? _login : _register),
+                        buttonAction:
+                            _isLoading ? null : (_isLogin ? _login : _register),
                         buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
                         isLoading: _isLoading,
                       ),
@@ -364,9 +417,14 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                     ? BottomActionTexts(
                         normalTexts: "Don't have an account? ",
                         commandTexts: "Sign up",
-                        login: () => setState(() {
-                          _isLogin = !_isLogin;
-                        }),
+                        login: () {
+                          if (FeatureFlags.auth &&
+                              context.read<AuthState>().isActivationPending) {
+                            AppNavigation.replaceWithActivation(context);
+                            return;
+                          }
+                          setState(() => _isLogin = false);
+                        },
                         fontSize: 15,
                       )
                     : BottomActionTexts(
@@ -383,7 +441,18 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                 BottomActionTexts(
                   normalTexts: "Wanna give it a try? ",
                   commandTexts: "Skip",
-                  login: () {
+                  login: () async {
+                    if (!FeatureFlags.auth) {
+                      AppNavigation.replaceWithHome(context);
+                      return;
+                    }
+                    try {
+                      await context.read<AuthState>().guestLogin();
+                    } catch (_) {
+                      if (!context.mounted) return;
+                      await context.read<AuthState>().enterLocalGuestMode();
+                    }
+                    if (!context.mounted) return;
                     AppNavigation.replaceWithHome(context);
                   },
                   fontSize: 15,
@@ -391,8 +460,8 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
                 Padding(
                     padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom))
-              ],
-            ),
+              ]),
+            ],
           );
         }),
       ),
@@ -414,145 +483,150 @@ class ConfirmEmailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: LayoutBuilder(
-        // ignore: non_constant_identifier_names
-        builder: (context, Constraints) {
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        child: LayoutBuilder(
+            // ignore: non_constant_identifier_names
+            builder: (context, Constraints) {
           final size = Constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.04,
-                        screenHeight * 0.02,
-                        0,
-                        0,
-                      ),
-                      child: Container(
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(110, 182, 255, 0.25),
-                          borderRadius:
-                              BorderRadius.circular(screenWidth * 0.05),
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                          color: const Color.fromRGBO(110, 182, 255, 1),
-                          iconSize: screenWidth * 0.055,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.05,
-                        screenHeight * 0.03,
-                        0,
-                        0,
-                      ),
-                      child: Text(
-                        "Confirm Email",
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: "PlusJakartaSans",
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: screenHeight * 0.04,
-                        left: screenWidth * 0.32,
-                      ),
-                      child: SizedBox(
-                        width: screenWidth * 0.04,
-                        height: screenWidth * 0.04,
-                        child: SvgPicture.asset(
-                          'assets/images/Vector.svg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SvgPicture.asset('assets/images/confirmemail.svg'),
-                const Text(
-                  'Check your email',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    height: 1.25, // Equivalent to line height of 25px
-                    letterSpacing:
-                        -0.165, // You might need to adjust this value
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.15,
-                      vertical: screenHeight * 0.02),
-                  child: const Text(
-                    'Please confirm your email to finish setting up your account. ',
-                    style: TextStyle(
-                      fontFamily: 'PlusJakartaSans',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      height: 1.25, // Equivalent to line height of 20px
-                      letterSpacing: -0.165,
-                      color: Color.fromRGBO(
-                          42, 42, 42, 0.5), // Set your desired text color
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
-                  child: Column(
+          return ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.only(bottom: 32),
+            children: [
+              Column(
+                children: [
+                  Row(
                     children: [
-                      const Text(
-                        'Didn’t receive an email?',
-                        style: TextStyle(
-                          fontFamily: 'PlusJakartaSans',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          height: 1.25,
-                          letterSpacing: -0.165,
-                          color: Colors.black,
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.04,
+                          screenHeight * 0.02,
+                          0,
+                          0,
                         ),
-                        textAlign: TextAlign.left,
+                        child: Container(
+                          width: screenWidth * 0.1,
+                          height: screenWidth * 0.1,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(110, 182, 255, 0.25),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.05),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(Icons.arrow_back),
+                            color: const Color.fromRGBO(110, 182, 255, 1),
+                            iconSize: screenWidth * 0.055,
+                          ),
+                        ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: screenHeight * 0.03),
-                        child: Button(
-                          fontsize: 18,
-                          textColor: Colors.white,
-                          screenWidth: screenWidth,
-                          screenHeight: screenHeight,
-                          buttonText: "Return to login",
-                          buttonAction: () {
-                            Navigator.of(context).pop();
-                          },
-                          buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.05,
+                          screenHeight * 0.03,
+                          0,
+                          0,
+                        ),
+                        child: Text(
+                          "Confirm Email",
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: "PlusJakartaSans",
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: screenHeight * 0.04,
+                          left: screenWidth * 0.32,
+                        ),
+                        child: SizedBox(
+                          width: screenWidth * 0.04,
+                          height: screenWidth * 0.04,
+                          child: SvgPicture.asset(
+                            'assets/images/Vector.svg',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
+                  SvgPicture.asset('assets/images/confirmemail.svg'),
+                  const Text(
+                    'Check your email',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      height: 1.25, // Equivalent to line height of 25px
+                      letterSpacing:
+                          -0.165, // You might need to adjust this value
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.15,
+                        vertical: screenHeight * 0.02),
+                    child: const Text(
+                      'Please confirm your email to finish setting up your account. ',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        height: 1.25, // Equivalent to line height of 20px
+                        letterSpacing: -0.165,
+                        color: Color.fromRGBO(
+                            42, 42, 42, 0.5), // Set your desired text color
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Didn’t receive an email?',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            height: 1.25,
+                            letterSpacing: -0.165,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.03),
+                          child: Button(
+                            fontsize: 18,
+                            textColor: Colors.white,
+                            screenWidth: screenWidth,
+                            screenHeight: screenHeight,
+                            buttonText: "Return to login",
+                            buttonAction: () {
+                              Navigator.of(context).pop();
+                            },
+                            buttoncolor: const Color.fromRGBO(110, 182, 255, 1),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           );
-        },
-      )),
-      resizeToAvoidBottomInset: false,
+        }),
+      ),
     );
   }
 }
@@ -667,17 +741,23 @@ class InputFields extends StatelessWidget {
               obscureText: isobscured,
               textInputAction: inputActiom,
               keyboardType: keyboardType,
-              textAlignVertical: TextAlignVertical.bottom,
+              textAlignVertical: TextAlignVertical.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+                letterSpacing: -0.165,
+              ),
               decoration: InputDecoration(
                 hintText: hintText,
                 hintStyle: const TextStyle(
                   color: Color.fromRGBO(42, 42, 42, 0.5),
-
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
                   fontWeight: FontWeight.w300,
                   letterSpacing: -0.165,
-                  height: 18 / 14, // line-height / font-size
+                  height: 18 / 14,
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(suffixIcon),
@@ -694,7 +774,7 @@ class InputFields extends StatelessWidget {
                     borderRadius: BorderRadius.circular(5),
                     borderSide: const BorderSide()),
                 contentPadding: EdgeInsets.symmetric(
-                  vertical: 53, // No vertical padding
+                  vertical: 14,
                   horizontal: prefixIcon == null
                       ? screenWidth * 0.05
                       : screenWidth * 0.07,

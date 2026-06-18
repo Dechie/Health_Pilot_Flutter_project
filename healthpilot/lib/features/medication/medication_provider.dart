@@ -29,7 +29,7 @@ class MedicationProvider extends ChangeNotifier {
       _medications = await _repo.fetchMedications();
       _status = MedLoadStatus.loaded;
     } on ApiException catch (e) {
-      _error = _msg(e);
+      _error = e.userMessage;
       _status = MedLoadStatus.error;
     } finally {
       notifyListeners();
@@ -73,11 +73,5 @@ class MedicationProvider extends ChangeNotifier {
   Future<DoseLog> logDose(int medicationId, DoseLog dose) =>
       _repo.logDose(medicationId, dose);
 
-  static String _msg(ApiException e) => switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        _ => 'Something went wrong.',
-      };
-
-  static String errorMessage(ApiException e) => _msg(e);
+  static String errorMessage(ApiException e) => e.userMessage;
 }

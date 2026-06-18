@@ -153,4 +153,3 @@ class HealthAssessmentScreen extends StatelessWidget {
     );
   }
 }
-

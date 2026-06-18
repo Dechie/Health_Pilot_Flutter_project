@@ -5,6 +5,7 @@ class MockAuthRepository implements IAuthRepository {
   static const _tokens = AuthTokens(
     access: 'mock_access_token',
     refresh: 'mock_refresh_token',
+    userId: '123',
   );
 
   static const _demoUser = <String, dynamic>{
@@ -26,10 +27,14 @@ class MockAuthRepository implements IAuthRepository {
   Future<AuthTokens> activate({required String token}) async => _tokens;
 
   @override
+  Future<void> resendActivation({required String email}) async {}
+
+  @override
   Future<AuthTokens> login({
     required String email,
     required String password,
-  }) async => _tokens;
+  }) async =>
+      _tokens;
 
   @override
   Future<AuthTokens> refreshToken({required String refresh}) async => _tokens;

@@ -3,9 +3,12 @@ import 'package:flutter_ruler_picker/flutter_ruler_picker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/personal_info/initial_info_2.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/flags/feature_flags.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../../theme/app_theme.dart';
-import 'package:healthpilot/features/profile/language_translation.dart';
 
 class InitialInfoFirst extends StatefulWidget {
   const InitialInfoFirst({super.key});
@@ -16,27 +19,36 @@ class InitialInfoFirst extends StatefulWidget {
 
 class _InitialInfoFirstState extends State<InitialInfoFirst> {
   Color textColor = const Color.fromRGBO(42, 42, 42, 0.5);
+  bool _loading = false;
 
   double tickWidth = 1.0;
+  String? selectedGender;
   int selectedAge = 20;
   int selectedWeight = 50;
-  int selectedHeight = 180;
+  int selectedHeight = 140;
+  // int selectedHeartbeat = 72;
+  double selectedSleepHours = 8;
   RulerPickerController? _rulerPickerAgeController;
   RulerPickerController? _rulerPickerHeightController;
   RulerPickerController? _rulerPickerWeightController;
-  String selectedHeightUnit = 'cm';
-  String selectedWeightUnit = 'kg';
-  String? mesurementTypeForWeight = "kg";
-  List listItemsForWeight = ["kg", "gm"];
-  String? mesurementTypeForHeight = "cm";
-  List listItemsForHeight = ["cm", "ft"];
+  // RulerPickerController? _rulerPickerHeartbeatController;
+  RulerPickerController? _rulerPickerSleepController;
 
   @override
   void initState() {
     _rulerPickerAgeController = RulerPickerController(value: selectedAge);
     _rulerPickerHeightController = RulerPickerController(value: selectedHeight);
     _rulerPickerWeightController = RulerPickerController(value: selectedWeight);
+    // _rulerPickerHeartbeatController = RulerPickerController(value: selectedHeartbeat);
+    _rulerPickerSleepController = RulerPickerController(value: selectedSleepHours);
     super.initState();
+    if (FeatureFlags.auth) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final auth = context.read<AuthState>();
+        if (!auth.isOnboardingCompleted) auth.setOnboardingStep(1);
+      });
+    }
   }
 
   @override
@@ -63,21 +75,9 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
             ),
             maxLines: 2,
           ),
-          actions: [
-            IconButton(
-              onPressed: () => openLanguageScreen(context),
-              icon: SvgPicture.asset(
-                translateIcon,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-            SizedBox(width: size.width * 0.02),
-          ],
         ),
         body: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 32),
           child: Column(
             children: [
               SizedBox(
@@ -101,23 +101,22 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                 height: size.height * 0.04,
               ),
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Expanded(
-                      child: GestureDetector(
-                        child:
-                            ClipRRect(child: SvgPicture.asset(maleForinital)),
-                      ),
+                    _GenderOption(
+                      assetPath: maleForinital,
+                      label: 'Male',
+                      selected: selectedGender == 'male',
+                      onTap: () => setState(() => selectedGender = 'male'),
                     ),
-                    Expanded(
-                      child: GestureDetector(
-                        child:
-                            ClipRRect(child: SvgPicture.asset(femaleForinital)),
-                      ),
-                    )
+                    _GenderOption(
+                      assetPath: femaleForinital,
+                      label: 'Female',
+                      selected: selectedGender == 'female',
+                      onTap: () => setState(() => selectedGender = 'female'),
+                    ),
                   ],
                 ),
               ),
@@ -143,6 +142,26 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             fontSize: 16,
                           ),
                         ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "years",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$selectedAge',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                     Container(
@@ -161,11 +180,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                           ],
                         ),
                         ranges: const [
-                          RulerRange(begin: 0, end: 10, scale: 0.1),
-                          RulerRange(begin: 10, end: 100, scale: 1),
-                          RulerRange(begin: 100, end: 1000, scale: 10),
-                          RulerRange(begin: 1000, end: 10000, scale: 100),
-                          RulerRange(begin: 10000, end: 100000, scale: 1000)
+                          RulerRange(begin: 0, end: 100, scale: 1),
                         ],
                         controller: _rulerPickerAgeController,
                         // beginValue: 0,
@@ -233,34 +248,26 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             fontSize: 16,
                           ),
                         ),
-                        SizedBox(
-                          width: size.height * 0.02,
-                        ),
-                        DropdownButton(
-                          elevation: 0,
-                          isDense: true,
-                          underline: const Text(''),
-                          iconEnabledColor:
-                              const Color.fromRGBO(42, 42, 42, 0.5),
-                          hint: Text(
-                            mesurementTypeForHeight!,
-                          ),
-                          style: const TextStyle(
+                        const SizedBox(width: 6),
+                        const Text(
+                          "cm",
+                          style: TextStyle(
                             color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
                           ),
-                          value: mesurementTypeForHeight,
-                          onChanged: (newValue) {
-                            setState(() {
-                              mesurementTypeForHeight = newValue! as String?;
-                            });
-                          },
-                          items: listItemsForHeight.map((valueItem) {
-                            return DropdownMenuItem(
-                              value: valueItem,
-                              child: Text(valueItem),
-                            );
-                          }).toList(),
-                        )
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$selectedHeight',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                     Container(
@@ -280,11 +287,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                           ],
                         ),
                         ranges: const [
-                          RulerRange(begin: 0, end: 10, scale: 0.1),
-                          RulerRange(begin: 10, end: 100, scale: 1),
-                          RulerRange(begin: 100, end: 1000, scale: 10),
-                          RulerRange(begin: 1000, end: 10000, scale: 100),
-                          RulerRange(begin: 10000, end: 100000, scale: 1000)
+                          RulerRange(begin: 40, end: 200, scale: 1),
                         ],
                         controller: _rulerPickerHeightController,
 
@@ -315,7 +318,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                         ],
                         onValueChanged: (num value) {
                           setState(() {
-                            selectedAge = value.toInt();
+                            selectedHeight = value.toInt();
                           });
                         },
                         width: size.width,
@@ -350,32 +353,26 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             fontSize: 16,
                           ),
                         ),
-                        SizedBox(
-                          width: size.height * 0.02,
-                        ),
-                        DropdownButton(
-                          underline: const Text(''),
-                          elevation: 0,
-                          iconEnabledColor:
-                              const Color.fromRGBO(42, 42, 42, 0.5),
-                          hint: Text(
-                            mesurementTypeForWeight!,
+                        const SizedBox(width: 6),
+                        const Text(
+                          "kg",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
                           ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$selectedWeight',
                           style: const TextStyle(
-                              color: Color.fromRGBO(42, 42, 42, 0.5)),
-                          value: mesurementTypeForWeight,
-                          onChanged: (newValue) {
-                            setState(() {
-                              mesurementTypeForWeight = newValue! as String?;
-                            });
-                          },
-                          items: listItemsForWeight.map((valueItem) {
-                            return DropdownMenuItem(
-                              value: valueItem,
-                              child: Text(valueItem),
-                            );
-                          }).toList(),
-                        )
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                     Container(
@@ -395,11 +392,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                           ],
                         ),
                         ranges: const [
-                          RulerRange(begin: 0, end: 10, scale: 0.1),
-                          RulerRange(begin: 10, end: 100, scale: 1),
-                          RulerRange(begin: 100, end: 1000, scale: 10),
-                          RulerRange(begin: 1000, end: 10000, scale: 100),
-                          RulerRange(begin: 10000, end: 100000, scale: 1000)
+                          RulerRange(begin: 0, end: 120, scale: 1),
                         ],
                         controller: _rulerPickerWeightController,
                         // beginValue: 0,
@@ -433,7 +426,7 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                         ],
                         onValueChanged: (value) {
                           setState(() {
-                            selectedAge = value.toInt();
+                            selectedWeight = value.toInt();
                           });
                         },
 
@@ -448,17 +441,228 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                         // onBuildRulerScaleText: (int index, num rulerScaleValue) {  },
                       ),
                     ),
+                    SizedBox(
+                      height: size.height * 0.04,
+                    ),
+                    // Heartbeat / BPM — commented out until gadget integration
+                    // Row(
+                    //   children: [
+                    //     const Icon(Icons.favorite,
+                    //         color: Color.fromRGBO(110, 182, 255, 1),
+                    //         size: 24),
+                    //     SizedBox(width: size.height * 0.02),
+                    //     const Text(
+                    //       "Heartbeat",
+                    //       style: TextStyle(
+                    //         color: Colors.black,
+                    //         fontWeight: FontWeight.w500,
+                    //         fontFamily: ' PlusJakartaSans',
+                    //         fontSize: 16,
+                    //       ),
+                    //     ),
+                    //     const SizedBox(width: 6),
+                    //     const Text(
+                    //       "bpm",
+                    //       style: TextStyle(
+                    //         color: Color.fromRGBO(42, 42, 42, 0.5),
+                    //         fontFamily: ' PlusJakartaSans',
+                    //         fontSize: 13,
+                    //         fontWeight: FontWeight.w400,
+                    //       ),
+                    //     ),
+                    //     const Spacer(),
+                    //     Text(
+                    //       '$selectedHeartbeat',
+                    //       style: const TextStyle(
+                    //         color: Color.fromRGBO(110, 182, 255, 1),
+                    //         fontFamily: ' PlusJakartaSans',
+                    //         fontSize: 16,
+                    //         fontWeight: FontWeight.w700,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    // Container(
+                    //   margin: const EdgeInsets.only(top: 10),
+                    //   child: RulerPicker(
+                    //     rulerBackgroundColor: Colors.transparent,
+                    //     marker: Column(
+                    //       crossAxisAlignment: CrossAxisAlignment.center,
+                    //       children: [
+                    //         SizedBox(height: size.height * 0.01),
+                    //         SvgPicture.asset(triangleMarker),
+                    //         SvgPicture.asset(lineMarker, height: 10),
+                    //       ],
+                    //     ),
+                    //     ranges: const [
+                    //       RulerRange(begin: 40, end: 220, scale: 1),
+                    //     ],
+                    //     controller: _rulerPickerHeartbeatController,
+                    //     rulerScaleTextStyle: const TextStyle(
+                    //       fontFamily: ' PlusJakartaSans',
+                    //       color: Color.fromRGBO(42, 42, 42, 1),
+                    //       fontSize: 14,
+                    //       fontWeight: FontWeight.w500,
+                    //     ),
+                    //     scaleLineStyleList: const [
+                    //       ScaleLineStyle(
+                    //         color: Color.fromRGBO(42, 42, 42, 0.5),
+                    //         width: 1.5,
+                    //         height: 20,
+                    //         scale: 0,
+                    //       ),
+                    //       ScaleLineStyle(
+                    //         color: Color.fromRGBO(42, 42, 42, 0.5),
+                    //         width: 1,
+                    //         height: 15,
+                    //         scale: 5,
+                    //       ),
+                    //       ScaleLineStyle(
+                    //         color: Color.fromRGBO(42, 42, 42, 0.5),
+                    //         width: 1,
+                    //         height: 10,
+                    //         scale: -1,
+                    //       ),
+                    //     ],
+                    //     onValueChanged: (value) {
+                    //       setState(() {
+                    //         selectedHeartbeat = value.toInt();
+                    //       });
+                    //     },
+                    //     width: size.width,
+                    //     height: size.height * 0.06,
+                    //     rulerMarginTop: 15,
+                    //     onBuildRulerScaleText:
+                    //         (int index, num rulerScaleValue) {
+                    //       return rulerScaleValue.toInt().toString();
+                    //     },
+                    //   ),
+                    // ),
+                    SizedBox(
+                      height: size.height * 0.04,
+                    ),
+                    Row(
+                      children: [
+                        SvgPicture.asset(bedIcon),
+                        SizedBox(width: size.height * 0.02),
+                        const Text(
+                          "Sleep",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "hours",
+                          style: TextStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${selectedSleepHours.toInt()}',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(110, 182, 255, 1),
+                            fontFamily: ' PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: RulerPicker(
+                        rulerBackgroundColor: Colors.transparent,
+                        marker: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: size.height * 0.01),
+                            SvgPicture.asset(triangleMarker),
+                            SvgPicture.asset(lineMarker, height: 10),
+                          ],
+                        ),
+                        ranges: const [
+                          RulerRange(begin: 0, end: 24, scale: 1),
+                        ],
+                        controller: _rulerPickerSleepController,
+                        rulerScaleTextStyle: const TextStyle(
+                          fontFamily: ' PlusJakartaSans',
+                          color: Color.fromRGBO(42, 42, 42, 1),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        scaleLineStyleList: const [
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1.5,
+                            height: 20,
+                            scale: 0,
+                          ),
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1,
+                            height: 15,
+                            scale: 5,
+                          ),
+                          ScaleLineStyle(
+                            color: Color.fromRGBO(42, 42, 42, 0.5),
+                            width: 1,
+                            height: 10,
+                            scale: -1,
+                          ),
+                        ],
+                        onValueChanged: (value) {
+                          setState(() {
+                            selectedSleepHours = value.toDouble();
+                          });
+                        },
+                        width: size.width,
+                        height: size.height * 0.06,
+                        rulerMarginTop: 15,
+                        onBuildRulerScaleText:
+                            (int index, num rulerScaleValue) {
+                          return rulerScaleValue.toInt().toString();
+                        },
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 48.0, bottom: 48),
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const InitialInfoSecond()), // Navigate to the DestinationPage
-                          );
-                        },
+                        onPressed: (selectedGender == null || _loading)
+                            ? null
+                            : () async {
+                                setState(() => _loading = true);
+                                final double heightCm =
+                                    selectedHeight.toDouble();
+                                final double weightKg =
+                                    selectedWeight.toDouble();
+                                try {
+                                  await context
+                                      .read<ProfileProvider>()
+                                      .saveOnboardingStep1(
+                                        gender: selectedGender,
+                                        age: selectedAge,
+                                        heightCm: heightCm,
+                                        weightKg: weightKg,
+                                      );
+                                } catch (_) {
+                                  // Don't block onboarding if the save fails.
+                                }
+                                if (!context.mounted) return;
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const InitialInfoSecond()),
+                                );
+                              },
                         style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromRGBO(110, 182, 255, 1),
@@ -469,7 +673,16 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
                             ),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
-                        child: const Text('Next'),
+                        child: _loading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Next'),
                       ),
                     ),
                   ],
@@ -478,5 +691,61 @@ class _InitialInfoFirstState extends State<InitialInfoFirst> {
             ],
           ),
         ));
+  }
+}
+
+class _GenderOption extends StatelessWidget {
+  const _GenderOption({
+    required this.assetPath,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String assetPath;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const selectedColor = Color.fromRGBO(110, 182, 255, 1);
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: selected ? selectedColor : Colors.transparent,
+                width: 3,
+              ),
+              color: selected
+                  ? selectedColor.withValues(alpha: 0.08)
+                  : Colors.transparent,
+            ),
+            padding: const EdgeInsets.all(8),
+            child: SvgPicture.asset(assetPath, fit: BoxFit.contain),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: selected
+                  ? selectedColor
+                  : const Color.fromRGBO(42, 42, 42, 0.7),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

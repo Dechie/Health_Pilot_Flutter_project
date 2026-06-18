@@ -15,10 +15,12 @@ class NutritionProvider extends ChangeNotifier {
   );
   NutritionLoadStatus _status = NutritionLoadStatus.idle;
   bool _loadStarted = false;
+  bool _setupCompleted = false;
 
   List<FoodDayLog> get history => List.unmodifiable(_history);
   FoodNutritionSettings get settings => _settings;
   NutritionLoadStatus get status => _status;
+  bool get setupCompleted => _setupCompleted;
 
   NutritionProvider(this._repo);
 
@@ -30,6 +32,7 @@ class NutritionProvider extends ChangeNotifier {
     try {
       _history = await _repo.fetchHistory();
       _settings = await _repo.fetchSettings();
+      _setupCompleted = await FoodNutritionPrefs.isSetupDone();
       _status = NutritionLoadStatus.loaded;
     } catch (_) {
       _status = NutritionLoadStatus.error;
@@ -46,6 +49,9 @@ class NutritionProvider extends ChangeNotifier {
 
   Future<void> updateSettings(FoodNutritionSettings s) async {
     _settings = await _repo.saveSettings(s);
+    await FoodNutritionPrefs.markSetupDone();
+    _setupCompleted = true;
+    _history = await _repo.fetchHistory();
     notifyListeners();
   }
 }

@@ -56,6 +56,8 @@ import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'helpers/chat_local_store_test_helper.dart';
+
 // ---------------------------------------------------------------------------
 // Test harness
 // ---------------------------------------------------------------------------
@@ -72,9 +74,13 @@ Future<void> _pump(WidgetTester tester, Widget screen) async {
   // Pre-load all providers before pumping so first build has data.
   final articleP = ArticleProvider(MockArticleRepository());
   await articleP.load();
-  final chatP = ChatProvider(MockChatRepository());
+  final localStore = await createTestChatLocalStore();
+  final chatP = ChatProvider(MockChatRepository(), localStore: localStore);
   await chatP.load();
-  final aiP = AiAssistantProvider(MockAiAssistantRepository());
+  final aiP = AiAssistantProvider(
+    MockAiAssistantRepository(),
+    localStore: localStore,
+  );
   await aiP.load();
   final nutritionP = NutritionProvider(MockNutritionRepository());
   await nutritionP.load();

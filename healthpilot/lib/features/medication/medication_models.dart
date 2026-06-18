@@ -1,7 +1,14 @@
 import 'package:intl/intl.dart';
 
 const List<String> kDosageUnits = [
-  'mg', 'mcg', 'ml', 'g', 'iu', 'tabs', 'caps', 'drops',
+  'mg',
+  'mcg',
+  'ml',
+  'g',
+  'iu',
+  'tabs',
+  'caps',
+  'drops',
 ];
 
 class Medication {

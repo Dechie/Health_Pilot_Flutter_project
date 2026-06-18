@@ -62,8 +62,7 @@ class _AdWidgetState extends State<AdWidget> {
               controller: _pageController,
               count: ads.length,
               effect: ExpandingDotsEffect(
-                  activeDotColor: cs.primary,
-                  dotColor: cs.primaryContainer),
+                  activeDotColor: cs.primary, dotColor: cs.primaryContainer),
             ),
           )
         ],

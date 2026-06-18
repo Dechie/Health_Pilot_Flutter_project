@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/auth/mock_auth_repository.dart';
@@ -8,18 +9,23 @@ import 'package:healthpilot/core/repositories/i_ai_assistant_repository.dart';
 import 'package:healthpilot/core/repositories/i_assessment_repository.dart';
 import 'package:healthpilot/core/repositories/i_article_repository.dart';
 import 'package:healthpilot/core/repositories/i_chat_repository.dart';
+import 'package:healthpilot/core/repositories/i_community_repository.dart';
 import 'package:healthpilot/core/repositories/i_contacts_repository.dart';
 import 'package:healthpilot/core/repositories/i_nutrition_repository.dart';
 import 'package:healthpilot/core/repositories/i_health_repository.dart';
 import 'package:healthpilot/core/repositories/i_medication_repository.dart';
 import 'package:healthpilot/core/repositories/i_profile_repository.dart';
 import 'package:healthpilot/core/storage/secure_token_store.dart';
+import 'package:healthpilot/features/chat/data/chat_local_store.dart';
 import 'package:healthpilot/features/articles/article_provider.dart';
 import 'package:healthpilot/features/articles/repositories/mock_article_repository.dart';
 import 'package:healthpilot/features/articles/repositories/remote_article_repository.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart';
 import 'package:healthpilot/features/chat/repositories/remote_chat_repository.dart';
+import 'package:healthpilot/features/community/community_provider.dart';
+import 'package:healthpilot/features/community/repositories/mock_community_repository.dart';
+import 'package:healthpilot/features/community/repositories/remote_community_repository.dart';
 import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/features/food_nutrition/repositories/mock_nutrition_repository.dart';
 import 'package:healthpilot/features/food_nutrition/repositories/remote_nutrition_repository.dart';
@@ -55,15 +61,16 @@ import 'package:provider/single_child_widget.dart';
 abstract final class RepositoryLocator {
   static late final SecureTokenStore tokenStore;
   static late final ApiClient apiClient;
+  static final ChatLocalStore chatLocalStore = ChatLocalStore.instance;
 
   // Late-bound so AuthState can register its callback after creation.
-  static void Function()? _onAuthExpiredCallback;
+  static Future<void> Function()? _onAuthExpiredCallback;
 
   static void initialize() {
     tokenStore = const SecureTokenStore(FlutterSecureStorage());
     ApiClient.initialize(
       tokenStore: tokenStore,
-      onAuthExpired: () => _onAuthExpiredCallback?.call(),
+      onAuthExpired: () async => _onAuthExpiredCallback?.call(),
     );
     apiClient = ApiClient.instance;
   }
@@ -82,7 +89,7 @@ abstract final class RepositoryLocator {
           },
         ),
 
-        // Branch 3 — User profile; auto-loads when AuthState becomes authenticated.
+        // Branch 3 — User profile; auto-loads when AuthState becomes authenticated (non-guest).
         ChangeNotifierProxyProvider<AuthState, ProfileProvider>(
           create: (_) => ProfileProvider(
             FeatureFlags.userProfile
@@ -90,8 +97,14 @@ abstract final class RepositoryLocator {
                 : MockProfileRepository(),
           ),
           update: (_, authState, provider) {
-            if (authState.status == AuthStatus.authenticated) {
-              provider!.load();
+            if (authState.status == AuthStatus.authenticated &&
+                !authState.isGuest) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                provider?.load();
+              });
+            } else if (authState.status == AuthStatus.unauthenticated ||
+                authState.isGuest) {
+              provider!.reset();
             }
             return provider!;
           },
@@ -134,6 +147,7 @@ abstract final class RepositoryLocator {
                 ? RemoteAiAssistantRepository(apiClient)
                     as IAiAssistantRepository
                 : MockAiAssistantRepository(),
+            localStore: chatLocalStore,
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
@@ -194,6 +208,7 @@ abstract final class RepositoryLocator {
             FeatureFlags.chat
                 ? RemoteChatRepository(apiClient) as IChatRepository
                 : MockChatRepository(),
+            localStore: chatLocalStore,
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
@@ -225,6 +240,21 @@ abstract final class RepositoryLocator {
                 ? RemoteSubscriptionRepository(apiClient)
                     as ISubscriptionRepository
                 : MockSubscriptionRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 12 — Community / Peers; auto-loads suggested peers and connections.
+        ChangeNotifierProxyProvider<AuthState, CommunityProvider>(
+          create: (_) => CommunityProvider(
+            FeatureFlags.community
+                ? RemoteCommunityRepository(apiClient) as ICommunityRepository
+                : MockCommunityRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {

@@ -32,7 +32,8 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
     CustomDropDownModel(name: 'Neurologists', value: 'Neurologists'),
     CustomDropDownModel(name: 'Hematologists', value: 'Hematologists'),
     CustomDropDownModel(name: 'Cardiologists', value: 'Cardiologists'),
-    CustomDropDownModel(name: 'General practitioner', value: 'General practitioner'),
+    CustomDropDownModel(
+        name: 'General practitioner', value: 'General practitioner'),
   ];
 
   @override
@@ -152,7 +153,8 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
     }
 
     final entry = PersonalDoctorEntry(
-      id: widget.initial?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+      id: widget.initial?.id ??
+          DateTime.now().microsecondsSinceEpoch.toString(),
       firstName: _firstName.text.trim(),
       lastName: _lastName.text.trim(),
       profession: profession,
@@ -175,12 +177,14 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: size.width * 0.08),
-          child: Form(
-            key: _formKey,
-            child: Column(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding:
+              EdgeInsets.symmetric(horizontal: 20, vertical: size.width * 0.08),
+          children: [
+            Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
@@ -194,7 +198,8 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                           height: size.width * 0.1,
                           decoration: BoxDecoration(
                             color: const Color.fromRGBO(110, 182, 255, 0.25),
-                            borderRadius: BorderRadius.circular(size.width * 0.05),
+                            borderRadius:
+                                BorderRadius.circular(size.width * 0.05),
                           ),
                           child: IconButton(
                             onPressed: () => Navigator.of(context).pop(),
@@ -204,9 +209,12 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
+                          padding:
+                              EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
                           child: Text(
-                            initial == null ? 'Setup Personal Doctor' : 'Edit Personal Doctor',
+                            initial == null
+                                ? 'Setup Personal Doctor'
+                                : 'Edit Personal Doctor',
                             style: TextStyle(
                               fontSize: size.width * 0.05,
                               fontWeight: FontWeight.w600,
@@ -356,7 +364,7 @@ class _SetupPersonalDoctorState extends State<SetupPersonalDoctor> {
                 SizedBox(height: 20 + bottomInset),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -544,7 +552,8 @@ class _CustomDropDownTextFildState extends State<CustomDropDownTextFild> {
                       decoration: InputDecoration(
                         hintText: 'Search profession',
                         hintStyle: TextStyle(color: cs.onSurfaceVariant),
-                        prefixIcon: Icon(Icons.search, size: 20, color: cs.onSurfaceVariant),
+                        prefixIcon: Icon(Icons.search,
+                            size: 20, color: cs.onSurfaceVariant),
                         border: const OutlineInputBorder(),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: cs.outline),

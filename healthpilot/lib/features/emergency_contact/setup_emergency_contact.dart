@@ -155,7 +155,8 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                     ),
                     Flexible(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
+                        padding:
+                            EdgeInsets.fromLTRB(size.width * 0.05, 0, 0, 0),
                         child: Text(
                           initial == null
                               ? 'Setup Emergency Contact'
@@ -190,15 +191,16 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.symmetric(
             horizontal: size.width * 0.08,
             vertical: size.width * 0.08,
           ),
-          child: Form(
-            key: _formKey,
-            child: Column(
+          children: [
+            Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _labeledField(
@@ -290,7 +292,7 @@ class _SetupEmergencyContactState extends State<SetupEmergencyContact> {
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -36,7 +36,8 @@ class ContactsProvider extends ChangeNotifier {
   Future<void> updateContact(EmergencyContactEntry contact) async {
     final updated = await _repo.updateEmergencyContact(contact);
     _contacts = [
-      for (final c in _contacts) if (c.id == updated.id) updated else c,
+      for (final c in _contacts)
+        if (c.id == updated.id) updated else c,
     ];
     notifyListeners();
   }
@@ -56,7 +57,8 @@ class ContactsProvider extends ChangeNotifier {
   Future<void> updateDoctor(PersonalDoctorEntry doctor) async {
     final updated = await _repo.updateDoctor(doctor);
     _doctors = [
-      for (final d in _doctors) if (d.id == updated.id) updated else d,
+      for (final d in _doctors)
+        if (d.id == updated.id) updated else d,
     ];
     notifyListeners();
   }

@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "healthpilot (live backend)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=dart_defines.json"
+            ]
+        },
+        {
             "name": "healthpilot",
             "request": "launch",
             "type": "dart"

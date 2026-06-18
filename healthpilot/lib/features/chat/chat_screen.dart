@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,22 +9,68 @@ import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
 import 'package:healthpilot/features/chat/chat_models.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
+import 'package:healthpilot/features/chat/widgets/chat_markdown_body.dart';
 import 'package:healthpilot/features/chat/user_detail_screen.dart';
+import 'package:healthpilot/features/community/community_models.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   final String senderId;
   final String userId;
 
   const ChatScreen({super.key, required this.senderId, required this.userId});
 
   @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = context.read<ChatProvider>();
+      provider.markRead(widget.senderId);
+      provider.fetchPrivateMessages(widget.senderId);
+    });
+    _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) return;
+      final provider = context.read<ChatProvider>();
+      provider.markRead(widget.senderId);
+      provider.fetchPrivateMessages(widget.senderId);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final provider = context.watch<ChatProvider>();
-    final user = provider.findUser(senderId);
+    final user = provider.findUser(widget.senderId);
+    if (user == null) {
+      return Scaffold(
+        body: Center(
+          child: Text(
+            'User not found',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size(size.width, size.height * 0.15),
@@ -34,7 +82,7 @@ class ChatScreen extends StatelessWidget {
             profileImageUrl: devsImage,
             callNow: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => AudioCallScreen(id: senderId)));
+                  builder: (context) => AudioCallScreen(id: widget.senderId)));
             },
             more: () {},
             senderId: user.userId,
@@ -45,12 +93,17 @@ class ChatScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
-              user.chatHistory.isEmpty
-                  ? const EmptyChat()
-                  : ChatList(
-                      senderId: senderId,
-                      userId: userId,
-                      chatList: user.chatHistory),
+              if (provider.isLoadingThread(widget.senderId))
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (user.chatHistory.isEmpty)
+                const EmptyChat()
+              else
+                ChatList(
+                    senderId: widget.senderId,
+                    userId: widget.userId,
+                    chatList: user.chatHistory),
               SendMessage(
                 attach: () {
                   debugPrint('add file');
@@ -58,7 +111,7 @@ class ChatScreen extends StatelessWidget {
                 sendMessage: (message) {
                   context
                       .read<ChatProvider>()
-                      .sendDirect(senderId, userId, message);
+                      .sendDirect(widget.senderId, widget.userId, message);
                 },
               ),
             ],
@@ -123,7 +176,13 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => UserDetailScreen(
-                          id: senderId,
+                          peer: SuggestedPeer(
+                            id: int.parse(senderId),
+                            fullName: title,
+                            age: 0,
+                            score: 0,
+                            reason: '',
+                          ),
                         )));
               },
               child: Container(
@@ -148,8 +207,7 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
             SizedBox(
               width: size.width * 0.015,
             ),
-            SizedBox(
-              width: size.height * 0.28,
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -268,118 +326,138 @@ class ChatList extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Expanded(
       child: GroupedListView(
-          elements: chatList,
-          groupBy: (chat) => DateFormat.MMMd().format(chat.timestamp),
-          groupSeparatorBuilder: (chat) => SizedBox(
-                width: double.infinity,
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: size.width * 0.1),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.25),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          DateFormat.MMMd().format(DateTime.now()) == chat
-                              ? 'Today'
-                              : chat,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 10,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.25),
-                        ),
-                      ),
-                    ],
+        elements: chatList,
+        groupBy: (chat) => DateFormat.MMMd().format(chat.timestamp),
+        groupSeparatorBuilder: (chat) => SizedBox(
+          width: double.infinity,
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: size.width * 0.1),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.25),
                   ),
                 ),
-              ),
-          itemBuilder: (context, chat) {
-            final isIncoming = int.parse(chat.senderId) != int.parse(userId);
-            final cs = Theme.of(context).colorScheme;
-            final isDark = Theme.of(context).brightness == Brightness.dark;
-
-            final bubbleDecoration = isIncoming
-                ? BoxDecoration(
-                    color: cs.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
-                  )
-                : BoxDecoration(
-                    gradient: AppTheme.chatBubbleGradient(context),
-                    borderRadius: BorderRadius.circular(10),
-                  );
-
-            return Bubble(
-              alignment:
-                  isIncoming ? Alignment.centerLeft : Alignment.centerRight,
-              radius: const Radius.circular(10),
-              nip: isIncoming ? BubbleNip.leftBottom : BubbleNip.rightBottom,
-              margin: const BubbleEdges.symmetric(vertical: 5),
-              padding: const BubbleEdges.all(0),
-              showNip: true,
-              color: Colors.transparent,
-              shadowColor: Colors.transparent,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                decoration: bubbleDecoration,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        chat.content,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: isIncoming
-                              ? cs.onSurface
-                              : (isDark ? cs.onPrimary : cs.onSurface),
-                          fontSize: 12,
-                          fontWeight: isIncoming ? FontWeight.w400 : FontWeight.w500,
-                        ),
-                      ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    DateFormat.MMMd().format(DateTime.now()) == chat
+                        ? 'Today'
+                        : chat,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 10,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      DateFormat('hh:mm a').format(chat.timestamp),
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w400,
-                        color: (isIncoming
-                                ? cs.onSurface
-                                : (isDark ? cs.onPrimary : cs.onSurface))
-                            .withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
+                Expanded(
+                  child: Divider(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.25),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
+        itemBuilder: (context, chat) {
+          final isIncoming = int.parse(chat.senderId) != int.parse(userId);
+          final cs = Theme.of(context).colorScheme;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
+          final bubbleDecoration = isIncoming
+              ? BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(10),
+                )
+              : BoxDecoration(
+                  gradient: AppTheme.chatBubbleGradient(context),
+                  borderRadius: BorderRadius.circular(10),
+                );
+
+          return Bubble(
+            alignment:
+                isIncoming ? Alignment.centerLeft : Alignment.centerRight,
+            radius: const Radius.circular(10),
+            nip: isIncoming ? BubbleNip.leftBottom : BubbleNip.rightBottom,
+            margin: const BubbleEdges.symmetric(vertical: 5),
+            padding: const BubbleEdges.all(0),
+            showNip: true,
+            color: Colors.transparent,
+            shadowColor: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              decoration: bubbleDecoration,
+              child: isIncoming
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: ChatMarkdownBody(
+                            rawText: chat.content,
+                            textColor: cs.onSurface,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          DateFormat('hh:mm a').format(chat.timestamp),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w400,
+                            color: cs.onSurface.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ChatMarkdownBody(
+                            rawText: chat.content,
+                            textColor: isDark ? cs.onPrimary : cs.onSurface,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            chat.sendFailed
+                                ? 'Failed'
+                                : chat.isDelivered
+                                    ? 'Sent'
+                                    : 'Sending…',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w400,
+                              color: chat.sendFailed
+                                  ? cs.error
+                                  : (isDark ? cs.onPrimary : cs.onSurface)
+                                      .withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
 class SendMessage extends StatefulWidget {
-  final Function sendMessage;
+  final void Function(String) sendMessage;
   final VoidCallback attach;
   const SendMessage(
       {super.key, required this.sendMessage, required this.attach});
@@ -389,7 +467,23 @@ class SendMessage extends StatefulWidget {
 }
 
 class _SendMessageState extends State<SendMessage> {
+  final _controller = TextEditingController();
   String message = '';
+
+  void _send() {
+    final trimmed = message.trim();
+    if (trimmed.isEmpty) return;
+    widget.sendMessage(trimmed);
+    _controller.clear();
+    setState(() => message = '');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -407,36 +501,38 @@ class _SendMessageState extends State<SendMessage> {
         ),
         Expanded(
           child: Container(
-          padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.01, horizontal: size.width * 0.04),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: cs.outline, width: 1),
-              color: cs.surfaceContainerHighest),
-          height: size.height * 0.06,
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                message = value;
-              });
-            },
-            maxLines: 1,
-            style: TextStyle(color: cs.onSurface),
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Message',
-                hintStyle: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w400,
-                  color: cs.onSurfaceVariant,
-                  fontSize: 12,
-                )),
+            padding: EdgeInsets.symmetric(
+                vertical: size.height * 0.01, horizontal: size.width * 0.04),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: cs.outline, width: 1),
+                color: cs.surfaceContainerHighest),
+            height: size.height * 0.06,
+            child: TextField(
+              controller: _controller,
+              onChanged: (value) {
+                setState(() {
+                  message = value;
+                });
+              },
+              onSubmitted: (_) => _send(),
+              maxLines: 1,
+              style: TextStyle(color: cs.onSurface),
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Message',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w400,
+                    color: cs.onSurfaceVariant,
+                    fontSize: 12,
+                  )),
+            ),
           ),
         ),
-        ),
         InkWell(
-          onTap: () => widget.sendMessage(message),
+          onTap: _send,
           child: Icon(
             message.isEmpty
                 ? Icons.keyboard_voice_outlined

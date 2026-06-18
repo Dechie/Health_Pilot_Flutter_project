@@ -10,9 +10,13 @@ class RemoteAssessmentRepository implements IAssessmentRepository {
   @override
   Future<List<CompletedAssessmentEntry>> fetchHistory() async {
     final data = await _client.get('${ApiConstants.assessmentsBase}/');
-    return (data as List)
+    final list = data is Map
+        ? (data['results'] as List? ?? data['data'] as List?)
+        : (data as List);
+    if (list == null) return [];
+    return list
         .map((e) =>
-            CompletedAssessmentEntry.fromJson(e as Map<String, dynamic>))
+            CompletedAssessmentEntry.fromApiJson(e as Map<String, dynamic>))
         .toList();
   }
 
@@ -21,9 +25,9 @@ class RemoteAssessmentRepository implements IAssessmentRepository {
       AssessmentSummary summary) async {
     final data = await _client.post(
       '${ApiConstants.assessmentsBase}/',
-      data: summary.toJson(),
+      data: summary.toApiJson(),
     );
-    return CompletedAssessmentEntry.fromJson(data as Map<String, dynamic>);
+    return CompletedAssessmentEntry.fromApiJson(data as Map<String, dynamic>);
   }
 
   @override

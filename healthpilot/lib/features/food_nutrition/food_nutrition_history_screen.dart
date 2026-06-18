@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
+import 'package:healthpilot/features/food_nutrition/food_nutrition_models.dart';
 import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/theme/app_theme.dart';
@@ -28,13 +29,24 @@ class FoodNutritionHistoryScreen extends StatelessWidget {
     final days = provider.history;
     if (days.isEmpty) {
       return _HistoryScaffold(
-        body: _EmptyHistoryBody(
-          onSetUp: () => Navigator.of(context).push<void>(
-            MaterialPageRoute<void>(
-              builder: (context) => const FoodNutritionTrackingScreen(),
-            ),
-          ),
-        ),
+        body: provider.setupCompleted
+            ? _SetupSummary(
+                settings: provider.settings,
+                onEdit: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (context) =>
+                        const FoodNutritionTrackingScreen(),
+                  ),
+                ),
+              )
+            : _EmptyHistoryBody(
+                onSetUp: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (context) =>
+                        const FoodNutritionTrackingScreen(),
+                  ),
+                ),
+              ),
       );
     }
 
@@ -113,6 +125,109 @@ class _HistoryScaffold extends StatelessWidget {
             Expanded(child: body),
           ],
         ),
+      ),
+    );
+  }
+}
+
+String _frequencyLabel(FoodReportFrequency f) {
+  switch (f) {
+    case FoodReportFrequency.daily:
+      return 'Daily';
+    case FoodReportFrequency.weekly:
+      return 'Weekly';
+    case FoodReportFrequency.biWeekly:
+      return 'Bi-weekly';
+    case FoodReportFrequency.monthly:
+      return 'Monthly';
+  }
+}
+
+class _SetupSummary extends StatelessWidget {
+  const _SetupSummary({
+    required this.settings,
+    required this.onEdit,
+  });
+
+  final FoodNutritionSettings settings;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Your Preferences', style: style.titleMedium),
+          const SizedBox(height: 16),
+          _SummaryRow(
+            icon: Icons.calendar_today,
+            label: 'Report frequency',
+            value: _frequencyLabel(settings.frequency),
+          ),
+          const Divider(height: 1),
+          _SummaryRow(
+            icon: Icons.notifications_outlined,
+            label: 'Push notifications',
+            value: settings.pushNotificationsEnabled ? 'On' : 'Off',
+          ),
+          if (settings.diets.isNotEmpty) ...[
+            const Divider(height: 1),
+            _SummaryRow(
+              icon: Icons.restaurant_outlined,
+              label: 'Diets',
+              value: settings.diets.join(', '),
+            ),
+          ],
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: onEdit,
+              child: const Text('Edit setup'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Row(
+        children: [
+          Icon(icon, size: 22, color: scheme.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(label,
+                style: Theme.of(context).textTheme.bodyMedium),
+          ),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: scheme.primary,
+                ),
+          ),
+        ],
       ),
     );
   }

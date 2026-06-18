@@ -9,22 +9,23 @@ class RemoteAiAssistantRepository implements IAiAssistantRepository {
 
   @override
   Future<List<ChatMessage>> fetchHistory() async {
-    final data = await _client.get('${ApiConstants.chatBase}/messages/');
-    return (data as List)
-        .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))
+    final data = await _client.get('${ApiConstants.chatBase}/ai/history/');
+    if (data is! List) return [];
+    return data
+        .map((e) => ChatMessage.fromApiHistoryJson(e as Map<String, dynamic>))
         .toList();
   }
 
   @override
   Future<ChatMessage> sendMessage(String text) async {
     final data = await _client.post(
-      '${ApiConstants.chatBase}/messages/',
-      data: {'body': text},
+      '${ApiConstants.chatBase}/ai/',
+      data: {'message': text},
     );
-    return ChatMessage.fromJson(data as Map<String, dynamic>);
+    return ChatMessage.fromApiReply(data as Map<String, dynamic>);
   }
 
   @override
   Future<void> clearHistory() async =>
-      _client.delete('${ApiConstants.chatBase}/messages/');
+      _client.delete('${ApiConstants.chatBase}/ai/history/');
 }

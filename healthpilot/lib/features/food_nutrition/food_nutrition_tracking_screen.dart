@@ -22,6 +22,7 @@ class _FoodNutritionTrackingScreenState
   late FoodReportFrequency _frequency;
   late bool _pushNotifications;
   late Set<String> _diets;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -29,20 +30,25 @@ class _FoodNutritionTrackingScreenState
     final s = context.read<NutritionProvider>().settings;
     _frequency = s.frequency;
     _pushNotifications = s.pushNotificationsEnabled;
-    _diets = Set<String>.from(
-        s.diets.where(kFoodNutritionDietChoices.contains));
+    _diets =
+        Set<String>.from(s.diets.where(kFoodNutritionDietChoices.contains));
     if (_diets.isEmpty) _diets.addAll({'Vegetarian', 'Vegan'});
   }
 
   Future<void> _onFinish() async {
-    await context.read<NutritionProvider>().updateSettings(
-          FoodNutritionSettings(
-            frequency: _frequency,
-            pushNotificationsEnabled: _pushNotifications,
-            diets: Set<String>.from(_diets),
-          ),
-        );
-    if (mounted) Navigator.of(context).pop();
+    setState(() => _saving = true);
+    try {
+      await context.read<NutritionProvider>().updateSettings(
+            FoodNutritionSettings(
+              frequency: _frequency,
+              pushNotificationsEnabled: _pushNotifications,
+              diets: Set<String>.from(_diets),
+            ),
+          );
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -191,8 +197,7 @@ class _FoodNutritionTrackingScreenState
                               }
                             });
                           },
-                          selectedColor:
-                              scheme.primary.withValues(alpha: 0.35),
+                          selectedColor: scheme.primary.withValues(alpha: 0.35),
                           checkmarkColor: scheme.primary,
                           labelStyle:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -209,8 +214,17 @@ class _FoodNutritionTrackingScreenState
                     ),
                     const SizedBox(height: 32),
                     FilledButton(
-                      onPressed: _onFinish,
-                      child: const Text('Finish'),
+                      onPressed: _saving ? null : _onFinish,
+                      child: _saving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Finish'),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -234,9 +248,7 @@ class _FoodNutritionTrackingScreenState
         child: Row(
           children: [
             Icon(
-              selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_off,
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
               color: scheme.primary,
               size: 22,
             ),
@@ -245,8 +257,7 @@ class _FoodNutritionTrackingScreenState
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight:
-                          selected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                       color: selected ? scheme.primary : scheme.onSurface,
                     ),
               ),

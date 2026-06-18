@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
+import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/widgets/setup_promo_card.dart';
 import 'package:healthpilot/features/emergency_contact/setup_emergency_contact.dart';
@@ -58,8 +59,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Remove emergency contact?'),
-        content:
-            const Text('This contact will be removed from your list.'),
+        content: const Text('This contact will be removed from your list.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -198,475 +198,311 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: EdgeInsets.only(bottom: 24 + bottomInset),
-        child: Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: size.height * 0.02,
-                  ),
-                  GestureDetector(
-                    onTap: _pickProfilePhoto,
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: size.width * 0.1,
-                          backgroundImage: _profileImagePath != null
-                              ? FileImage(File(_profileImagePath!))
-                              : null,
-                          child: _profileImagePath == null
-                              ? ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.circular(size.height * 0.08),
-                                  child: Image.asset(
-                                    height: size.width * 0.25,
-                                    personPicForProfile,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              : null,
-                        ),
-                        Positioned(
-                          top: size.width * 0.16,
-                          left: size.width * 0.13,
-                          child: Container(
-                            height: size.width * 0.04,
-                            width: size.width * 0.04,
-                            padding: EdgeInsets.only(left: size.width * 0.01),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                size.width * 0.02,
-                              ),
-                              color: const Color.fromARGB(255, 255, 255, 255),
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: size.height * 0.02,
+                ),
+                GestureDetector(
+                  onTap: _pickProfilePhoto,
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: size.width * 0.1,
+                        backgroundImage: _profileImagePath != null
+                            ? FileImage(File(_profileImagePath!))
+                            : null,
+                        child: _profileImagePath == null
+                            ? ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(size.height * 0.08),
+                                child: Image.asset(
+                                  height: size.width * 0.25,
+                                  personPicForProfile,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : null,
+                      ),
+                      Positioned(
+                        top: size.width * 0.16,
+                        left: size.width * 0.13,
+                        child: Container(
+                          height: size.width * 0.04,
+                          width: size.width * 0.04,
+                          padding: EdgeInsets.only(left: size.width * 0.01),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              size.width * 0.02,
                             ),
-                            child: Icon(
-                              LineIcons.edit,
-                              size: size.width * 0.03,
-                              color: const Color.fromARGB(255, 73, 70, 70),
-                            ),
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                          ),
+                          child: Icon(
+                            LineIcons.edit,
+                            size: size.width * 0.03,
+                            color: const Color.fromARGB(255, 73, 70, 70),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: size.height * 0.03,
+                ),
+                Text(
+                  'Tap to upload your profile photo',
+                  style: AppTheme.bodyMuted(context),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.08, vertical: size.width * 0.08),
+            child: Form(
+              child: Column(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'First Name',
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 14,
+                        ),
+                      ),
+                      TextFormField(
+                        maxLines: 1,
+                        style: TextStyle(color: cs.onSurface),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: size.height * 0.015,
+                              horizontal: size.width * 0.03),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                          ),
+                          isDense: true,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.primary, width: 2),
+                          ),
+                        ),
+                        keyboardType: TextInputType.name,
+                        textInputAction: TextInputAction.next,
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: size.height * 0.03,
                   ),
-                  Text(
-                    'Tap to upload your profile photo',
-                    style: AppTheme.bodyMuted(context),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Last Name',
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 14,
+                        ),
+                      ),
+                      TextFormField(
+                        maxLines: 1,
+                        style: TextStyle(color: cs.onSurface),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: size.height * 0.015,
+                              horizontal: size.width * 0.03),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                          ),
+                          isDense: true,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.primary, width: 2),
+                          ),
+                        ),
+                        keyboardType: TextInputType.name,
+                        textInputAction: TextInputAction.next,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: size.width * 0.08, vertical: size.width * 0.08),
-              child: Form(
-                child: Column(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'First Name',
-                          style: TextStyle(
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 14,
+                  SizedBox(
+                    height: size.height * 0.03,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Email',
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 14,
+                        ),
+                      ),
+                      TextFormField(
+                        maxLines: 1,
+                        style: TextStyle(color: cs.onSurface),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: size.height * 0.015,
+                              horizontal: size.width * 0.03),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
+                          ),
+                          isDense: true,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.primary, width: 2),
                           ),
                         ),
-                        TextFormField(
-                          maxLines: 1,
-                          style: TextStyle(color: cs.onSurface),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: size.height * 0.015,
-                                horizontal: size.width * 0.03),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            isDense: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: cs.primary, width: 2),
-                            ),
-                          ),
-                          keyboardType: TextInputType.name,
-                          textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: size.height * 0.03,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Phone Number',
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 14,
                         ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Last Name',
-                          style: TextStyle(
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 14,
+                      ),
+                      IntlMobileField(
+                        disableLengthCheck: true,
+                        disableLengthCounter: true,
+                        dropdownIconPosition: Position.trailing,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: size.height * 0.015,
+                              horizontal: size.width * 0.03),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
                           ),
-                        ),
-                        TextFormField(
-                          maxLines: 1,
-                          style: TextStyle(color: cs.onSurface),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: size.height * 0.015,
-                                horizontal: size.width * 0.03),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            isDense: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: cs.primary, width: 2),
-                            ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outline),
                           ),
-                          keyboardType: TextInputType.name,
-                          textInputAction: TextInputAction.next,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Email',
-                          style: TextStyle(
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 14,
+                          isDense: true,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.primary, width: 2),
                           ),
                         ),
-                        TextFormField(
-                          maxLines: 1,
-                          style: TextStyle(color: cs.onSurface),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: size.height * 0.015,
-                                horizontal: size.width * 0.03),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            isDense: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: cs.primary, width: 2),
-                            ),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.done,
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: size.height * 0.05,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Emergency Contacts',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: cs.onSurface,
                         ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Phone Number',
-                          style: TextStyle(
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 14,
-                          ),
-                        ),
-                        IntlMobileField(
-                          disableLengthCheck: true,
-                          disableLengthCounter: true,
-                          dropdownIconPosition: Position.trailing,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: size.height * 0.015,
-                                horizontal: size.width * 0.03),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: cs.outline),
-                            ),
-                            isDense: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: cs.primary, width: 2),
-                            ),
-                          ),
-                          keyboardType: TextInputType.phone,
-                          textInputAction: TextInputAction.done,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: size.height * 0.05,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Emergency Contacts',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            if (emergencyContacts.length >= 3) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'You can add up to 3 emergency contacts.',
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
-                            _addOrEditEmergency();
-                          },
-                          icon: Icon(
-                            Icons.add_circle_outline,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: emergencyContacts.isEmpty
-                          ? size.height * 0.08
-                          : size.height * 0.11 * emergencyContacts.length,
-                      child: emergencyContacts.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No emergency contact found!',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(110, 182, 255, 1),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          if (emergencyContacts.length >= 3) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'You can add up to 3 emergency contacts.',
                                 ),
                               ),
-                            )
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: emergencyContacts.length,
-                              itemBuilder: (context, index) {
-                                final e = emergencyContacts[index];
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: size.height * 0.012,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            width: size.width * 0.003,
-                                            height: size.height * 0.09,
-                                            color: const Color.fromRGBO(
-                                              110,
-                                              182,
-                                              255,
-                                              1,
-                                            ),
-                                          ),
-                                          Container(
-                                            width: size.width * 0.03,
-                                            height: size.width * 0.03,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                size.width * 0.015,
-                                              ),
-                                              color: const Color.fromRGBO(
-                                                110,
-                                                182,
-                                                255,
-                                                1,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                            left: size.width * 0.02,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                e.displayName,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              if (e.relationship != null &&
-                                                  e.relationship!.isNotEmpty)
-                                                Text(
-                                                  e.relationship!,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Color.fromRGBO(
-                                                      42,
-                                                      42,
-                                                      42,
-                                                      0.65,
-                                                    ),
-                                                  ),
-                                                ),
-                                              Text(
-                                                e.email,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Color.fromRGBO(
-                                                    42,
-                                                    42,
-                                                    42,
-                                                    0.5,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        tooltip: 'Edit',
-                                        onPressed: () => _addOrEditEmergency(
-                                          existing: e,
-                                        ),
-                                        icon: const Icon(
-                                          Icons.edit_outlined,
-                                          color: Color.fromRGBO(
+                            );
+                            return;
+                          }
+                          _addOrEditEmergency();
+                        },
+                        icon: Icon(
+                          Icons.add_circle_outline,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: emergencyContacts.isEmpty
+                        ? size.height * 0.08
+                        : size.height * 0.11 * emergencyContacts.length,
+                    child: emergencyContacts.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No emergency contact found!',
+                              style: TextStyle(
+                                color: Color.fromRGBO(110, 182, 255, 1),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: emergencyContacts.length,
+                            itemBuilder: (context, index) {
+                              final e = emergencyContacts[index];
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: size.height * 0.012,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          width: size.width * 0.003,
+                                          height: size.height * 0.09,
+                                          color: const Color.fromRGBO(
                                             110,
                                             182,
                                             255,
                                             1,
                                           ),
                                         ),
-                                      ),
-                                      IconButton(
-                                        tooltip: 'Remove',
-                                        onPressed: () =>
-                                            _confirmRemoveEmergency(e.id),
-                                        icon: const Icon(
-                                          Icons.delete_outline,
-                                          color: Color.fromRGBO(
-                                            180,
-                                            60,
-                                            60,
-                                            1,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Personal Doctor',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            if (doctors.length >= 3) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'You can add up to 3 personal doctors.',
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
-                            _addOrEditDoctor();
-                          },
-                          icon: Icon(
-                            Icons.add_circle_outline,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: doctors.isEmpty
-                          ? size.height * 0.08
-                          : size.height * 0.11 * doctors.length,
-                      child: doctors.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'You don\'t have a personal doctor!',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(110, 182, 255, 1),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: doctors.length,
-                              itemBuilder: (context, index) {
-                                final d = doctors[index];
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: size.height * 0.012,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            width: size.width * 0.003,
-                                            height: size.height * 0.09,
+                                        Container(
+                                          width: size.width * 0.03,
+                                          height: size.width * 0.03,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              size.width * 0.015,
+                                            ),
                                             color: const Color.fromRGBO(
                                               110,
                                               182,
@@ -674,42 +510,29 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                               1,
                                             ),
                                           ),
-                                          Container(
-                                            width: size.width * 0.03,
-                                            height: size.width * 0.03,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                size.width * 0.015,
-                                              ),
-                                              color: const Color.fromRGBO(
-                                                110,
-                                                182,
-                                                255,
-                                                1,
+                                        ),
+                                      ],
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          left: size.width * 0.02,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              e.displayName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                            left: size.width * 0.02,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
+                                            if (e.relationship != null &&
+                                                e.relationship!.isNotEmpty)
                                               Text(
-                                                d.displayName,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                d.profession,
+                                                e.relationship!,
                                                 style: const TextStyle(
                                                   fontSize: 12,
                                                   color: Color.fromRGBO(
@@ -720,100 +543,273 @@ class _PersonalInformationState extends State<PersonalInformation> {
                                                   ),
                                                 ),
                                               ),
-                                              Text(
-                                                d.email,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Color.fromRGBO(
-                                                    42,
-                                                    42,
-                                                    42,
-                                                    0.5,
-                                                  ),
+                                            Text(
+                                              e.email,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Color.fromRGBO(
+                                                  42,
+                                                  42,
+                                                  42,
+                                                  0.5,
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      IconButton(
-                                        tooltip: 'Edit',
-                                        onPressed: () => _addOrEditDoctor(
-                                          existing: d,
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Edit',
+                                      onPressed: () => _addOrEditEmergency(
+                                        existing: e,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        color: Color.fromRGBO(
+                                          110,
+                                          182,
+                                          255,
+                                          1,
                                         ),
-                                        icon: const Icon(
-                                          Icons.edit_outlined,
-                                          color: Color.fromRGBO(
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Remove',
+                                      onPressed: () =>
+                                          _confirmRemoveEmergency(e.id),
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Color.fromRGBO(
+                                          180,
+                                          60,
+                                          60,
+                                          1,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Personal Doctor',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          if (doctors.length >= 3) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'You can add up to 3 personal doctors.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          _addOrEditDoctor();
+                        },
+                        icon: Icon(
+                          Icons.add_circle_outline,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: doctors.isEmpty
+                        ? size.height * 0.08
+                        : size.height * 0.11 * doctors.length,
+                    child: doctors.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'You don\'t have a personal doctor!',
+                              style: TextStyle(
+                                color: Color.fromRGBO(110, 182, 255, 1),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: doctors.length,
+                            itemBuilder: (context, index) {
+                              final d = doctors[index];
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: size.height * 0.012,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          width: size.width * 0.003,
+                                          height: size.height * 0.09,
+                                          color: const Color.fromRGBO(
                                             110,
                                             182,
                                             255,
                                             1,
                                           ),
                                         ),
-                                      ),
-                                      IconButton(
-                                        tooltip: 'Remove',
-                                        onPressed: () =>
-                                            _confirmRemoveDoctor(d.id),
-                                        icon: const Icon(
-                                          Icons.delete_outline,
-                                          color: Color.fromRGBO(
-                                            180,
-                                            60,
-                                            60,
-                                            1,
+                                        Container(
+                                          width: size.width * 0.03,
+                                          height: size.width * 0.03,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              size.width * 0.015,
+                                            ),
+                                            color: const Color.fromRGBO(
+                                              110,
+                                              182,
+                                              255,
+                                              1,
+                                            ),
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          left: size.width * 0.02,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              d.displayName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              d.profession,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Color.fromRGBO(
+                                                  42,
+                                                  42,
+                                                  42,
+                                                  0.65,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              d.email,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Color.fromRGBO(
+                                                  42,
+                                                  42,
+                                                  42,
+                                                  0.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Edit',
+                                      onPressed: () => _addOrEditDoctor(
+                                        existing: d,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        color: Color.fromRGBO(
+                                          110,
+                                          182,
+                                          255,
+                                          1,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Remove',
+                                      onPressed: () =>
+                                          _confirmRemoveDoctor(d.id),
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Color.fromRGBO(
+                                          180,
+                                          60,
+                                          60,
+                                          1,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  SizedBox(
+                    height: size.height * 0.05,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Food and Nutrition Tracking',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (context) =>
+                                  const FoodNutritionHistoryScreen(),
                             ),
-                    ),
-                    SizedBox(
-                      height: size.height * 0.05,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Food and Nutrition Tracking',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: cs.onSurface,
-                          ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.arrow_forward,
+                          color: Color.fromRGBO(110, 182, 255, 1),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (context) =>
-                                    const FoodNutritionHistoryScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.arrow_forward,
-                            color: Color.fromRGBO(110, 182, 255, 1),
-                          ),
-                        ),
-                      ],
-                    ),
-                    ..._foodHistoryPreviewRows(context, size),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    SetupPromoCard(
+                      ),
+                    ],
+                  ),
+                  ..._foodHistoryPreviewRows(context, size),
+                  SizedBox(
+                    height: size.height * 0.03,
+                  ),
+                  Consumer<NutritionProvider>(
+                    builder: (context, nutrition, _) => SetupPromoCard(
                       screenWidth: size.width,
                       width: double.infinity,
                       expandVertically: true,
                       margin: EdgeInsets.zero,
                       title: SetupPromoCardCopy.foodNutritionTitle,
-                      description: SetupPromoCardCopy.foodNutritionDescription,
+                      description:
+                          SetupPromoCardCopy.foodNutritionDescription,
                       icon: null,
-                      buttonText: 'Start setup',
+                      buttonText: nutrition.setupCompleted
+                          ? "Edit setup"
+                          : "Start setup",
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
@@ -823,33 +819,32 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         );
                       },
                     ),
-                    SizedBox(
-                      height: size.height * 0.07,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        AppNavigation.replaceWithHome(
-                          context,
-                          useRootNavigator: false,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromRGBO(110, 182, 255, 1),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: size.width * 0.25,
-                              vertical: size.height * 0.02),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                      child: const Text('Finish'),
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(
+                    height: size.height * 0.07,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      AppNavigation.replaceWithHome(
+                        context,
+                        useRootNavigator: false,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(110, 182, 255, 1),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: size.width * 0.25,
+                            vertical: size.height * 0.02),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10))),
+                    child: const Text('Finish'),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -883,8 +878,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     width: size.width * 0.03,
                     height: size.width * 0.03,
                     decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(size.width * 0.015),
+                      borderRadius: BorderRadius.circular(size.width * 0.015),
                       color: const Color.fromRGBO(110, 182, 255, 1),
                     ),
                   ),

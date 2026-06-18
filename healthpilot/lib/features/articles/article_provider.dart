@@ -34,7 +34,8 @@ class ArticleProvider extends ChangeNotifier {
   Future<void> likeArticle(String id) async {
     final updated = await _repo.likeArticle(id);
     _articles = [
-      for (final a in _articles) if (a.id == updated.id) updated else a,
+      for (final a in _articles)
+        if (a.id == updated.id) updated else a,
     ];
     notifyListeners();
   }

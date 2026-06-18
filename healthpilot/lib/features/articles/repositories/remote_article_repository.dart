@@ -17,8 +17,7 @@ class RemoteArticleRepository implements IArticleRepository {
 
   @override
   Future<ArticleFeedItem> likeArticle(String id) async {
-    final response =
-        await _api.post('${ApiConstants.articlesBase}/$id/like/');
+    final response = await _api.post('${ApiConstants.articlesBase}/$id/like/');
     return ArticleFeedItem.fromJson(
         response.data['data'] as Map<String, dynamic>);
   }

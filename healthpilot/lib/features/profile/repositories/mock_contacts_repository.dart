@@ -30,8 +30,7 @@ class MockContactsRepository implements IContactsRepository {
   }
 
   @override
-  Future<List<PersonalDoctorEntry>> fetchDoctors() async =>
-      List.of(_doctors);
+  Future<List<PersonalDoctorEntry>> fetchDoctors() async => List.of(_doctors);
 
   @override
   Future<PersonalDoctorEntry> addDoctor(PersonalDoctorEntry doctor) async {

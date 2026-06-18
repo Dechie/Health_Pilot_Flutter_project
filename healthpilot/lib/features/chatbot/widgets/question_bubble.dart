@@ -4,7 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 class QuestionBubble extends StatelessWidget {
   final String title;
   final String body;
-  const QuestionBubble({super.key, required this.title, required this.body,});
+  const QuestionBubble({
+    super.key,
+    required this.title,
+    required this.body,
+  });
 
   @override
   Widget build(BuildContext context) {

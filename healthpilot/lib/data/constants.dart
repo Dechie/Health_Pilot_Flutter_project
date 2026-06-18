@@ -69,9 +69,11 @@ const String videoCallBackImg = AssetPaths.videoCallBackground;
 const String videoCallerBackImg = AssetPaths.videoCallerImage;
 
 const String helperTextForUser = AppStrings.helperTextForUser;
-const String expertAssistanceDescription = AppStrings.expertAssistanceDescription;
+const String expertAssistanceDescription =
+    AppStrings.expertAssistanceDescription;
 const String chatBotDescription = AppStrings.chatBotDescription;
-const String descriptionTextForSpecialist = AppStrings.descriptionTextForSpecialist;
+const String descriptionTextForSpecialist =
+    AppStrings.descriptionTextForSpecialist;
 const String expertAssistance = AppStrings.expertAssistance;
 const String chatBotText = AppStrings.chatBotText;
 

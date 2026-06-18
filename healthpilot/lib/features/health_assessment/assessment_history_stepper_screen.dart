@@ -40,7 +40,8 @@ class _AssessmentHistoryStepperScreenState
       ),
       Step(
         title: const Text('Symptoms'),
-        content: Text(s.symptoms.isEmpty ? 'None selected' : s.symptoms.join(', ')),
+        content:
+            Text(s.symptoms.isEmpty ? 'None selected' : s.symptoms.join(', ')),
         isActive: _step >= 3,
       ),
       Step(
@@ -88,9 +89,8 @@ class _AssessmentHistoryStepperScreenState
         currentStep: _step,
         steps: steps,
         onStepTapped: (i) => setState(() => _step = i),
-        onStepContinue: _step < steps.length - 1
-            ? () => setState(() => _step++)
-            : null,
+        onStepContinue:
+            _step < steps.length - 1 ? () => setState(() => _step++) : null,
         onStepCancel: _step > 0 ? () => setState(() => _step--) : null,
         controlsBuilder: (context, details) {
           return Row(
@@ -113,4 +113,3 @@ class _AssessmentHistoryStepperScreenState
     );
   }
 }
-

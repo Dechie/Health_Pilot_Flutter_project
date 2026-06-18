@@ -9,7 +9,8 @@ enum ProfileLoadStatus { idle, loading, loaded, error }
 class ProfileProvider extends ChangeNotifier {
   final IProfileRepository _repo;
 
-  UserProfile _profile = kDemoUserProfile;
+  UserProfile _profile =
+      FeatureFlags.userProfile ? const UserProfile() : kDemoUserProfile;
   ProfileLoadStatus _status = ProfileLoadStatus.idle;
   String? _error;
 
@@ -23,18 +24,22 @@ class ProfileProvider extends ChangeNotifier {
   /// Fetches profile from backend. Guarded against double-loading.
   Future<void> load() async {
     if (!FeatureFlags.userProfile) return;
-    if (_status == ProfileLoadStatus.loading || _status == ProfileLoadStatus.loaded) return;
+    if (_status == ProfileLoadStatus.loading) return;
     _status = ProfileLoadStatus.loading;
-    notifyListeners();
     try {
       final auth = await _repo.fetchMe();
-      final pub = await _repo.fetchPublicProfile();
-      _profile = auth.mergeWith(pub);
+      _profile = auth;
       _status = ProfileLoadStatus.loaded;
       _error = null;
+      try {
+        final pub = await _repo.fetchPublicProfile();
+        _profile = _profile.mergeWith(pub);
+      } catch (_) {
+        // Identity fields from /auth/me/ are enough for the profile header.
+      }
     } on ApiException catch (e) {
       _status = ProfileLoadStatus.error;
-      _error = _messageFor(e);
+      _error = e.userMessage;
     } catch (e) {
       _status = ProfileLoadStatus.error;
       _error = 'Failed to load profile.';
@@ -54,6 +59,83 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Onboarding step 1 — gender, date_of_birth (from age), height, weight, bmi.
+  Future<void> saveOnboardingStep1({
+    required String? gender,
+    required int age,
+    required double heightCm,
+    required double weightKg,
+    double? bmi,
+  }) async {
+    final apiGender = genderToApi(gender);
+    final dob = DateTime.tryParse(dateOfBirthFromAge(age));
+    final partial = UserProfile(
+      gender: apiGender,
+      dateOfBirth: dob,
+      heightCm: heightCm,
+      weightKg: weightKg,
+      bmi: bmi,
+    );
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
+  /// Onboarding step 2 — hypertension, diabetes, smoking, recent surgery/accidents.
+  Future<void> saveOnboardingStep2({
+    required String hypertensionAnswer,
+    required String accidentsAnswer,
+    required String smokingAnswer,
+    required String diabetesAnswer,
+  }) async {
+    final partial = UserProfile(
+      hasHypertension: yesNoToYn(hypertensionAnswer),
+      hadRecentSurgery: yesNoToYn(accidentsAnswer),
+      isSmoker: yesNoToYn(smokingAnswer),
+      hasDiabetes: yesNoToYn(diabetesAnswer),
+    );
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
+  /// Saves allergies only (profile allergies screen).
+  Future<void> saveAllergies(List<String> selectedAllergies) async {
+    final partial = UserProfile(
+      allergies:
+          selectedAllergies.isEmpty ? null : selectedAllergies.join(', '),
+    );
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
+  /// Onboarding step 3 — allergies, chronic condition, blood type.
+  Future<void> saveOnboardingStep3({
+    required List<String> selectedAllergies,
+    required String chronicConditionAnswer,
+    required String bloodType,
+  }) async {
+    final partial = UserProfile(
+      allergies:
+          selectedAllergies.isEmpty ? null : selectedAllergies.join(', '),
+      hasChronicCondition: yesNoToYn(chronicConditionAnswer),
+      bloodType: bloodType,
+    );
+    final saved = await _repo.updateMe(partial);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
+  /// Resets to demo state — called when the user logs out or switches accounts.
+  void reset() {
+    _profile =
+        FeatureFlags.userProfile ? const UserProfile() : kDemoUserProfile;
+    _status = ProfileLoadStatus.idle;
+    _error = null;
+    notifyListeners();
+  }
+
   /// Saves public profile fields (about_me, visibility).
   Future<void> savePublic(UserProfile updated) async {
     if (!FeatureFlags.userProfile) {
@@ -65,10 +147,4 @@ class ProfileProvider extends ChangeNotifier {
     _profile = _profile.mergeWith(saved);
     notifyListeners();
   }
-
-  static String _messageFor(ApiException e) => switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        _ => 'Something went wrong.',
-      };
 }

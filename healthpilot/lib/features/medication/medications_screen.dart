@@ -43,7 +43,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
   void _editMedication(Medication medication) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => MedicationAddScreen(existingMedication: medication),
+        builder: (context) =>
+            MedicationAddScreen(existingMedication: medication),
       ),
     );
   }
@@ -179,8 +180,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
                       provider.medications.isEmpty)
                     Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.1),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
                         child: Text(
                           provider.error ?? 'Failed to load medications.',
                           textAlign: TextAlign.center,
@@ -228,8 +229,8 @@ class _MedicationScreenState extends State<MedicationScreen> {
                     )
                   else
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.05),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Container(
                         height: screenHeight * 0.55,
                         color: Colors.transparent,
@@ -702,209 +703,213 @@ class _MedicationAddScreenState extends State<MedicationAddScreen> {
           final size = constraints.biggest;
           final screenWidth = size.width;
           final screenHeight = size.height;
-          return SingleChildScrollView(
+          return ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             reverse: true,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.04,
-                        screenHeight * 0.02,
-                        0,
-                        0,
-                      ),
-                      child: Container(
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                        decoration: BoxDecoration(
-                          color: cs.primary.withValues(alpha: 0.25),
-                          borderRadius:
-                              BorderRadius.circular(screenWidth * 0.05),
+            padding: const EdgeInsets.only(bottom: 32),
+            children: [
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.04,
+                          screenHeight * 0.02,
+                          0,
+                          0,
                         ),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                          color: cs.primary,
-                          iconSize: screenWidth * 0.055,
+                        child: Container(
+                          width: screenWidth * 0.1,
+                          height: screenWidth * 0.1,
+                          decoration: BoxDecoration(
+                            color: cs.primary.withValues(alpha: 0.25),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.05),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(Icons.arrow_back),
+                            color: cs.primary,
+                            iconSize: screenWidth * 0.055,
+                          ),
                         ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          screenWidth * 0.05,
+                          screenHeight * 0.03,
+                          0,
+                          0,
+                        ),
+                        child: Text(
+                          "Medications",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: "PlusJakartaSans",
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: screenHeight * 0.06,
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04),
+                          child: const InputLabels(label: "Medication"),
+                        ),
+                        SizedBox(
+                          height: screenHeight * 0.02,
+                        ),
+                        SearchInputField(
+                          canONChangedUsed: false,
+                          screenWidth: screenWidth,
+                          screenHeight: screenHeight,
+                          icon: null,
+                          controller: _medicationName,
+                          inputAction: TextInputAction.next,
+                          hintText: 'Mediction Name',
+                          onChanged: null,
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.05,
-                        screenHeight * 0.03,
-                        0,
-                        0,
-                      ),
-                      child: Text(
-                        "Medications",
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: "PlusJakartaSans",
-                          color: cs.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: screenHeight * 0.06,
-                ),
-                Form(
-                  key: _formKey,
-                  child: Column(
+                  ),
+                  SizedBox(
+                    height: screenHeight * 0.03,
+                  ),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth * 0.04),
-                        child: const InputLabels(label: "Medication"),
+                        child: const InputLabels(
+                            label: "How often do you take it per day"),
                       ),
                       SizedBox(
                         height: screenHeight * 0.02,
                       ),
-                      SearchInputField(
-                        canONChangedUsed: false,
+                      IcreamentDecreamentInputField(
                         screenWidth: screenWidth,
                         screenHeight: screenHeight,
-                        icon: null,
-                        controller: _medicationName,
+                        controller: _noTimesPerDay,
                         inputAction: TextInputAction.next,
-                        hintText: 'Mediction Name',
-                        onChanged: null,
                       )
                     ],
                   ),
-                ),
-                SizedBox(
-                  height: screenHeight * 0.03,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                      child: const InputLabels(
-                          label: "How often do you take it per day"),
-                    ),
-                    SizedBox(
-                      height: screenHeight * 0.02,
-                    ),
-                    IcreamentDecreamentInputField(
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                      controller: _noTimesPerDay,
-                      inputAction: TextInputAction.next,
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: screenHeight * 0.03,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                      child: const InputLabels(label: "Dosage amount"),
-                    ),
-                    SizedBox(height: screenHeight * 0.02),
-                    IcreamentDecreamentInputField(
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                      controller: _miligrams,
-                      inputAction: TextInputAction.done,
-                    ),
-                  ],
-                ),
-                SizedBox(height: screenHeight * 0.03),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                      child: const InputLabels(label: "Dosage unit"),
-                    ),
-                    SizedBox(height: screenHeight * 0.015),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _dosageUnit,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.04,
-                            vertical: screenHeight * 0.015,
-                          ),
-                        ),
-                        items: kDosageUnits
-                            .map((u) => DropdownMenuItem(
-                                  value: u,
-                                  child: Text(u,
-                                      style: const TextStyle(
-                                          fontFamily: 'PlusJakartaSans')),
-                                ))
-                            .toList(),
-                        onChanged: (v) =>
-                            setState(() => _dosageUnit = v ?? 'mg'),
+                  SizedBox(
+                    height: screenHeight * 0.03,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.04),
+                        child: const InputLabels(label: "Dosage amount"),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: screenHeight * 0.05),
-                Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                        width: screenWidth * 0.5,
-                        height: screenHeight * 0.07,
-                        child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                                elevation: 0,
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.onPrimary),
-                            onPressed: _saving ? null : _saveMedication,
-                            child: _saving
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : Text(
-                                    widget.existingMedication == null
-                                        ? "Add Medication"
-                                        : "Save Changes",
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontFamily: 'PlusJakartaSans',
-                                        fontWeight: FontWeight.w500,
-                                        letterSpacing: -0.17,
-                                        height: 1),
-                                  )))),
-                Padding(
-                    padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom))
-              ],
-            ),
+                      SizedBox(height: screenHeight * 0.02),
+                      IcreamentDecreamentInputField(
+                        screenWidth: screenWidth,
+                        screenHeight: screenHeight,
+                        controller: _miligrams,
+                        inputAction: TextInputAction.done,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: screenHeight * 0.03),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.04),
+                        child: const InputLabels(label: "Dosage unit"),
+                      ),
+                      SizedBox(height: screenHeight * 0.015),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.04),
+                        child: DropdownButtonFormField<String>(
+                          initialValue: _dosageUnit,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04,
+                              vertical: screenHeight * 0.015,
+                            ),
+                          ),
+                          items: kDosageUnits
+                              .map((u) => DropdownMenuItem(
+                                    value: u,
+                                    child: Text(u,
+                                        style: const TextStyle(
+                                            fontFamily: 'PlusJakartaSans')),
+                                  ))
+                              .toList(),
+                          onChanged: (v) =>
+                              setState(() => _dosageUnit = v ?? 'mg'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: screenHeight * 0.05),
+                  Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SizedBox(
+                          width: screenWidth * 0.5,
+                          height: screenHeight * 0.07,
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  elevation: 0,
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.onPrimary),
+                              onPressed: _saving ? null : _saveMedication,
+                              child: _saving
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      widget.existingMedication == null
+                                          ? "Add Medication"
+                                          : "Save Changes",
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: 'PlusJakartaSans',
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: -0.17,
+                                          height: 1),
+                                    )))),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom))
+                ],
+              ),
+            ],
           );
         },
       )),
@@ -1025,28 +1030,28 @@ class _IcreamentDecreamentInputFieldState
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       GestureDetector(
-                          onTap: _incrementNumber,
-                          child: SvgPicture.asset(
-                            'assets/Icons/up.svg',
-                            colorFilter: ColorFilter.mode(
-                              cs.onSurface.withValues(alpha: 0.75),
-                              BlendMode.srcIn,
-                            ),
+                        onTap: _incrementNumber,
+                        child: SvgPicture.asset(
+                          'assets/Icons/up.svg',
+                          colorFilter: ColorFilter.mode(
+                            cs.onSurface.withValues(alpha: 0.75),
+                            BlendMode.srcIn,
                           ),
-                          ),
+                        ),
+                      ),
                       SizedBox(
                         height: widget.screenHeight * 0.007,
                       ),
                       GestureDetector(
-                          onTap: _decrementNumber,
-                          child: SvgPicture.asset(
-                            'assets/Icons/down.svg',
-                            colorFilter: ColorFilter.mode(
-                              cs.onSurface.withValues(alpha: 0.75),
-                              BlendMode.srcIn,
-                            ),
+                        onTap: _decrementNumber,
+                        child: SvgPicture.asset(
+                          'assets/Icons/down.svg',
+                          colorFilter: ColorFilter.mode(
+                            cs.onSurface.withValues(alpha: 0.75),
+                            BlendMode.srcIn,
                           ),
-                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

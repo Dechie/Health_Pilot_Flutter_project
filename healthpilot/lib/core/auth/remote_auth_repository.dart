@@ -26,11 +26,20 @@ class RemoteAuthRepository implements IAuthRepository {
 
   @override
   Future<AuthTokens> activate({required String token}) async {
-    final data = await _client.post(
+    // Email links use GET ?token=…; same endpoint, no manual POST body needed.
+    final data = await _client.get(
       '${ApiConstants.authBase}/activate/',
-      data: {'token': token},
+      queryParameters: {'token': token},
     );
     return AuthTokens.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> resendActivation({required String email}) async {
+    await _client.post(
+      '${ApiConstants.authBase}/resend-activation/',
+      data: {'email': email},
+    );
   }
 
   @override

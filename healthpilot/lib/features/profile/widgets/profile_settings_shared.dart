@@ -96,18 +96,23 @@ class SettingsTitle extends StatelessWidget {
 }
 
 class HealthInformationSettings extends StatelessWidget {
-  final String imageAdress;
+  final String? imageAdress;
+  final IconData? leadingIcon;
   final String settingAdress;
   final IconData? iconData;
   final VoidCallback? onpressed;
 
   const HealthInformationSettings({
     super.key,
-    required this.imageAdress,
+    this.imageAdress,
+    this.leadingIcon,
     required this.settingAdress,
     this.iconData,
     required this.onpressed,
-  });
+  }) : assert(
+          imageAdress != null || leadingIcon != null,
+          'Provide imageAdress or leadingIcon',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -119,13 +124,15 @@ class HealthInformationSettings extends StatelessWidget {
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: SvgPicture.asset(
-                imageAdress,
-                colorFilter: ColorFilter.mode(
-                  cs.onSurfaceVariant,
-                  BlendMode.srcIn,
-                ),
-              ),
+              leading: leadingIcon != null
+                  ? Icon(leadingIcon, size: 24, color: cs.onSurfaceVariant)
+                  : SvgPicture.asset(
+                      imageAdress!,
+                      colorFilter: ColorFilter.mode(
+                        cs.onSurfaceVariant,
+                        BlendMode.srcIn,
+                      ),
+                    ),
               title: Text(
                 settingAdress,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(

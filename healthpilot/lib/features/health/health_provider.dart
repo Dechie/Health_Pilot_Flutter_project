@@ -28,11 +28,16 @@ class HealthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _conditions = await _repo.fetchConditions();
+      // conditions endpoint may not exist on backend yet — fail silently
+      try {
+        _conditions = await _repo.fetchConditions();
+      } catch (_) {
+        _conditions = [];
+      }
       _symptoms = await _repo.fetchSymptoms();
       _status = HealthLoadStatus.loaded;
     } on ApiException catch (e) {
-      _error = _msg(e);
+      _error = e.userMessage;
       _status = HealthLoadStatus.error;
     } finally {
       notifyListeners();
@@ -75,11 +80,5 @@ class HealthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  static String _msg(ApiException e) => switch (e) {
-        ServerError(:final message) => message,
-        NetworkError() => 'No internet connection.',
-        _ => 'Something went wrong.',
-      };
-
-  static String errorMessage(ApiException e) => _msg(e);
+  static String errorMessage(ApiException e) => e.userMessage;
 }
