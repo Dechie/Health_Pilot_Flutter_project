@@ -15,6 +15,39 @@ class ChatProvider extends ChangeNotifier {
   ChatLoadStatus _status = ChatLoadStatus.idle;
   bool _loadStarted = false;
 
+  /// Tracks messages not yet seen per user/group thread (key = userId or groupId).
+  final Map<String, int> _unreadCounts = {};
+
+  /// Threads currently being fetched (key = userId or groupId).
+  final Set<String> _loadingThreads = {};
+
+  bool isLoadingThread(String id) => _loadingThreads.contains(id);
+
+  @visibleForTesting
+  void setLoadingThread(String id, bool loading) {
+    if (loading) {
+      _loadingThreads.add(id);
+    } else {
+      _loadingThreads.remove(id);
+    }
+    notifyListeners();
+  }
+
+  @visibleForTesting
+  void setUserChatHistory(String userId, List<DirectMessage> history) {
+    final idx = _users.indexWhere((u) => u.userId == userId);
+    if (idx == -1) return;
+    _users[idx] = _users[idx].copyWith(chatHistory: history);
+    notifyListeners();
+  }
+
+  int unreadCount(String id) => _unreadCounts[id] ?? 0;
+
+  void markRead(String id) {
+    _unreadCounts.remove(id);
+    notifyListeners();
+  }
+
   List<ChatUser> get users => List.unmodifiable(_users);
   List<ChatGroup> get groups => List.unmodifiable(_groups);
   ChatLoadStatus get status => _status;
@@ -70,22 +103,53 @@ class ChatProvider extends ChangeNotifier {
       final groups = await _repo.fetchGroups();
       _users = await Future.wait(
         users.map((user) async {
+          final localCount =
+              (await _localStore.fetchDirectMessages(user.userId)).length;
           final history = await _localStore.loadDirectMessages(
             user.userId,
             user.chatHistory,
           );
+          final unread = history.length - localCount;
+          if (unread > 0) _unreadCounts[user.userId] = unread;
           return user.copyWith(chatHistory: history);
         }),
       );
       _groups = await Future.wait(
         groups.map((group) async {
+          final localCount =
+              (await _localStore.fetchGroupMessages(group.groupId)).length;
           final history = await _localStore.loadGroupMessages(
             group.groupId,
             group.groupChatHistory,
           );
+          final unread = history.length - localCount;
+          if (unread > 0) _unreadCounts[group.groupId] = unread;
           return group.copyWith(groupChatHistory: history);
         }),
       );
+      // Load existing private chats to discover connected peers (the /users/
+      // endpoint only returns the current user's own profile).
+      final privateChats = await _repo.listPrivateChats();
+      for (final chat in privateChats) {
+        for (final participant in chat.participants) {
+          final id = participant.id.toString();
+          if (_users.any((u) => u.userId == id)) continue;
+          _users.add(ChatUser(
+            userId: id,
+            displayName: participant.fullName,
+            profilePictureUrl: participant.profilePicture ?? '',
+            status: '',
+            isOnline: false,
+            bio: '',
+            isPro: false,
+            chatId: chat.id,
+            chatHistory: [],
+          ));
+          // Peers discovered via private chats have their full history remotely.
+          // Pre-populate to avoid spurious unread counts on next fetch.
+          _unreadCounts[id] = 0;
+        }
+      }
       _status = ChatLoadStatus.loaded;
     } catch (_) {
       _status = ChatLoadStatus.error;
@@ -141,25 +205,27 @@ class ChatProvider extends ChangeNotifier {
       chatHistory: [..._users[userIdx].chatHistory, message],
     );
     notifyListeners();
-    await _localStore.insertDirectMessage(targetUserId, message);
     try {
-      await _repo.sendDirectMessage(chatId, content);
+      final sent = await _repo.sendDirectMessage(chatId, content);
+      // Persist the server-returned version (with server timestamp) so that
+      // subsequent fetchPrivateMessages deduplicates correctly.
+      await _localStore.insertDirectMessage(targetUserId, sent);
       _users[userIdx] = _users[userIdx].copyWith(
         chatHistory: [
           for (final m in _users[userIdx].chatHistory)
-            if (m.timestamp == message.timestamp && m.content == message.content)
-              m.copyWith(isDelivered: true)
+            if (m.content == content && m.senderId == currentUserId && !m.isDelivered)
+              sent
             else
               m,
         ],
       );
-      await _localStore.markDirectMessageDelivered(
-          targetUserId, message.timestamp);
     } catch (_) {
+      // Keep the optimistically added message but mark it as failed.
+      await _localStore.insertDirectMessage(targetUserId, message);
       _users[userIdx] = _users[userIdx].copyWith(
         chatHistory: [
           for (final m in _users[userIdx].chatHistory)
-            if (m.timestamp == message.timestamp && m.content == message.content)
+            if (m.content == content && m.senderId == currentUserId && !m.isDelivered)
               m.copyWith(sendFailed: true)
             else
               m,
@@ -170,21 +236,37 @@ class ChatProvider extends ChangeNotifier {
   }
 
   Future<void> fetchPrivateMessages(String targetUserId) async {
-    final user = _users.firstWhere((u) => u.userId == targetUserId);
-    if (user.chatId == null) return;
-    final messages = await _repo.fetchPrivateMessages(user.chatId!);
-    final merged = await _localStore.loadDirectMessages(
-      targetUserId,
-      messages,
-    );
-    _users = [
-      for (final u in _users)
-        if (u.userId == targetUserId)
-          u.copyWith(chatHistory: merged)
-        else
-          u,
-    ];
+    _loadingThreads.add(targetUserId);
     notifyListeners();
+    try {
+      final user = _users.firstWhere((u) => u.userId == targetUserId);
+      if (user.chatId == null) return;
+      final localCount =
+          (await _localStore.fetchDirectMessages(targetUserId)).length;
+      final messages = await _repo.fetchPrivateMessages(user.chatId!);
+      final merged = await _localStore.loadDirectMessages(
+        targetUserId,
+        messages,
+      );
+      final unread = merged.length - localCount;
+      if (unread > 0) {
+        _unreadCounts.update(
+          targetUserId,
+          (v) => v + unread,
+          ifAbsent: () => unread,
+        );
+      }
+      _users = [
+        for (final u in _users)
+          if (u.userId == targetUserId)
+            u.copyWith(chatHistory: merged)
+          else
+            u,
+      ];
+    } finally {
+      _loadingThreads.remove(targetUserId);
+      notifyListeners();
+    }
   }
 
   Future<void> sendGroup(
@@ -203,10 +285,30 @@ class ChatProvider extends ChangeNotifier {
           g,
     ];
     notifyListeners();
-    await _localStore.insertGroupMessage(groupId, message);
-    await _repo.sendGroupMessage(groupId, message);
-    _markGroupDelivered(groupId, message.timestamp);
-    await _localStore.markGroupMessageDelivered(groupId, message.timestamp);
+    try {
+      final sent = await _repo.sendGroupMessage(groupId, content);
+      await _localStore.insertGroupMessage(groupId, sent);
+      _groups = [
+        for (final g in _groups)
+          if (g.groupId == groupId)
+            g.copyWith(
+              groupChatHistory: [
+                for (final m in g.groupChatHistory)
+                  if (m.content == content &&
+                      m.senderId == currentUserId &&
+                      !m.isDelivered)
+                    sent
+                  else
+                    m,
+              ],
+            )
+          else
+            g,
+      ];
+    } catch (_) {
+      await _localStore.insertGroupMessage(groupId, message);
+      _markGroupFailed(groupId, message.timestamp);
+    }
     notifyListeners();
   }
 
@@ -229,15 +331,64 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  void _markGroupDelivered(String groupId, DateTime timestamp) {
+  Future<void> createGroup(String name, String description) async {
+    final group = await _repo.createGroup(name, description);
+    _groups = [group, ..._groups];
+    notifyListeners();
+  }
+
+  Future<void> joinGroup(String groupId) async {
+    await _repo.joinGroup(groupId);
+    final groups = await _repo.fetchGroups();
+    _groups = groups;
+    notifyListeners();
+  }
+
+  Future<void> leaveGroup(String groupId) async {
+    await _repo.leaveGroup(groupId);
+    _groups = _groups.where((g) => g.groupId != groupId).toList();
+    notifyListeners();
+  }
+
+  Future<void> fetchGroupMessages(String groupId) async {
+    _loadingThreads.add(groupId);
+    notifyListeners();
+    try {
+      if (!_groups.any((g) => g.groupId == groupId)) return;
+      final localCount =
+          (await _localStore.fetchGroupMessages(groupId)).length;
+      final messages = await _repo.fetchGroupMessages(groupId);
+      final merged = await _localStore.loadGroupMessages(groupId, messages);
+      final unread = merged.length - localCount;
+      if (unread > 0) {
+        _unreadCounts.update(
+          groupId,
+          (v) => v + unread,
+          ifAbsent: () => unread,
+        );
+      }
+      _groups = [
+        for (final g in _groups)
+          if (g.groupId == groupId)
+            g.copyWith(groupChatHistory: merged)
+          else
+            g,
+      ];
+    } finally {
+      _loadingThreads.remove(groupId);
+      notifyListeners();
+    }
+  }
+
+  void _markGroupFailed(String groupId, DateTime timestamp) {
     _groups = [
       for (final g in _groups)
         if (g.groupId == groupId)
           g.copyWith(
             groupChatHistory: [
               for (final m in g.groupChatHistory)
-                if (m.timestamp == timestamp && !m.isDelivered)
-                  m.copyWith(isDelivered: true)
+                if (m.timestamp == timestamp && !m.sendFailed)
+                  m.copyWith(sendFailed: true)
                 else
                   m,
             ],

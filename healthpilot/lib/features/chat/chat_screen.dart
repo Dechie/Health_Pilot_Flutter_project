@@ -34,11 +34,15 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<ChatProvider>().fetchPrivateMessages(widget.senderId);
+      final provider = context.read<ChatProvider>();
+      provider.markRead(widget.senderId);
+      provider.fetchPrivateMessages(widget.senderId);
     });
     _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       if (!mounted) return;
-      context.read<ChatProvider>().fetchPrivateMessages(widget.senderId);
+      final provider = context.read<ChatProvider>();
+      provider.markRead(widget.senderId);
+      provider.fetchPrivateMessages(widget.senderId);
     });
   }
 
@@ -89,12 +93,17 @@ class _ChatScreenState extends State<ChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
-              user.chatHistory.isEmpty
-                  ? const EmptyChat()
-                  : ChatList(
-                      senderId: widget.senderId,
-                      userId: widget.userId,
-                      chatList: user.chatHistory),
+              if (provider.isLoadingThread(widget.senderId))
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (user.chatHistory.isEmpty)
+                const EmptyChat()
+              else
+                ChatList(
+                    senderId: widget.senderId,
+                    userId: widget.userId,
+                    chatList: user.chatHistory),
               SendMessage(
                 attach: () {
                   debugPrint('add file');
@@ -198,8 +207,7 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
             SizedBox(
               width: size.width * 0.015,
             ),
-            SizedBox(
-              width: size.height * 0.28,
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,

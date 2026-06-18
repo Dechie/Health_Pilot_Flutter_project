@@ -25,8 +25,14 @@ class MockChatRepository implements IChatRepository {
 
   @override
   Future<DirectMessage> sendGroupMessage(
-          String groupId, DirectMessage message) async =>
-      message;
+      String groupId, String content) async {
+    return DirectMessage(
+      id: 'mock-msg-${DateTime.now().millisecondsSinceEpoch}',
+      senderId: '123',
+      content: content,
+      timestamp: DateTime.now(),
+    );
+  }
 
   @override
   Future<PrivateChat> startPrivateChat(int userId) async {
@@ -51,5 +57,31 @@ class MockChatRepository implements IChatRepository {
       ],
       createdAt: DateTime.now(),
     );
+  }
+
+  @override
+  Future<List<PrivateChat>> listPrivateChats() async {
+    return [];
+  }
+
+  @override
+  Future<ChatGroup> createGroup(String name, String description) async {
+    return ChatGroup(
+      groupId: 'mock-group-${DateTime.now().millisecondsSinceEpoch}',
+      groupName: name,
+      description: description,
+      membersId: ['123'],
+    );
+  }
+
+  @override
+  Future<void> joinGroup(String groupId) async {}
+
+  @override
+  Future<void> leaveGroup(String groupId) async {}
+
+  @override
+  Future<List<DirectMessage>> fetchGroupMessages(String groupId) async {
+    return [];
   }
 }

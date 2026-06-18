@@ -784,7 +784,7 @@ void main() {
         (tester) async {
       final chatP = await createTestChatProvider();
       await chatP.sendGroup('g1', '999', 'Hello group');
-      final group = chatP.findGroup('g1');
+      final group = chatP.findGroup('g1')!;
       expect(
         group.groupChatHistory.any((m) => m.content == 'Hello group'),
         isTrue,
@@ -795,7 +795,7 @@ void main() {
         (tester) async {
       final chatP = await createTestChatProvider();
       await chatP.sendGroup('g1', '999', 'Group message');
-      final group = chatP.findGroup('g1');
+      final group = chatP.findGroup('g1')!;
       expect(
         group.groupChatHistory.any((m) => m.content == 'Group message'),
         isTrue,

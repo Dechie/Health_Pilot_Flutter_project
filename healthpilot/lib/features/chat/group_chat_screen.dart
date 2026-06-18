@@ -61,12 +61,17 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
-              group.groupChatHistory.isEmpty
-                  ? const EmptyChat()
-                  : _GroupChatList(
-                      senderId: widget.groupId,
-                      userId: widget.userId,
-                      chatList: group.groupChatHistory),
+              if (provider.isLoadingThread(widget.groupId))
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (group.groupChatHistory.isEmpty)
+                const EmptyChat()
+              else
+                _GroupChatList(
+                    senderId: widget.groupId,
+                    userId: widget.userId,
+                    chatList: group.groupChatHistory),
               SendMessage(
                 attach: () {},
                 sendMessage: _onSend,

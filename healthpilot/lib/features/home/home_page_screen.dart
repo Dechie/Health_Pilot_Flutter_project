@@ -15,6 +15,7 @@ import 'package:healthpilot/features/health/health_profile_screen.dart';
 
 import 'package:healthpilot/features/health_assessment/assessment_history_screen.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
@@ -392,7 +393,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: const [
+                  children: [
                     // BPM card — hidden until gadget integration
                     // OverviewCard(
                     //   icon: LineIcons.heart,
@@ -400,12 +401,16 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     //   overviewUnit: 'BPM',
                     // ),
                     // SizedBox(width: 12),
-                    OverviewCard(
-                      icon: LineIcons.weight,
-                      overviewResult: '21.6',
-                      overviewUnit: 'BMI',
-                    ),
-                    SizedBox(width: 12),
+                    Builder(builder: (context) {
+                      final p = context.watch<ProfileProvider>().profile;
+                      final bmi = p.bmi?.toStringAsFixed(1) ?? '21.6';
+                      return OverviewCard(
+                        icon: LineIcons.weight,
+                        overviewResult: bmi,
+                        overviewUnit: 'BMI',
+                      );
+                    }),
+                    const SizedBox(width: 12),
                     OverviewCard(
                       icon: LineIcons.bed,
                       overviewResult: '6.5',

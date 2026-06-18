@@ -124,12 +124,13 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                               return CustomChatProfileTile(
                                 name: c.name,
                                 isPro: c.isPro,
-                                unreadMessage: 3,
+                                unreadMessage: provider.unreadCount(c.id),
                                 profilePic: devsImage,
                                 chat: c.lastMessage,
                                 onPressed: () {
                                   final currentUserId =
                                       context.read<AuthState>().userId;
+                                  provider.markRead(c.id);
                                   if (!c.isGroupChat) {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
@@ -176,7 +177,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                       return CustomChatProfileTile(
                         name: u.displayName,
                         isPro: u.isPro,
-                        unreadMessage: u.chatHistory.length,
+                        unreadMessage: provider.unreadCount(u.userId),
                         profilePic: devsImage,
                         chat: u.chatHistory.isNotEmpty
                             ? u.chatHistory.last.content
@@ -184,6 +185,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                         onPressed: () {
                           final currentUserId =
                               context.read<AuthState>().userId;
+                          provider.markRead(u.userId);
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) =>
@@ -212,6 +214,17 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => _showCreateGroupDialog(context),
+                              icon: const Icon(Icons.add, size: 20),
+                              label: const Text('Create Group'),
+                            ),
+                          ),
+                        ),
                         Flexible(
                           child: GroupedListView<ChatGroup, String>(
                             elements: groups,
@@ -221,7 +234,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                               return CustomChatProfileTile(
                                 name: g.groupName,
                                 isPro: g.isPro,
-                                unreadMessage: g.groupChatHistory.length,
+                                unreadMessage: provider.unreadCount(g.groupId),
                                 profilePic: devsImage,
                                 chat: g.groupChatHistory.isNotEmpty
                                     ? g.groupChatHistory.last.content
@@ -229,6 +242,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                 onPressed: () {
                                   final currentUserId =
                                       context.read<AuthState>().userId;
+                                  provider.markRead(g.groupId);
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => GroupChatScreen(
                                           groupId: g.groupId,
@@ -287,6 +301,61 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showCreateGroupDialog(BuildContext ctx) async {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: ctx,
+      builder: (dContext) => AlertDialog(
+        title: const Text('Create Group'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Group name',
+                hintText: 'Enter group name',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: descController,
+              decoration: const InputDecoration(
+                labelText: 'Description (optional)',
+                hintText: 'What is this group about?',
+              ),
+              maxLines: 2,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dContext).pop(true),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final name = nameController.text.trim();
+      if (name.isNotEmpty) {
+        await context.read<ChatProvider>().createGroup(
+              name,
+              descController.text.trim(),
+            );
+      }
+    }
+    nameController.dispose();
+    descController.dispose();
   }
 
   Widget _buildFloatingActionButton() {
