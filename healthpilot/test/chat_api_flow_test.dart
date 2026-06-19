@@ -216,5 +216,77 @@ void main() {
       expect(group.membersId, ['1', '2']);
       expect(group.groupChatHistory.length, 1);
     });
+
+    test('fromJson parses is_joined when present', () {
+      final group = ChatGroup.fromJson({
+        'id': 'g1',
+        'name': 'Test',
+        'is_joined': true,
+      });
+      expect(group.isJoined, isTrue);
+    });
+
+    test('fromJson defaults is_joined to false when missing', () {
+      final group = ChatGroup.fromJson({
+        'id': 'g1',
+        'name': 'Test',
+      });
+      expect(group.isJoined, isFalse);
+    });
+
+    test('copyWith updates isJoined', () {
+      final group = ChatGroup(groupId: 'g1', groupName: 'Test');
+      expect(group.isJoined, isFalse);
+      final updated = group.copyWith(isJoined: true);
+      expect(updated.isJoined, isTrue);
+      expect(updated.groupId, 'g1');
+    });
+  });
+
+  group('ChatProvider — joinedGroups and conversations', () {
+    test('joinedGroups only returns groups where isJoined is true', () async {
+      final provider = await createTestChatProvider();
+      final all = provider.groups;
+      final joined = provider.joinedGroups;
+      expect(all.length, greaterThan(joined.length));
+      expect(joined.every((g) => g.isJoined), isTrue);
+    });
+
+    test('joinGroup adds group to joinedGroups', () async {
+      final provider = await createTestChatProvider();
+      // g3 is not joined in seed data
+      expect(provider.joinedGroups.any((g) => g.groupId == 'g3'), isFalse);
+      await provider.joinGroup('g3');
+      expect(provider.joinedGroups.any((g) => g.groupId == 'g3'), isTrue);
+      final group = provider.findGroup('g3');
+      expect(group!.isJoined, isTrue);
+    });
+
+    test('leaveGroup removes group from joinedGroups', () async {
+      final provider = await createTestChatProvider();
+      // g1 is joined in seed data
+      expect(provider.joinedGroups.any((g) => g.groupId == 'g1'), isTrue);
+      await provider.leaveGroup('g1');
+      expect(provider.joinedGroups.any((g) => g.groupId == 'g1'), isFalse);
+      // group should still be in all groups
+      expect(provider.groups.any((g) => g.groupId == 'g1'), isTrue);
+    });
+
+    test('createGroup sets isJoined to true on new group', () async {
+      final provider = await createTestChatProvider();
+      await provider.createGroup('New Group', 'Desc');
+      final group = provider.groups.firstWhere((g) => g.groupName == 'New Group');
+      expect(group.isJoined, isTrue);
+      expect(provider.joinedGroups.any((g) => g.groupId == group.groupId), isTrue);
+    });
+
+    test('conversations only contains threads from joined groups', () async {
+      final provider = await createTestChatProvider();
+      final convos = provider.conversations;
+      final groupThreads = convos.where((c) => c.isGroupChat).toList();
+      for (final t in groupThreads) {
+        expect(provider.joinedGroups.any((g) => g.groupId == t.id), isTrue);
+      }
+    });
   });
 }

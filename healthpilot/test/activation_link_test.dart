@@ -20,4 +20,36 @@ void main() {
       );
     });
   });
+
+  group('ActivationLink.isVerified', () {
+    test('returns true for valid verified URL', () {
+      final uri = Uri.parse('https://healthpilot.com/open-app?verified=true');
+      expect(ActivationLink.isVerified(uri), isTrue);
+    });
+
+    test('returns false for wrong domain', () {
+      final uri = Uri.parse('https://evil.com/open-app?verified=true');
+      expect(ActivationLink.isVerified(uri), isFalse);
+    });
+
+    test('returns false for wrong path', () {
+      final uri = Uri.parse('https://healthpilot.com/other?verified=true');
+      expect(ActivationLink.isVerified(uri), isFalse);
+    });
+
+    test('returns false when verified param is missing', () {
+      final uri = Uri.parse('https://healthpilot.com/open-app');
+      expect(ActivationLink.isVerified(uri), isFalse);
+    });
+
+    test('returns false when verified param is not true', () {
+      final uri = Uri.parse('https://healthpilot.com/open-app?verified=no');
+      expect(ActivationLink.isVerified(uri), isFalse);
+    });
+
+    test('returns false for unrelated URL', () {
+      final uri = Uri.parse('https://example.com/page');
+      expect(ActivationLink.isVerified(uri), isFalse);
+    });
+  });
 }
