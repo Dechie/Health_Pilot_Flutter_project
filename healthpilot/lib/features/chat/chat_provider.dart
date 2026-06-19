@@ -50,6 +50,8 @@ class ChatProvider extends ChangeNotifier {
 
   List<ChatUser> get users => List.unmodifiable(_users);
   List<ChatGroup> get groups => List.unmodifiable(_groups);
+  List<ChatGroup> get joinedGroups =>
+      _groups.where((g) => g.isJoined).toList();
   ChatLoadStatus get status => _status;
 
   List<ChatThread> get conversations => [
@@ -61,7 +63,7 @@ class ChatProvider extends ChangeNotifier {
               isPro: u.isPro,
               isGroupChat: false,
             )),
-        ..._groups.map((g) => ChatThread(
+        ...joinedGroups.map((g) => ChatThread(
               id: g.groupId,
               name: g.groupName,
               lastMessage: g.groupChatHistory.isNotEmpty
@@ -116,6 +118,7 @@ class ChatProvider extends ChangeNotifier {
       );
       _groups = await Future.wait(
         groups.map((group) async {
+          if (!group.isJoined) return group;
           final localCount =
               (await _localStore.fetchGroupMessages(group.groupId)).length;
           final history = await _localStore.loadGroupMessages(
@@ -333,20 +336,29 @@ class ChatProvider extends ChangeNotifier {
 
   Future<void> createGroup(String name, String description) async {
     final group = await _repo.createGroup(name, description);
-    _groups = [group, ..._groups];
+    _groups = [group.copyWith(isJoined: true), ..._groups];
     notifyListeners();
   }
 
   Future<void> joinGroup(String groupId) async {
     await _repo.joinGroup(groupId);
-    final groups = await _repo.fetchGroups();
-    _groups = groups;
+    _groups = [
+      for (final g in _groups)
+        if (g.groupId == groupId) g.copyWith(isJoined: true) else g,
+    ];
     notifyListeners();
   }
 
   Future<void> leaveGroup(String groupId) async {
     await _repo.leaveGroup(groupId);
-    _groups = _groups.where((g) => g.groupId != groupId).toList();
+    _unreadCounts.remove(groupId);
+    _groups = [
+      for (final g in _groups)
+        if (g.groupId == groupId)
+          g.copyWith(isJoined: false, groupChatHistory: [])
+        else
+          g,
+    ];
     notifyListeners();
   }
 

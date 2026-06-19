@@ -57,6 +57,7 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
   void initState() {
     super.initState();
     activationLinkHandler.onLinkToken = _activateFromEmailLink;
+    activationLinkHandler.onVerified = _onVerifiedDeepLink;
   }
 
   Future<void> _activateFromEmailLink(String token) async {
@@ -83,6 +84,24 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
             : null,
       );
     }
+  }
+
+  /// Handles the post-activation verified deep link (`/open-app?verified=true`).
+  /// The backend already consumed the token — just clear pending state and send
+  /// the user to the login screen.
+  Future<void> _onVerifiedDeepLink() async {
+    final ctx = _navigatorKey.currentContext;
+    if (ctx == null) return;
+    final auth = ctx.read<AuthState>();
+    if (!auth.isActivationPending) return;
+    await auth.clearActivationPending();
+    if (!ctx.mounted) return;
+    AppNavigation.replaceWithLoginAfterRegistration(
+      ctx,
+      email: auth.pendingActivationEmail.isNotEmpty
+          ? auth.pendingActivationEmail
+          : null,
+    );
   }
 
   @override
@@ -137,6 +156,7 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
   @override
   void dispose() {
     activationLinkHandler.onLinkToken = null;
+    activationLinkHandler.onVerified = null;
     context.read<AuthState>().removeListener(_onAuthChanged);
     super.dispose();
   }
@@ -195,6 +215,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       Future<void>.delayed(const Duration(seconds: 2)),
     ]);
     if (!mounted) return;
+
+    // Cold-start from a verified deep link — account was activated in the
+    // browser, clear pending state and send directly to login.
+    if (auth.isActivationPending && activationLinkHandler.initialVerified) {
+      final email = auth.pendingActivationEmail;
+      await auth.clearActivationPending();
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => SignupAndLoginScreen(
+            initialLogin: true,
+            initialEmail: email.isNotEmpty ? email : null,
+          ),
+        ),
+      );
+      return;
+    }
 
     final Widget next;
     if (!FeatureFlags.auth) {

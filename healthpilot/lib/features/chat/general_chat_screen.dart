@@ -231,23 +231,140 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                             groupBy: (g) => g.isPro.toString(),
                             order: GroupedListOrder.DESC,
                             itemBuilder: (context, g) {
-                              return CustomChatProfileTile(
-                                name: g.groupName,
-                                isPro: g.isPro,
-                                unreadMessage: provider.unreadCount(g.groupId),
-                                profilePic: devsImage,
-                                chat: g.groupChatHistory.isNotEmpty
-                                    ? g.groupChatHistory.last.content
-                                    : '',
-                                onPressed: () {
-                                  final currentUserId =
-                                      context.read<AuthState>().userId;
-                                  provider.markRead(g.groupId);
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => GroupChatScreen(
-                                          groupId: g.groupId,
-                                          userId: currentUserId)));
-                                },
+                              final cs = Theme.of(context).colorScheme;
+                              final trailing = g.isJoined
+                                  ? Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (provider.unreadCount(g.groupId) !=
+                                            0)
+                                          CircleAvatar(
+                                            backgroundColor: const Color
+                                                .fromRGBO(110, 182, 255, 1),
+                                            radius: 16,
+                                            child: Text(
+                                              provider.unreadCount(
+                                                          g.groupId) >
+                                                      2
+                                                  ? '${provider.unreadCount(g.groupId)}+'
+                                                  : provider
+                                                      .unreadCount(g.groupId)
+                                                      .toString(),
+                                              style: TextStyle(
+                                                color: const Color.fromRGBO(
+                                                    42, 42, 42, 1),
+                                                fontFamily:
+                                                    'Plus Jakarta Sans',
+                                                fontSize: 13.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        const SizedBox(width: 4),
+                                        InkWell(
+                                          onTap: () async {
+                                            await provider
+                                                .leaveGroup(g.groupId);
+                                          },
+                                          child: Icon(
+                                            Icons.exit_to_app,
+                                            size: 20,
+                                            color: cs.error,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : ElevatedButton.icon(
+                                      onPressed: () async {
+                                        await provider
+                                            .joinGroup(g.groupId);
+                                      },
+                                      icon: const Icon(
+                                        Icons.group_add,
+                                        size: 16,
+                                      ),
+                                      label: const Text('Join'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 8),
+                                      ),
+                                    );
+                              return SizedBox(
+                                height: size.height * 0.15,
+                                child: InkWell(
+                                  onTap: g.isJoined
+                                      ? () {
+                                          final currentUserId = context
+                                              .read<AuthState>()
+                                              .userId;
+                                          provider.markRead(g.groupId);
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      GroupChatScreen(
+                                                          groupId: g.groupId,
+                                                          userId:
+                                                              currentUserId)));
+                                        }
+                                      : () async {
+                                          await provider
+                                              .joinGroup(g.groupId);
+                                        },
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        leading: CircleAvatar(
+                                          radius: 40,
+                                          backgroundImage:
+                                              AssetImage(devsImage),
+                                        ),
+                                        title: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                g.groupName,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                            if (g.isPro)
+                                              Icon(
+                                                Icons.star,
+                                                size: size.width * 0.05352,
+                                                color: const Color.fromRGBO(
+                                                    110, 182, 255, 1),
+                                              ),
+                                          ],
+                                        ),
+                                        subtitle: Text(
+                                          g.isJoined
+                                              ? (g.groupChatHistory.isNotEmpty
+                                                  ? g
+                                                      .groupChatHistory
+                                                      .last
+                                                      .content
+                                                  : '')
+                                              : (g.description ??
+                                                  '${g.membersId.length} members'),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        trailing: trailing,
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 32.0, right: 29),
+                                        child: Divider(
+                                          color: Color.fromRGBO(
+                                              42, 42, 42, 0.15),
+                                          thickness: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               );
                             },
                             groupHeaderBuilder: (element) => Container(

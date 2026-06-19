@@ -92,12 +92,14 @@ void main() {
       expect(provider.groups.length, greaterThanOrEqualTo(before));
     });
 
-    test('leaveGroup removes group from provider state', () async {
+    test('leaveGroup marks group as unjoined in provider state', () async {
       final provider = await createTestChatProvider();
       final before = provider.groups.length;
       await provider.leaveGroup('g1');
-      expect(provider.groups.length, before - 1);
-      expect(provider.findGroup('g1'), isNull);
+      expect(provider.groups.length, before);
+      final group = provider.findGroup('g1');
+      expect(group, isNotNull);
+      expect(group!.isJoined, isFalse);
     });
 
     test('sendGroup sends message and marks delivered', () async {
@@ -124,7 +126,9 @@ void main() {
     test('leaveGroup then createGroup works correctly', () async {
       final provider = await createTestChatProvider();
       await provider.leaveGroup('g1');
-      expect(provider.findGroup('g1'), isNull);
+      final left = provider.findGroup('g1');
+      expect(left, isNotNull);
+      expect(left!.isJoined, isFalse);
 
       await provider.createGroup('New Group', 'A new group');
       expect(

@@ -115,6 +115,18 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clears the activation-pending state without calling the API.
+  ///
+  /// Used when the user taps the verified deep link (`/open-app?verified=true`)
+  /// after the backend has already consumed the activation token.
+  Future<void> clearActivationPending() async {
+    await _tokenStore.setActivationPending(false);
+    await _tokenStore.clearPendingActivationEmail();
+    _activationPending = false;
+    _pendingActivationEmail = '';
+    notifyListeners();
+  }
+
   Future<void> activate(String token) async {
     final tokens = await _repo.activate(token: token);
     await _storeTokens(tokens);

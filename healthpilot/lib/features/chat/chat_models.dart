@@ -128,6 +128,7 @@ class ChatGroup {
   final String? description;
   final bool isMuted;
   final bool isPro;
+  final bool isJoined;
   final List<String> membersId;
   final List<DirectMessage> groupChatHistory;
 
@@ -137,6 +138,7 @@ class ChatGroup {
     this.description,
     this.isMuted = false,
     this.isPro = false,
+    this.isJoined = false,
     this.membersId = const [],
     this.groupChatHistory = const [],
   });
@@ -147,6 +149,7 @@ class ChatGroup {
     List<String>? membersId,
     bool? isMuted,
     bool? isPro,
+    bool? isJoined,
   }) =>
       ChatGroup(
         groupId: groupId,
@@ -154,6 +157,7 @@ class ChatGroup {
         description: description ?? this.description,
         isMuted: isMuted ?? this.isMuted,
         isPro: isPro ?? this.isPro,
+        isJoined: isJoined ?? this.isJoined,
         membersId: membersId ?? this.membersId,
         groupChatHistory: groupChatHistory ?? this.groupChatHistory,
       );
@@ -167,6 +171,7 @@ class ChatGroup {
       description: json['description'] as String?,
       isMuted: json['is_muted'] as bool? ?? false,
       isPro: json['is_pro'] as bool? ?? false,
+      isJoined: json['is_joined'] as bool? ?? false,
       membersId: (json['members_id'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
@@ -393,6 +398,7 @@ final kSeedGroups = [
   ChatGroup(
     groupId: 'g1',
     groupName: 'Schizophrenia Support',
+    isJoined: true,
     isMuted: false,
     isPro: true,
     membersId: ['1', '2', '3'],
@@ -425,68 +431,77 @@ final kSeedGroups = [
   ),
   ChatGroup(
     groupId: 'g2',
-    groupName: 'Schizophrenia Support',
+    groupName: 'Diabetes Support Group',
+    description: 'A community for managing diabetes together.',
+    isJoined: true,
     isMuted: true,
     isPro: false,
     membersId: ['4', '2', '5'],
     groupChatHistory: [
       DirectMessage(
           senderId: '4',
-          content: 'Hello John Doe!',
+          content: 'Has anyone tried the new glucose monitor?',
           timestamp: DateTime.now().subtract(const Duration(days: 2))),
       DirectMessage(
           senderId: '5',
-          content: 'How are you today?',
+          content: 'Yes, it is much more accurate!',
           timestamp:
               DateTime.now().subtract(const Duration(days: 2, hours: 23))),
       DirectMessage(
           senderId: '1',
-          content: "Hi! I'm doing well, thanks!",
+          content: "I've been thinking about switching.",
           timestamp:
               DateTime.now().subtract(const Duration(days: 2, hours: 22))),
       DirectMessage(
           senderId: '2',
-          content: "That's great to hear!",
+          content: 'You should, the readings are consistent.',
           timestamp:
               DateTime.now().subtract(const Duration(days: 2, hours: 21))),
       DirectMessage(
           senderId: '2',
-          content: 'By the way, have you seen the latest movie?',
+          content: 'Plus the app integration is seamless.',
           timestamp:
               DateTime.now().subtract(const Duration(days: 2, hours: 20))),
     ],
   ),
   ChatGroup(
     groupId: 'g3',
-    groupName: 'Schizophrenia Support',
+    groupName: 'Mental Wellness Circle',
+    description: 'Weekly check-ins and mindfulness exercises.',
+    isJoined: false,
     isMuted: true,
     isPro: false,
     membersId: ['1', '3', '5'],
     groupChatHistory: [
       DirectMessage(
           senderId: '1',
-          content: 'Hello John Doe!',
+          content: 'Welcome to the new members!',
           timestamp: DateTime.now().subtract(const Duration(days: 2))),
       DirectMessage(
           senderId: '3',
-          content: 'How are you today?',
+          content: 'Thank you, happy to be here.',
           timestamp:
               DateTime.now().subtract(const Duration(days: 2, hours: 23))),
+    ],
+  ),
+  ChatGroup(
+    groupId: 'g4',
+    groupName: 'Fitness & Recovery',
+    description: 'Share workout tips and recovery progress.',
+    isJoined: false,
+    isMuted: false,
+    isPro: true,
+    membersId: ['7', '8', '9'],
+    groupChatHistory: [
       DirectMessage(
-          senderId: '5',
-          content: "Hi! I'm doing well, thanks!",
-          timestamp:
-              DateTime.now().subtract(const Duration(days: 2, hours: 22))),
+          senderId: '7',
+          content: 'Morning workout done! Anyone else?',
+          timestamp: DateTime.now().subtract(const Duration(days: 1))),
       DirectMessage(
-          senderId: '1',
-          content: "That's great to hear!",
+          senderId: '8',
+          content: 'Just finished my run. Feeling great!',
           timestamp:
-              DateTime.now().subtract(const Duration(days: 2, hours: 21))),
-      DirectMessage(
-          senderId: '1',
-          content: 'By the way, have you seen the latest movie?',
-          timestamp:
-              DateTime.now().subtract(const Duration(days: 2, hours: 20))),
+              DateTime.now().subtract(const Duration(days: 1, hours: 1))),
     ],
   ),
 ];
