@@ -95,19 +95,27 @@ class ChatUser {
         chatHistory: chatHistory ?? this.chatHistory,
       );
 
-  factory ChatUser.fromJson(Map<String, dynamic> json) => ChatUser(
-        userId: json['user_id'] as String,
-        displayName: json['display_name'] as String,
-        profilePictureUrl: json['profile_picture_url'] as String? ?? '',
-        status: json['status'] as String? ?? '',
-        isOnline: json['is_online'] as bool? ?? false,
-        bio: json['bio'] as String? ?? '',
-        isPro: json['is_pro'] as bool? ?? false,
-        chatId: json['chat_id'] as String?,
-        chatHistory: (json['chat_history'] as List<dynamic>? ?? [])
-            .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+  factory ChatUser.fromJson(Map<String, dynamic> json) {
+    // Live API `GET /chat/users/` returns connected peers as
+    // {id: <int>, full_name, email, avatar}. Older shape used
+    // {user_id, display_name, profile_picture_url, ...}; accept both.
+    final rawId = json['user_id'] ?? json['id'];
+    final rawName = json['display_name'] ?? json['full_name'];
+    final rawPic = json['profile_picture_url'] ?? json['avatar'];
+    return ChatUser(
+      userId: rawId.toString(),
+      displayName: rawName as String? ?? '',
+      profilePictureUrl: rawPic is String ? rawPic : '',
+      status: json['status'] as String? ?? '',
+      isOnline: json['is_online'] as bool? ?? false,
+      bio: json['bio'] as String? ?? '',
+      isPro: json['is_pro'] as bool? ?? false,
+      chatId: json['chat_id'] as String?,
+      chatHistory: (json['chat_history'] as List<dynamic>? ?? [])
+          .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'user_id': userId,
@@ -165,17 +173,27 @@ class ChatGroup {
   factory ChatGroup.fromJson(Map<String, dynamic> json) {
     final rawId = json['group_id'] ?? json['id'];
     final rawName = json['group_name'] ?? json['name'];
+    // Live API returns members as `participants: [{id, full_name, ...}]`;
+    // older shape used a flat `members_id: [<id>]`. Accept both.
+    final participants = json['participants'];
+    final membersId = participants is List
+        ? participants
+            .map((e) => (e as Map<String, dynamic>)['id'].toString())
+            .toList()
+        : (json['members_id'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const <String>[];
     return ChatGroup(
-      groupId: rawId as String,
+      groupId: rawId.toString(),
       groupName: rawName as String,
       description: json['description'] as String?,
       isMuted: json['is_muted'] as bool? ?? false,
       isPro: json['is_pro'] as bool? ?? false,
+      // The live API has no `is_joined`; membership is derived from
+      // `participants` against the current user id (see ChatProvider.load).
       isJoined: json['is_joined'] as bool? ?? false,
-      membersId: (json['members_id'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
+      membersId: membersId,
       groupChatHistory: (json['group_chat_history'] as List<dynamic>? ?? [])
           .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
           .toList(),

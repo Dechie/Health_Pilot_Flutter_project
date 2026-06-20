@@ -15,6 +15,9 @@ class ChatProvider extends ChangeNotifier {
   ChatLoadStatus _status = ChatLoadStatus.idle;
   bool _loadStarted = false;
 
+  /// Current user's id, used to derive group membership from `participants`.
+  String _currentUserId = '';
+
   /// Tracks messages not yet seen per user/group thread (key = userId or groupId).
   final Map<String, int> _unreadCounts = {};
 
@@ -95,7 +98,10 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> load() async {
+  Future<void> load({String? currentUserId}) async {
+    if (currentUserId != null && currentUserId.isNotEmpty) {
+      _currentUserId = currentUserId;
+    }
     if (_loadStarted) return;
     _loadStarted = true;
     _status = ChatLoadStatus.loading;
@@ -118,7 +124,13 @@ class ChatProvider extends ChangeNotifier {
       );
       _groups = await Future.wait(
         groups.map((group) async {
-          if (!group.isJoined) return group;
+          // The live API has no `is_joined`; membership is whether the current
+          // user appears in the group's participants (mapped to membersId).
+          final joined = group.isJoined ||
+              (_currentUserId.isNotEmpty &&
+                  group.membersId.contains(_currentUserId));
+          final resolved = group.copyWith(isJoined: joined);
+          if (!resolved.isJoined) return resolved;
           final localCount =
               (await _localStore.fetchGroupMessages(group.groupId)).length;
           final history = await _localStore.loadGroupMessages(
@@ -127,11 +139,11 @@ class ChatProvider extends ChangeNotifier {
           );
           final unread = history.length - localCount;
           if (unread > 0) _unreadCounts[group.groupId] = unread;
-          return group.copyWith(groupChatHistory: history);
+          return resolved.copyWith(groupChatHistory: history);
         }),
       );
-      // Load existing private chats to discover connected peers (the /users/
-      // endpoint only returns the current user's own profile).
+      // Also discover peers from existing private chats — covers anyone the
+      // user has an open thread with who isn't in the /users/ peer list yet.
       final privateChats = await _repo.listPrivateChats();
       for (final chat in privateChats) {
         for (final participant in chat.participants) {

@@ -18,6 +18,32 @@ class RemoteChatRepository implements IChatRepository {
     return [];
   }
 
+  /// Fetches every page of a DRF-paginated endpoint, following the `next`
+  /// link until it is null, and returns the concatenated `results`. Falls
+  /// back gracefully to a single page for non-paginated (plain list) bodies.
+  Future<List<dynamic>> _fetchAllPages(String path) async {
+    final all = <dynamic>[];
+    Map<String, dynamic>? query;
+    final seenPages = <String>{};
+    while (true) {
+      final data = await _api.get(path, queryParameters: query);
+      if (data is! Map) {
+        if (data is List) all.addAll(data);
+        break;
+      }
+      final results = data['results'];
+      if (results is List) all.addAll(results);
+      final next = data['next'];
+      if (next is! String || next.isEmpty) break;
+      final nextQuery = Uri.parse(next).queryParameters;
+      // Guard against a server that returns a self-referential `next`.
+      final key = nextQuery.toString();
+      if (nextQuery.isEmpty || !seenPages.add(key)) break;
+      query = Map<String, dynamic>.from(nextQuery);
+    }
+    return all;
+  }
+
   @override
   Future<List<ChatUser>> fetchUsers() async {
     final data = await _api.get('${ApiConstants.chatBase}/users/');
@@ -46,10 +72,10 @@ class RemoteChatRepository implements IChatRepository {
 
   @override
   Future<List<DirectMessage>> fetchPrivateMessages(String chatId) async {
-    final data = await _api.get(
+    final items = await _fetchAllPages(
       '${ApiConstants.chatBase}/private/$chatId/messages/',
     );
-    return _extractList(data)
+    return items
         .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
         .toList();
   }
@@ -102,10 +128,10 @@ class RemoteChatRepository implements IChatRepository {
 
   @override
   Future<List<DirectMessage>> fetchGroupMessages(String groupId) async {
-    final data = await _api.get(
+    final items = await _fetchAllPages(
       '${ApiConstants.chatBase}/groups/$groupId/messages/',
     );
-    return _extractList(data)
+    return items
         .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
         .toList();
   }

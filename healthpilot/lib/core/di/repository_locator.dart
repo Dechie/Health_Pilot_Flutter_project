@@ -212,8 +212,9 @@ abstract final class RepositoryLocator {
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
+              final userId = authState.userId;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                provider!.load();
+                provider!.load(currentUserId: userId);
               });
             }
             return provider!;
