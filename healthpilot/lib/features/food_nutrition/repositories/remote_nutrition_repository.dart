@@ -7,37 +7,78 @@ class RemoteNutritionRepository implements INutritionRepository {
   final ApiClient _api;
   RemoteNutritionRepository(this._api);
 
+  /// Fetches every page of a DRF-paginated endpoint, following `next` until
+  /// it is null, returning the concatenated `results`.
+  Future<List<dynamic>> _fetchAllPages(
+    String path, {
+    Map<String, dynamic>? query,
+  }) async {
+    final all = <dynamic>[];
+    final seen = <String>{};
+    while (true) {
+      final data = await _api.get(path, queryParameters: query);
+      if (data is! Map) {
+        if (data is List) all.addAll(data);
+        break;
+      }
+      final results = data['results'];
+      if (results is List) all.addAll(results);
+      final next = data['next'];
+      if (next is! String || next.isEmpty) break;
+      final nextQuery = Uri.parse(next).queryParameters;
+      final key = nextQuery.toString();
+      if (nextQuery.isEmpty || !seen.add(key)) break;
+      query = Map<String, dynamic>.from(nextQuery);
+    }
+    return all;
+  }
+
   @override
-  Future<List<FoodDayLog>> fetchHistory() async {
-    final data = await _api.get('${ApiConstants.nutritionBase}/history/');
-    final raw = data is Map<String, dynamic> ? data['results'] : data;
-    return (raw as List<dynamic>)
-        .map((e) => FoodDayLog.fromJson(e as Map<String, dynamic>))
+  Future<List<MealLog>> fetchHistory() async {
+    final items = await _fetchAllPages('${ApiConstants.nutritionBase}/history/');
+    return items
+        .map((e) => MealLog.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   @override
-  Future<FoodDayLog> addDayLog(FoodDayLog log) async {
+  Future<MealLog> addMeal(MealLog log) async {
     final data = await _api.post(
       '${ApiConstants.nutritionBase}/history/',
       data: log.toJson(),
     );
-    return FoodDayLog.fromJson(data as Map<String, dynamic>);
+    return MealLog.fromJson(data as Map<String, dynamic>);
   }
 
   @override
-  Future<FoodNutritionSettings> fetchSettings() async {
+  Future<NutritionGoals> fetchGoals() async {
     final data = await _api.get('${ApiConstants.nutritionBase}/settings/');
-    return FoodNutritionSettings.fromJson(data as Map<String, dynamic>);
+    return NutritionGoals.fromJson(data as Map<String, dynamic>);
   }
 
   @override
-  Future<FoodNutritionSettings> saveSettings(
-      FoodNutritionSettings settings) async {
+  Future<NutritionGoals> saveGoals(NutritionGoals goals) async {
     final data = await _api.patch(
       '${ApiConstants.nutritionBase}/settings/',
-      data: settings.toJson(),
+      data: goals.toJson(),
     );
-    return FoodNutritionSettings.fromJson(data as Map<String, dynamic>);
+    return NutritionGoals.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<NutritionSummary> fetchSummary() async {
+    final data = await _api.get('${ApiConstants.nutritionBase}/summary/');
+    return NutritionSummary.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<FoodItem>> searchFoods(String query) async {
+    final items = await _fetchAllPages(
+      '${ApiConstants.nutritionBase}/search/',
+      query: {'search': query},
+    );
+    return items
+        .map((e) => FoodItem.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

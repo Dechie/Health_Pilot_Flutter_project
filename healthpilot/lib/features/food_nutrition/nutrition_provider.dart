@@ -7,20 +7,16 @@ enum NutritionLoadStatus { idle, loading, loaded, error }
 class NutritionProvider extends ChangeNotifier {
   final INutritionRepository _repo;
 
-  List<FoodDayLog> _history = [];
-  FoodNutritionSettings _settings = const FoodNutritionSettings(
-    frequency: FoodReportFrequency.biWeekly,
-    pushNotificationsEnabled: true,
-    diets: {'Vegetarian', 'Vegan'},
-  );
+  List<MealLog> _history = [];
+  NutritionGoals _goals = NutritionGoals.defaults;
+  NutritionSummary? _summary;
   NutritionLoadStatus _status = NutritionLoadStatus.idle;
   bool _loadStarted = false;
-  bool _setupCompleted = false;
 
-  List<FoodDayLog> get history => List.unmodifiable(_history);
-  FoodNutritionSettings get settings => _settings;
+  List<MealLog> get history => List.unmodifiable(_history);
+  NutritionGoals get goals => _goals;
+  NutritionSummary? get summary => _summary;
   NutritionLoadStatus get status => _status;
-  bool get setupCompleted => _setupCompleted;
 
   NutritionProvider(this._repo);
 
@@ -31,8 +27,8 @@ class NutritionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       _history = await _repo.fetchHistory();
-      _settings = await _repo.fetchSettings();
-      _setupCompleted = await FoodNutritionPrefs.isSetupDone();
+      _goals = await _repo.fetchGoals();
+      _summary = await _repo.fetchSummary();
       _status = NutritionLoadStatus.loaded;
     } catch (_) {
       _status = NutritionLoadStatus.error;
@@ -41,17 +37,29 @@ class NutritionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addLog(FoodDayLog log) async {
-    final added = await _repo.addDayLog(log);
-    _history = [..._history, added];
+  Future<void> refresh() async {
+    _loadStarted = false;
+    await load();
+  }
+
+  Future<void> addMeal(MealLog log) async {
+    final added = await _repo.addMeal(log);
+    _history = [added, ..._history];
+    // Totals changed — refresh the daily summary if available.
+    try {
+      _summary = await _repo.fetchSummary();
+    } catch (_) {/* summary is best-effort */}
     notifyListeners();
   }
 
-  Future<void> updateSettings(FoodNutritionSettings s) async {
-    _settings = await _repo.saveSettings(s);
-    await FoodNutritionPrefs.markSetupDone();
-    _setupCompleted = true;
-    _history = await _repo.fetchHistory();
+  /// Search the food catalog (transient — does not mutate provider state).
+  Future<List<FoodItem>> searchFoods(String query) => _repo.searchFoods(query);
+
+  Future<void> saveGoals(NutritionGoals goals) async {
+    _goals = await _repo.saveGoals(goals);
+    try {
+      _summary = await _repo.fetchSummary();
+    } catch (_) {/* best-effort */}
     notifyListeners();
   }
 }

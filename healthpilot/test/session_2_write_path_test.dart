@@ -491,64 +491,52 @@ void main() {
   // ── W21–W24: Nutrition ───────────────────────────────────────────────────
 
   group('W21–W24 Nutrition', () {
-    testWidgets('W21 add day log appears in history', (tester) async {
-      final nutritionP = NutritionProvider(MockNutritionRepository());
-      await nutritionP.load();
-      final initial = nutritionP.history.length;
-      await nutritionP.addLog(
-        const FoodDayLog(
-          dayStamp: '2026-05-12',
-          meals: [FoodMealEntry(name: 'Oats', calories: '350')],
-        ),
-      );
-      expect(nutritionP.history.length, initial + 1);
-      expect(
-        nutritionP.history.any((l) => l.dayStamp == '2026-05-12'),
-        isTrue,
-      );
-    });
-
-    testWidgets('W22 change diet tags updates settings', (tester) async {
-      final nutritionP = NutritionProvider(MockNutritionRepository());
-      await nutritionP.load();
-      await nutritionP.updateSettings(
-        nutritionP.settings.copyWith(diets: {'Keto'}),
-      );
-      expect(nutritionP.settings.diets, {'Keto'});
-    });
-
-    testWidgets('W23 change report frequency updates settings', (tester) async {
-      final nutritionP = NutritionProvider(MockNutritionRepository());
-      await nutritionP.load();
-      await nutritionP.updateSettings(
-        nutritionP.settings.copyWith(
-          frequency: FoodReportFrequency.monthly,
-        ),
-      );
-      expect(nutritionP.settings.frequency, FoodReportFrequency.monthly);
-    });
-
-    testWidgets('W24 added log persists to SharedPrefs and reloads',
+    testWidgets('W21 logged meal appears in history (newest first)',
         (tester) async {
       final nutritionP = NutritionProvider(MockNutritionRepository());
       await nutritionP.load();
-      await nutritionP.addLog(
-        const FoodDayLog(
-          dayStamp: '2026-05-12',
-          meals: [FoodMealEntry(name: 'Oats', calories: '350')],
+      final initial = nutritionP.history.length;
+      await nutritionP.addMeal(
+        const MealLog(
+          mealType: 'lunch',
+          entries: [MealEntry(foodName: 'Salad', quantityG: 200, calories: 180)],
         ),
       );
-      final savedCount = nutritionP.history.length;
+      expect(nutritionP.history.length, initial + 1);
+      expect(nutritionP.history.first.mealType, 'lunch');
+      expect(nutritionP.history.first.entries.first.foodName, 'Salad');
+    });
 
-      // A fresh provider backed by the same SharedPrefs mock should load the
-      // data that was written by the first instance.
-      final nutritionP2 = NutritionProvider(MockNutritionRepository());
-      await nutritionP2.load();
-      expect(nutritionP2.history.length, savedCount);
-      expect(
-        nutritionP2.history.any((l) => l.dayStamp == '2026-05-12'),
-        isTrue,
+    testWidgets('W22 saving macro goals updates goals', (tester) async {
+      final nutritionP = NutritionProvider(MockNutritionRepository());
+      await nutritionP.load();
+      await nutritionP.saveGoals(
+        nutritionP.goals.copyWith(dailyCalories: 2500),
       );
+      expect(nutritionP.goals.dailyCalories, 2500);
+    });
+
+    testWidgets('W23 saved goals are reflected in the summary', (tester) async {
+      final nutritionP = NutritionProvider(MockNutritionRepository());
+      await nutritionP.load();
+      await nutritionP.saveGoals(
+        nutritionP.goals.copyWith(dailyProteinG: 120),
+      );
+      expect(nutritionP.summary?.goals.dailyProteinG, 120);
+    });
+
+    testWidgets('W24 logging a meal increases the summary calorie total',
+        (tester) async {
+      final nutritionP = NutritionProvider(MockNutritionRepository());
+      await nutritionP.load();
+      final before = nutritionP.summary?.totals.calories ?? 0;
+      await nutritionP.addMeal(
+        const MealLog(
+          mealType: 'snack',
+          entries: [MealEntry(foodName: 'Almonds', quantityG: 30, calories: 200)],
+        ),
+      );
+      expect(nutritionP.summary!.totals.calories, greaterThan(before));
     });
   });
 

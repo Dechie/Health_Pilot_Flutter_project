@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/health/health_dashboard_screen.dart';
 import 'package:healthpilot/features/health/health_provider.dart';
 import 'package:healthpilot/features/health/health_tracking_screen.dart';
 import 'package:healthpilot/features/medication/medications_screen.dart';
@@ -139,6 +140,19 @@ class _HealthProfileState extends State<HealthProfile> {
                     SizedBox(width: 12),
                     PremiumTags(),
                   ],
+                ),
+              ),
+              SizedBox(height: size.height * 0.02),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const HealthDashboardScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.dashboard_outlined),
+                  label: const Text('Open Health Dashboard'),
                 ),
               ),
               SizedBox(

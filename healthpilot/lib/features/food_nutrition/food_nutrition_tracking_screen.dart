@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:healthpilot/core/widgets/safe_assets.dart';
@@ -8,7 +9,7 @@ import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
-/// Preferences for food and nutrition reports (Figma-style setup).
+/// Editor for daily macro targets — PATCHes `/nutrition/settings/`.
 class FoodNutritionTrackingScreen extends StatefulWidget {
   const FoodNutritionTrackingScreen({super.key});
 
@@ -19,33 +20,53 @@ class FoodNutritionTrackingScreen extends StatefulWidget {
 
 class _FoodNutritionTrackingScreenState
     extends State<FoodNutritionTrackingScreen> {
-  late FoodReportFrequency _frequency;
-  late bool _pushNotifications;
-  late Set<String> _diets;
+  late final TextEditingController _calories;
+  late final TextEditingController _protein;
+  late final TextEditingController _carbs;
+  late final TextEditingController _fat;
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
-    final s = context.read<NutritionProvider>().settings;
-    _frequency = s.frequency;
-    _pushNotifications = s.pushNotificationsEnabled;
-    _diets =
-        Set<String>.from(s.diets.where(kFoodNutritionDietChoices.contains));
-    if (_diets.isEmpty) _diets.addAll({'Vegetarian', 'Vegan'});
+    final g = context.read<NutritionProvider>().goals;
+    _calories = TextEditingController(text: g.dailyCalories.toString());
+    _protein = TextEditingController(text: g.dailyProteinG.toString());
+    _carbs = TextEditingController(text: g.dailyCarbsG.toString());
+    _fat = TextEditingController(text: g.dailyFatG.toString());
   }
 
-  Future<void> _onFinish() async {
+  @override
+  void dispose() {
+    _calories.dispose();
+    _protein.dispose();
+    _carbs.dispose();
+    _fat.dispose();
+    super.dispose();
+  }
+
+  int _val(TextEditingController c, int fallback) =>
+      int.tryParse(c.text.trim()) ?? fallback;
+
+  Future<void> _onSave() async {
+    final current = context.read<NutritionProvider>().goals;
     setState(() => _saving = true);
     try {
-      await context.read<NutritionProvider>().updateSettings(
-            FoodNutritionSettings(
-              frequency: _frequency,
-              pushNotificationsEnabled: _pushNotifications,
-              diets: Set<String>.from(_diets),
+      await context.read<NutritionProvider>().saveGoals(
+            NutritionGoals(
+              dailyCalories: _val(_calories, current.dailyCalories),
+              dailyProteinG: _val(_protein, current.dailyProteinG),
+              dailyCarbsG: _val(_carbs, current.dailyCarbsG),
+              dailyFatG: _val(_fat, current.dailyFatG),
             ),
           );
       if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not save goals. Try again.')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -73,7 +94,7 @@ class _FoodNutritionTrackingScreenState
                   ),
                   Expanded(
                     child: Text(
-                      'Food and Nutrition Tracking',
+                      'Daily Nutrition Goals',
                       style: titleStyle,
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -102,119 +123,33 @@ class _FoodNutritionTrackingScreenState
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'How frequently do you want your report to be sent',
+                      'Set your daily targets. These drive your nutrition summary.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(height: 12),
-                    Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: _frequencyTile(
-                                FoodReportFrequency.daily,
-                                'Daily',
-                              ),
-                            ),
-                            Expanded(
-                              child: _frequencyTile(
-                                FoodReportFrequency.biWeekly,
-                                'Bi-weekly',
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: _frequencyTile(
-                                FoodReportFrequency.weekly,
-                                'Weekly',
-                              ),
-                            ),
-                            Expanded(
-                              child: _frequencyTile(
-                                FoodReportFrequency.monthly,
-                                'Monthly',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    const SizedBox(height: 20),
+                    _GoalField(
+                      controller: _calories,
+                      label: 'Daily calories',
+                      unit: 'kcal',
+                    ),
+                    _GoalField(
+                      controller: _protein,
+                      label: 'Protein',
+                      unit: 'g',
+                    ),
+                    _GoalField(
+                      controller: _carbs,
+                      label: 'Carbohydrates',
+                      unit: 'g',
+                    ),
+                    _GoalField(
+                      controller: _fat,
+                      label: 'Fat',
+                      unit: 'g',
                     ),
                     const SizedBox(height: 28),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Enable push notifications',
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'When on, we will remind you around meal times to eat regularly and keep a balanced diet. '
-                                'Reminders follow your device notification settings; server-delivered push is not wired yet.',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Switch(
-                          value: _pushNotifications,
-                          onChanged: (v) =>
-                              setState(() => _pushNotifications = v),
-                          activeThumbColor: scheme.onPrimary,
-                          activeTrackColor: scheme.primary,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 28),
-                    Text(
-                      'Select any diets you follow',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: kFoodNutritionDietChoices.map((d) {
-                        final selected = _diets.contains(d);
-                        return FilterChip(
-                          label: Text(d),
-                          selected: selected,
-                          onSelected: (on) {
-                            setState(() {
-                              if (on) {
-                                _diets.add(d);
-                              } else {
-                                _diets.remove(d);
-                              }
-                            });
-                          },
-                          selectedColor: scheme.primary.withValues(alpha: 0.35),
-                          checkmarkColor: scheme.primary,
-                          labelStyle:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: selected
-                                        ? scheme.primary
-                                        : scheme.onSurface,
-                                    fontWeight: selected
-                                        ? FontWeight.w600
-                                        : FontWeight.w400,
-                                  ),
-                          side: BorderSide(color: scheme.outline),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 32),
                     FilledButton(
-                      onPressed: _saving ? null : _onFinish,
+                      onPressed: _saving ? null : _onSave,
                       child: _saving
                           ? const SizedBox(
                               width: 20,
@@ -224,7 +159,7 @@ class _FoodNutritionTrackingScreenState
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Finish'),
+                          : const Text('Save goals'),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -236,33 +171,31 @@ class _FoodNutritionTrackingScreenState
       ),
     );
   }
+}
 
-  Widget _frequencyTile(FoodReportFrequency value, String label) {
-    final scheme = Theme.of(context).colorScheme;
-    final selected = _frequency == value;
-    return InkWell(
-      onTap: () => setState(() => _frequency = value),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Icon(
-              selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: scheme.primary,
-              size: 22,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                      color: selected ? scheme.primary : scheme.onSurface,
-                    ),
-              ),
-            ),
-          ],
+class _GoalField extends StatelessWidget {
+  const _GoalField({
+    required this.controller,
+    required this.label,
+    required this.unit,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: InputDecoration(
+          labelText: label,
+          suffixText: unit,
+          border: const OutlineInputBorder(),
         ),
       ),
     );

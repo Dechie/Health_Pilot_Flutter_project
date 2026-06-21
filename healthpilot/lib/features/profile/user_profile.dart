@@ -98,6 +98,9 @@ class UserProfile {
       firstName: firstName,
       lastName: lastName,
       email: data['email'] as String?,
+      phoneE164: (data['mobile_no'] as String?)?.isNotEmpty == true
+          ? data['mobile_no'] as String?
+          : null,
       gender: data['gender'] as String?,
       dateOfBirth: _parseApiDate(data['date_of_birth'] as String?),
       age: _parseApiInt(data['age']),
@@ -238,6 +241,7 @@ class UserProfile {
         if (firstName != null) 'first_name': firstName,
         if (lastName != null) 'last_name': lastName,
         if (email != null) 'email': email,
+        if (phoneE164 != null) 'mobile_no': phoneE164,
         if (gender != null) 'gender': gender,
         if (dateOfBirth != null) 'date_of_birth': _formatApiDate(dateOfBirth!),
         if (weightKg != null) 'weight_kg': weightKg,

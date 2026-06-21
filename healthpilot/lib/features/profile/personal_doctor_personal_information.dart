@@ -591,9 +591,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       description:
                           SetupPromoCardCopy.foodNutritionDescription,
                       icon: null,
-                      buttonText: nutrition.setupCompleted
-                          ? "Edit setup"
-                          : "Start setup",
+                      buttonText: "Set nutrition goals",
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(

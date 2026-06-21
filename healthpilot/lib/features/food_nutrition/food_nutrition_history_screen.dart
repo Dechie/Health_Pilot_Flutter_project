@@ -3,13 +3,34 @@ import 'package:provider/provider.dart';
 
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
-import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
+import 'package:healthpilot/features/food_nutrition/add_meal_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_models.dart';
+import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
 import 'package:healthpilot/features/food_nutrition/nutrition_provider.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 
-/// Log of tracked meals with a vertical timeline (Figma-style history).
+const _months = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+String _dayLabel(DateTime? d) {
+  if (d == null) return 'Undated';
+  final l = d.toLocal();
+  return '${_months[l.month - 1]} ${l.day}, ${l.year}';
+}
+
+String _timeLabel(DateTime? d) {
+  if (d == null) return '';
+  final l = d.toLocal();
+  final h = l.hour % 12 == 0 ? 12 : l.hour % 12;
+  final m = l.minute.toString().padLeft(2, '0');
+  return '$h:$m ${l.hour < 12 ? 'AM' : 'PM'}';
+}
+
+/// Meal history with a daily-totals summary — reads `/nutrition/history/`
+/// and `/nutrition/summary/`.
 class FoodNutritionHistoryScreen extends StatelessWidget {
   const FoodNutritionHistoryScreen({super.key});
 
@@ -19,68 +40,83 @@ class FoodNutritionHistoryScreen extends StatelessWidget {
 
     if (provider.status == NutritionLoadStatus.idle ||
         provider.status == NutritionLoadStatus.loading) {
-      return const Scaffold(
-        body: SafeArea(
-          child: Center(child: CircularProgressIndicator()),
-        ),
+      return const _HistoryScaffold(
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    final days = provider.history;
-    if (days.isEmpty) {
+    if (provider.status == NutritionLoadStatus.error) {
       return _HistoryScaffold(
-        body: provider.setupCompleted
-            ? _SetupSummary(
-                settings: provider.settings,
-                onEdit: () => Navigator.of(context).push<void>(
-                  MaterialPageRoute<void>(
-                    builder: (context) =>
-                        const FoodNutritionTrackingScreen(),
-                  ),
-                ),
-              )
-            : _EmptyHistoryBody(
-                onSetUp: () => Navigator.of(context).push<void>(
-                  MaterialPageRoute<void>(
-                    builder: (context) =>
-                        const FoodNutritionTrackingScreen(),
-                  ),
-                ),
-              ),
+        body: _ErrorBody(onRetry: () => context.read<NutritionProvider>().refresh()),
       );
     }
+
+    final meals = provider.history;
 
     return _HistoryScaffold(
+      onAddMeal: () => Navigator.of(context).push<void>(
+        MaterialPageRoute<void>(builder: (_) => const AddMealScreen()),
+      ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
         children: [
-          for (var d = 0; d < days.length; d++) ...[
-            if (d > 0) const SizedBox(height: 20),
-            Text(
-              days[d].dayStamp,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            for (var i = 0; i < days[d].meals.length; i++)
-              _TimelineMealRow(
-                mealName: days[d].meals[i].name,
-                calories: days[d].meals[i].calories,
-                showLineBelow: i < days[d].meals.length - 1,
+          if (provider.summary != null)
+            _SummaryCard(
+              summary: provider.summary!,
+              onEditGoals: () => Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (_) => const FoodNutritionTrackingScreen(),
+                ),
               ),
-          ],
+            ),
+          const SizedBox(height: 20),
+          if (meals.isEmpty)
+            const Padding(
+              padding: EdgeInsets.only(top: 40),
+              child: Text(
+                'No meals logged yet. Tap + to log your first meal.',
+                textAlign: TextAlign.center,
+              ),
+            )
+          else
+            ..._buildDayGroups(context, meals),
         ],
       ),
     );
   }
+
+  List<Widget> _buildDayGroups(BuildContext context, List<MealLog> meals) {
+    // Preserve incoming (newest-first) order while grouping by calendar day.
+    final groups = <String, List<MealLog>>{};
+    for (final m in meals) {
+      groups.putIfAbsent(_dayLabel(m.loggedAt), () => []).add(m);
+    }
+    final widgets = <Widget>[];
+    var first = true;
+    groups.forEach((day, dayMeals) {
+      if (!first) widgets.add(const SizedBox(height: 20));
+      first = false;
+      widgets.add(Text(
+        day,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+      ));
+      widgets.add(const SizedBox(height: 8));
+      for (final m in dayMeals) {
+        widgets.add(_MealCard(meal: m));
+      }
+    });
+    return widgets;
+  }
 }
 
 class _HistoryScaffold extends StatelessWidget {
-  const _HistoryScaffold({required this.body});
+  const _HistoryScaffold({required this.body, this.onAddMeal});
 
   final Widget body;
+  final VoidCallback? onAddMeal;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +124,13 @@ class _HistoryScaffold extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      floatingActionButton: onAddMeal == null
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: onAddMeal,
+              icon: const Icon(Icons.add),
+              label: const Text('Log meal'),
+            ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -103,7 +146,7 @@ class _HistoryScaffold extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      'Food and Nutrition Tracking History',
+                      'Food and Nutrition Tracking',
                       style: titleStyle,
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -130,148 +173,65 @@ class _HistoryScaffold extends StatelessWidget {
   }
 }
 
-String _frequencyLabel(FoodReportFrequency f) {
-  switch (f) {
-    case FoodReportFrequency.daily:
-      return 'Daily';
-    case FoodReportFrequency.weekly:
-      return 'Weekly';
-    case FoodReportFrequency.biWeekly:
-      return 'Bi-weekly';
-    case FoodReportFrequency.monthly:
-      return 'Monthly';
-  }
-}
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({required this.summary, required this.onEditGoals});
 
-class _SetupSummary extends StatelessWidget {
-  const _SetupSummary({
-    required this.settings,
-    required this.onEdit,
-  });
-
-  final FoodNutritionSettings settings;
-  final VoidCallback onEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Your Preferences', style: style.titleMedium),
-          const SizedBox(height: 16),
-          _SummaryRow(
-            icon: Icons.calendar_today,
-            label: 'Report frequency',
-            value: _frequencyLabel(settings.frequency),
-          ),
-          const Divider(height: 1),
-          _SummaryRow(
-            icon: Icons.notifications_outlined,
-            label: 'Push notifications',
-            value: settings.pushNotificationsEnabled ? 'On' : 'Off',
-          ),
-          if (settings.diets.isNotEmpty) ...[
-            const Divider(height: 1),
-            _SummaryRow(
-              icon: Icons.restaurant_outlined,
-              label: 'Diets',
-              value: settings.diets.join(', '),
-            ),
-          ],
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: onEdit,
-              child: const Text('Edit setup'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
+  final NutritionSummary summary;
+  final VoidCallback onEditGoals;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        children: [
-          Icon(icon, size: 22, color: scheme.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(label,
-                style: Theme.of(context).textTheme.bodyMedium),
-          ),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: scheme.primary,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+    final t = summary.totals;
+    final g = summary.goals;
 
-class _EmptyHistoryBody extends StatelessWidget {
-  const _EmptyHistoryBody({required this.onSetUp});
-
-  final VoidCallback onSetUp;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Center(
+    return Card(
+      margin: const EdgeInsets.only(top: 16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              Icons.restaurant_outlined,
-              size: 56,
-              color: scheme.primary.withValues(alpha: 0.45),
+            Row(
+              children: [
+                Expanded(
+                  child: Text("Today's intake",
+                      style: Theme.of(context).textTheme.titleSmall),
+                ),
+                TextButton(
+                  onPressed: onEditGoals,
+                  child: const Text('Edit goals'),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              'No nutrition history yet',
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
+            const SizedBox(height: 8),
+            _MacroBar(
+              label: 'Calories',
+              value: t.calories,
+              goal: g.dailyCalories.toDouble(),
+              unit: 'kcal',
+              color: scheme.primary,
             ),
-            const SizedBox(height: 10),
-            Text(
-              'After you finish food and nutrition setup, a sample day may appear here. '
-              'Full meal logging will connect to your account when the backend is ready.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.7),
-                    height: 1.35,
-                  ),
-              textAlign: TextAlign.center,
+            _MacroBar(
+              label: 'Protein',
+              value: t.proteinG,
+              goal: g.dailyProteinG.toDouble(),
+              unit: 'g',
+              color: Colors.teal,
             ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: onSetUp,
-              child: const Text('Set up tracking'),
+            _MacroBar(
+              label: 'Carbs',
+              value: t.carbsG,
+              goal: g.dailyCarbsG.toDouble(),
+              unit: 'g',
+              color: Colors.orange,
+            ),
+            _MacroBar(
+              label: 'Fat',
+              value: t.fatG,
+              goal: g.dailyFatG.toDouble(),
+              unit: 'g',
+              color: Colors.redAccent,
             ),
           ],
         ),
@@ -280,72 +240,142 @@ class _EmptyHistoryBody extends StatelessWidget {
   }
 }
 
-class _TimelineMealRow extends StatelessWidget {
-  const _TimelineMealRow({
-    required this.mealName,
-    required this.calories,
-    required this.showLineBelow,
+class _MacroBar extends StatelessWidget {
+  const _MacroBar({
+    required this.label,
+    required this.value,
+    required this.goal,
+    required this.unit,
+    required this.color,
   });
 
-  final String mealName;
-  final String calories;
-  final bool showLineBelow;
+  final String label;
+  final double value;
+  final double goal;
+  final String unit;
+  final Color color;
+
+  String _fmt(double v) =>
+      v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(0);
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = goal <= 0 ? 0.0 : (value / goal).clamp(0.0, 1.0);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(label,
+                    style: Theme.of(context).textTheme.bodyMedium),
+              ),
+              Text('${_fmt(value)} / ${_fmt(goal)} $unit',
+                  style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: pct,
+              minHeight: 6,
+              backgroundColor: color.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MealCard extends StatelessWidget {
+  const _MealCard({required this.meal});
+
+  final MealLog meal;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    const dotSize = 10.0;
-    const lineWidth = 2.0;
-
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 20,
-            child: Column(
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Container(
-                  width: dotSize,
-                  height: dotSize,
-                  decoration: BoxDecoration(
-                    color: scheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                if (showLineBelow)
-                  Expanded(
-                    child: Container(
-                      width: lineWidth,
-                      color: scheme.primary.withValues(alpha: 0.6),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8, bottom: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      mealName,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ),
-                  Text(
-                    calories,
+                Expanded(
+                  child: Text(
+                    mealTypeLabel(meal.mealType),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: scheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                   ),
-                ],
-              ),
+                ),
+                Text(
+                  '${meal.totalCalories.toInt()} kcal',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ],
             ),
-          ),
+            if (meal.loggedAt != null)
+              Text(_timeLabel(meal.loggedAt),
+                  style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 6),
+            for (final e in meal.entries)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${e.foodName}  ·  ${e.quantityG.toInt()} g',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                    if (e.calories != null)
+                      Text('${e.calories!.toInt()} kcal',
+                          style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ),
+              ),
+            if (meal.notes != null && meal.notes!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(meal.notes!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: scheme.onSurface.withValues(alpha: 0.7),
+                      )),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("Couldn't load nutrition data."),
+          const SizedBox(height: 12),
+          FilledButton(onPressed: onRetry, child: const Text('Retry')),
         ],
       ),
     );

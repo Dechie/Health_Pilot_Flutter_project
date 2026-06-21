@@ -1,216 +1,253 @@
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
+/// Nutrition models mirror the live backend (`/api/v1/nutrition/...`):
+///   • settings/goals → daily macro targets
+///   • history        → meal logs, each with food entries
+///   • summary        → today's totals vs goals
+///
+/// All decimal fields arrive as strings (DRF `DecimalField`, e.g. "80.00").
 
-/// Report cadence for food & nutrition summaries (local prefs only).
-enum FoodReportFrequency { daily, weekly, biWeekly, monthly }
-
-String foodReportFrequencyToStorage(FoodReportFrequency f) {
-  switch (f) {
-    case FoodReportFrequency.daily:
-      return 'daily';
-    case FoodReportFrequency.weekly:
-      return 'weekly';
-    case FoodReportFrequency.biWeekly:
-      return 'biWeekly';
-    case FoodReportFrequency.monthly:
-      return 'monthly';
-  }
+double? _toDouble(dynamic v) {
+  if (v == null) return null;
+  if (v is num) return v.toDouble();
+  if (v is String) return double.tryParse(v);
+  return null;
 }
 
-FoodReportFrequency parseFoodReportFrequency(String? raw) {
-  switch (raw) {
-    case 'daily':
-      return FoodReportFrequency.daily;
-    case 'weekly':
-      return FoodReportFrequency.weekly;
-    case 'monthly':
-      return FoodReportFrequency.monthly;
-    case 'biWeekly':
-    default:
-      return FoodReportFrequency.biWeekly;
-  }
+int _toInt(dynamic v) {
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v) ?? 0;
+  return 0;
 }
 
-/// Ordered, deduplicated diet chip labels (single source of truth).
-const List<String> kFoodNutritionDietChoices = [
-  'Vegetarian',
-  'Vegan',
-  'Mediterranean',
-  'Keto',
-  'Halal',
-  'Atkins',
-];
-
-/// One meal line on the history timeline.
-class FoodMealEntry {
-  const FoodMealEntry({required this.name, required this.calories});
-
-  final String name;
-  final String calories;
-
-  Map<String, dynamic> toJson() => {'name': name, 'calories': calories};
-
-  factory FoodMealEntry.fromJson(Map<String, dynamic> json) {
-    return FoodMealEntry(
-      name: json['name'] as String? ?? '',
-      calories: json['calories'] as String? ?? '',
-    );
-  }
-}
-
-/// One day group in history (header + meals).
-class FoodDayLog {
-  const FoodDayLog({required this.dayStamp, required this.meals});
-
-  final String dayStamp;
-  final List<FoodMealEntry> meals;
-
-  Map<String, dynamic> toJson() => {
-        'day': dayStamp,
-        'meals': meals.map((m) => m.toJson()).toList(),
-      };
-
-  factory FoodDayLog.fromJson(Map<String, dynamic> json) {
-    final raw = json['meals'];
-    final meals = raw is List
-        ? raw
-            .map((e) =>
-                FoodMealEntry.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList()
-        : <FoodMealEntry>[];
-    return FoodDayLog(
-      dayStamp: json['day'] as String? ?? '',
-      meals: meals,
-    );
-  }
-
-  /// Demo shape matching design board; shown once after first successful setup save.
-  static List<FoodDayLog> sampleFirstDay() {
-    return const [
-      FoodDayLog(
-        dayStamp: '11:30 AM, May 13, 2023',
-        meals: [
-          FoodMealEntry(name: 'Breakfast', calories: '350 kcal'),
-          FoodMealEntry(name: 'Lunch', calories: '520 kcal'),
-          FoodMealEntry(name: 'Dinner', calories: '480 kcal'),
-        ],
-      ),
-    ];
-  }
-}
-
-/// Editable food & nutrition tracking preferences.
-class FoodNutritionSettings {
-  const FoodNutritionSettings({
-    required this.frequency,
-    required this.pushNotificationsEnabled,
-    required this.diets,
+/// Daily macro targets — `GET/PATCH /nutrition/settings/` (alias `/goals/`).
+@immutable
+class NutritionGoals {
+  const NutritionGoals({
+    required this.dailyCalories,
+    required this.dailyProteinG,
+    required this.dailyCarbsG,
+    required this.dailyFatG,
   });
 
-  final FoodReportFrequency frequency;
-  final bool pushNotificationsEnabled;
-  final Set<String> diets;
+  final int dailyCalories;
+  final int dailyProteinG;
+  final int dailyCarbsG;
+  final int dailyFatG;
 
-  FoodNutritionSettings copyWith({
-    FoodReportFrequency? frequency,
-    bool? pushNotificationsEnabled,
-    Set<String>? diets,
-  }) {
-    return FoodNutritionSettings(
-      frequency: frequency ?? this.frequency,
-      pushNotificationsEnabled:
-          pushNotificationsEnabled ?? this.pushNotificationsEnabled,
-      diets: diets ?? this.diets,
-    );
-  }
+  /// Backend defaults, used before the first fetch.
+  static const NutritionGoals defaults = NutritionGoals(
+    dailyCalories: 2000,
+    dailyProteinG: 50,
+    dailyCarbsG: 250,
+    dailyFatG: 65,
+  );
 
-  factory FoodNutritionSettings.fromJson(Map<String, dynamic> json) =>
-      FoodNutritionSettings(
-        frequency: parseFoodReportFrequency(json['frequency'] as String?),
-        pushNotificationsEnabled: json['push_notifications'] as bool? ?? true,
-        diets: (json['diets'] as List<dynamic>? ?? [])
-            .map((e) => e as String)
-            .toSet(),
+  NutritionGoals copyWith({
+    int? dailyCalories,
+    int? dailyProteinG,
+    int? dailyCarbsG,
+    int? dailyFatG,
+  }) =>
+      NutritionGoals(
+        dailyCalories: dailyCalories ?? this.dailyCalories,
+        dailyProteinG: dailyProteinG ?? this.dailyProteinG,
+        dailyCarbsG: dailyCarbsG ?? this.dailyCarbsG,
+        dailyFatG: dailyFatG ?? this.dailyFatG,
+      );
+
+  factory NutritionGoals.fromJson(Map<String, dynamic> json) => NutritionGoals(
+        dailyCalories: _toInt(json['daily_calories']),
+        dailyProteinG: _toInt(json['daily_protein_g']),
+        dailyCarbsG: _toInt(json['daily_carbs_g']),
+        dailyFatG: _toInt(json['daily_fat_g']),
       );
 
   Map<String, dynamic> toJson() => {
-        'frequency': foodReportFrequencyToStorage(frequency),
-        'push_notifications': pushNotificationsEnabled,
-        'diets': (diets.toList()..sort()),
+        'daily_calories': dailyCalories,
+        'daily_protein_g': dailyProteinG,
+        'daily_carbs_g': dailyCarbsG,
+        'daily_fat_g': dailyFatG,
       };
 }
 
-/// Load/save nutrition UI state via [SharedPreferences].
-class FoodNutritionPrefs {
-  FoodNutritionPrefs._();
+/// One food item within a meal log.
+@immutable
+class MealEntry {
+  const MealEntry({
+    this.id,
+    required this.foodName,
+    required this.quantityG,
+    this.calories,
+    this.proteinG,
+    this.carbsG,
+    this.fatG,
+  });
 
-  static const _kFrequency = 'food_nutrition_frequency_v1';
-  static const _kPush = 'food_nutrition_push_v1';
-  static const _kDiets = 'food_nutrition_diets_v1';
-  static const _kHistory = 'food_nutrition_history_v1';
-  static const _kSetupDone = 'food_nutrition_setup_done_v1';
+  final int? id;
+  final String foodName;
+  final double quantityG;
+  final double? calories;
+  final double? proteinG;
+  final double? carbsG;
+  final double? fatG;
 
-  static Future<FoodNutritionSettings> loadSettings() async {
-    final p = await SharedPreferences.getInstance();
-    final freq = parseFoodReportFrequency(p.getString(_kFrequency));
-    final push = p.getBool(_kPush) ?? true;
-    final dietList = p.getStringList(_kDiets);
-    final diets = dietList == null || dietList.isEmpty
-        ? <String>{'Vegetarian', 'Vegan'}
-        : dietList.toSet();
-    return FoodNutritionSettings(
-      frequency: freq,
-      pushNotificationsEnabled: push,
-      diets: diets,
+  factory MealEntry.fromJson(Map<String, dynamic> json) => MealEntry(
+        id: json['id'] as int?,
+        foodName: json['food_name'] as String? ?? '',
+        quantityG: _toDouble(json['quantity_g']) ?? 0,
+        calories: _toDouble(json['calories']),
+        proteinG: _toDouble(json['protein_g']),
+        carbsG: _toDouble(json['carbs_g']),
+        fatG: _toDouble(json['fat_g']),
+      );
+
+  /// Decimal fields are sent as strings to match the backend's DecimalField.
+  Map<String, dynamic> toJson() => {
+        'food_name': foodName,
+        'quantity_g': quantityG.toString(),
+        if (calories != null) 'calories': calories!.toString(),
+        if (proteinG != null) 'protein_g': proteinG!.toString(),
+        if (carbsG != null) 'carbs_g': carbsG!.toString(),
+        if (fatG != null) 'fat_g': fatG!.toString(),
+      };
+}
+
+/// Valid `meal_type` values (matches backend enum).
+const List<String> kMealTypes = [
+  'breakfast',
+  'lunch',
+  'dinner',
+  'snack',
+  'other',
+];
+
+String mealTypeLabel(String type) =>
+    type.isEmpty ? 'Meal' : '${type[0].toUpperCase()}${type.substring(1)}';
+
+/// A logged meal — `GET/POST /nutrition/history/`.
+@immutable
+class MealLog {
+  const MealLog({
+    this.id,
+    required this.mealType,
+    this.notes,
+    this.loggedAt,
+    this.entries = const [],
+    this.totalCalories = 0,
+  });
+
+  final int? id;
+  final String mealType;
+  final String? notes;
+  final DateTime? loggedAt;
+  final List<MealEntry> entries;
+  final double totalCalories;
+
+  factory MealLog.fromJson(Map<String, dynamic> json) {
+    final rawEntries = json['entries'];
+    return MealLog(
+      id: json['id'] as int?,
+      mealType: json['meal_type'] as String? ?? 'other',
+      notes: json['notes'] as String?,
+      loggedAt: DateTime.tryParse(json['logged_at'] as String? ?? ''),
+      entries: rawEntries is List
+          ? rawEntries
+              .map((e) => MealEntry.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList()
+          : const [],
+      totalCalories: _toDouble(json['total_calories']) ?? 0,
     );
   }
 
-  static Future<bool> isSetupDone() async {
-    final p = await SharedPreferences.getInstance();
-    return p.getBool(_kSetupDone) ?? false;
-  }
+  /// Create payload — `logged_at` is omitted so the server stamps "now".
+  Map<String, dynamic> toJson() => {
+        'meal_type': mealType,
+        if (notes != null && notes!.isNotEmpty) 'notes': notes,
+        'entries': entries.map((e) => e.toJson()).toList(),
+      };
+}
 
-  static Future<void> markSetupDone() async {
-    final p = await SharedPreferences.getInstance();
-    await p.setBool(_kSetupDone, true);
-  }
+/// A food from the catalog — `GET /nutrition/search/?search=`.
+/// Macros are per 100 g.
+@immutable
+class FoodItem {
+  const FoodItem({
+    this.id,
+    required this.name,
+    this.caloriesPer100g,
+    this.proteinG,
+    this.carbsG,
+    this.fatG,
+    this.fiberG,
+  });
 
-  static Future<void> saveSettings(FoodNutritionSettings s) async {
-    final p = await SharedPreferences.getInstance();
-    await p.setString(_kFrequency, foodReportFrequencyToStorage(s.frequency));
-    await p.setBool(_kPush, s.pushNotificationsEnabled);
-    await p.setStringList(_kDiets, s.diets.toList()..sort());
-  }
+  final int? id;
+  final String name;
+  final double? caloriesPer100g;
+  final double? proteinG;
+  final double? carbsG;
+  final double? fatG;
+  final double? fiberG;
 
-  static Future<List<FoodDayLog>> loadHistory() async {
-    final p = await SharedPreferences.getInstance();
-    final raw = p.getString(_kHistory);
-    if (raw == null || raw.isEmpty) {
-      return [];
-    }
-    try {
-      final list = jsonDecode(raw) as List<dynamic>;
-      return list
-          .map((e) => FoodDayLog.fromJson(Map<String, dynamic>.from(e as Map)))
-          .toList();
-    } on Object {
-      return [];
-    }
-  }
+  /// Calories for [grams] of this food, if per-100g calories are known.
+  double? caloriesFor(double grams) =>
+      caloriesPer100g == null ? null : caloriesPer100g! * grams / 100;
 
-  static Future<void> saveHistory(List<FoodDayLog> days) async {
-    final p = await SharedPreferences.getInstance();
-    final encoded = jsonEncode(days.map((d) => d.toJson()).toList());
-    await p.setString(_kHistory, encoded);
-  }
+  factory FoodItem.fromJson(Map<String, dynamic> json) => FoodItem(
+        id: json['id'] as int?,
+        name: json['name'] as String? ?? '',
+        caloriesPer100g: _toDouble(json['calories_per_100g']),
+        proteinG: _toDouble(json['protein_g']),
+        carbsG: _toDouble(json['carbs_g']),
+        fatG: _toDouble(json['fat_g']),
+        fiberG: _toDouble(json['fiber_g']),
+      );
+}
 
-  /// After first setup save, seed one sample day so timeline layout is visible until real logging exists.
-  static Future<void> seedHistoryIfEmpty() async {
-    final existing = await loadHistory();
-    if (existing.isNotEmpty) {
-      return;
-    }
-    await saveHistory(FoodDayLog.sampleFirstDay());
-  }
+/// Today's totals against goals — `GET /nutrition/summary/`.
+@immutable
+class NutritionTotals {
+  const NutritionTotals({
+    this.calories = 0,
+    this.proteinG = 0,
+    this.carbsG = 0,
+    this.fatG = 0,
+  });
+
+  final double calories;
+  final double proteinG;
+  final double carbsG;
+  final double fatG;
+
+  factory NutritionTotals.fromJson(Map<String, dynamic> json) =>
+      NutritionTotals(
+        calories: _toDouble(json['calories']) ?? 0,
+        proteinG: _toDouble(json['protein_g']) ?? 0,
+        carbsG: _toDouble(json['carbs_g']) ?? 0,
+        fatG: _toDouble(json['fat_g']) ?? 0,
+      );
+}
+
+@immutable
+class NutritionSummary {
+  const NutritionSummary({
+    required this.date,
+    required this.totals,
+    required this.goals,
+  });
+
+  final String date;
+  final NutritionTotals totals;
+  final NutritionGoals goals;
+
+  factory NutritionSummary.fromJson(Map<String, dynamic> json) =>
+      NutritionSummary(
+        date: json['date'] as String? ?? '',
+        totals: NutritionTotals.fromJson(
+            Map<String, dynamic>.from(json['totals'] as Map? ?? const {})),
+        goals: NutritionGoals.fromJson(
+            Map<String, dynamic>.from(json['goals'] as Map? ?? const {})),
+      );
 }
