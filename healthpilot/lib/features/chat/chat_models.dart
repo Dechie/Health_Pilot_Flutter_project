@@ -138,6 +138,10 @@ class ChatGroup {
   final bool isPro;
   final bool isJoined;
   final List<String> membersId;
+
+  /// Authoritative member count from the API (`participant_count`); the
+  /// `participants` array may only contain a subset, so prefer this for display.
+  final int participantCount;
   final List<DirectMessage> groupChatHistory;
 
   ChatGroup({
@@ -148,13 +152,20 @@ class ChatGroup {
     this.isPro = false,
     this.isJoined = false,
     this.membersId = const [],
+    this.participantCount = 0,
     this.groupChatHistory = const [],
   });
+
+  /// Best available member count: the API's `participant_count` when present,
+  /// otherwise the size of the (possibly partial) participants list.
+  int get memberCount =>
+      participantCount > membersId.length ? participantCount : membersId.length;
 
   ChatGroup copyWith({
     List<DirectMessage>? groupChatHistory,
     String? description,
     List<String>? membersId,
+    int? participantCount,
     bool? isMuted,
     bool? isPro,
     bool? isJoined,
@@ -167,6 +178,7 @@ class ChatGroup {
         isPro: isPro ?? this.isPro,
         isJoined: isJoined ?? this.isJoined,
         membersId: membersId ?? this.membersId,
+        participantCount: participantCount ?? this.participantCount,
         groupChatHistory: groupChatHistory ?? this.groupChatHistory,
       );
 
@@ -190,10 +202,12 @@ class ChatGroup {
       description: json['description'] as String?,
       isMuted: json['is_muted'] as bool? ?? false,
       isPro: json['is_pro'] as bool? ?? false,
-      // The live API has no `is_joined`; membership is derived from
-      // `participants` against the current user id (see ChatProvider.load).
-      isJoined: json['is_joined'] as bool? ?? false,
+      // `/groups/discover/` returns `is_member`; the joined `/groups/` list has
+      // neither, so membership is also derived from `participants` against the
+      // current user id (see ChatProvider.load).
+      isJoined: (json['is_member'] ?? json['is_joined']) as bool? ?? false,
       membersId: membersId,
+      participantCount: (json['participant_count'] as num?)?.toInt() ?? 0,
       groupChatHistory: (json['group_chat_history'] as List<dynamic>? ?? [])
           .map((e) => DirectMessage.fromJson(e as Map<String, dynamic>))
           .toList(),

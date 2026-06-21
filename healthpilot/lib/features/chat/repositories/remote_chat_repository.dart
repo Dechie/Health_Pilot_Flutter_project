@@ -55,7 +55,15 @@ class RemoteChatRepository implements IChatRepository {
   @override
   Future<List<ChatGroup>> fetchGroups() async {
     final data = await _api.get('${ApiConstants.chatBase}/groups/');
-    return (data as List<dynamic>)
+    return _extractList(data)
+        .map((e) => ChatGroup.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<ChatGroup>> discoverGroups() async {
+    final data = await _api.get('${ApiConstants.chatBase}/groups/discover/');
+    return _extractList(data)
         .map((e) => ChatGroup.fromJson(e as Map<String, dynamic>))
         .toList();
   }

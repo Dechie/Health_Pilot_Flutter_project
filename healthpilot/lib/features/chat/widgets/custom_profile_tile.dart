@@ -62,8 +62,8 @@ class CustomChatProfileTile extends StatelessWidget {
                       backgroundColor: const Color.fromRGBO(110, 182, 255, 1),
                       radius: 16,
                       child: Text(
-                        unreadMessage! > 2
-                            ? '${unreadMessage!}+'
+                        unreadMessage! > 9
+                            ? '9+'
                             : unreadMessage!.toString(),
                         style: TextStyle(
                             color: const Color.fromRGBO(42, 42, 42, 1),

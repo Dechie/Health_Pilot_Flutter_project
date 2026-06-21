@@ -82,4 +82,68 @@ class MockCommunityRepository implements ICommunityRepository {
           createdAt: DateTime.now().subtract(const Duration(hours: 2)),
         ),
       ];
+
+  // ── Community groups ────────────────────────────────────────────────────────
+  final List<CommunityGroup> _groups = [
+    const CommunityGroup(
+      id: 1,
+      name: 'Diabetes Support',
+      slug: 'diabetes-support',
+      description: 'Share tips on managing diabetes.',
+      conditionTags: ['diabetes'],
+      memberCount: 12,
+      isMember: true,
+    ),
+    const CommunityGroup(
+      id: 2,
+      name: 'Heart Health',
+      slug: 'heart-health',
+      description: 'Hypertension and cardiac wellness.',
+      conditionTags: ['hypertension'],
+      memberCount: 8,
+      isMember: false,
+    ),
+  ];
+  int _nextGroupId = 3;
+
+  @override
+  Future<List<CommunityGroup>> fetchGroups() async => List.of(_groups);
+
+  @override
+  Future<CommunityGroup> createGroup({
+    required String name,
+    required String slug,
+    String? description,
+  }) async {
+    final group = CommunityGroup(
+      id: _nextGroupId++,
+      name: name,
+      slug: slug,
+      description: description,
+      memberCount: 1,
+      isMember: true,
+    );
+    _groups.insert(0, group);
+    return group;
+  }
+
+  @override
+  Future<void> joinGroup(int groupId) async {
+    final i = _groups.indexWhere((g) => g.id == groupId);
+    if (i != -1) {
+      _groups[i] = _groups[i]
+          .copyWith(isMember: true, memberCount: _groups[i].memberCount + 1);
+    }
+  }
+
+  @override
+  Future<void> leaveGroup(int groupId) async {
+    final i = _groups.indexWhere((g) => g.id == groupId);
+    if (i != -1) {
+      _groups[i] = _groups[i].copyWith(
+          isMember: false,
+          memberCount:
+              _groups[i].memberCount > 0 ? _groups[i].memberCount - 1 : 0);
+    }
+  }
 }

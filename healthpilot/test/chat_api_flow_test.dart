@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:healthpilot/features/chat/chat_models.dart';
-import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/repositories/mock_chat_repository.dart';
 
 import 'helpers/chat_local_store_test_helper.dart';
@@ -40,6 +39,15 @@ void main() {
       final repo = MockChatRepository();
       final groups = await repo.fetchGroups();
       expect(groups, isNotEmpty);
+    });
+
+    test('discoverGroups returns all groups; fetchGroups only joined', () async {
+      final repo = MockChatRepository();
+      final all = await repo.discoverGroups();
+      final joined = await repo.fetchGroups();
+      // Discovery (GET /chat/groups/discover/) is a superset of joined groups.
+      expect(all.length, greaterThan(joined.length));
+      expect(joined.every((g) => g.isJoined), isTrue);
     });
 
     test('createGroup returns group with name and description', () async {

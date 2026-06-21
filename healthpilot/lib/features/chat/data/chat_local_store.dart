@@ -72,7 +72,15 @@ class ChatLocalStore {
         await insertDirectMessage(threadId, m);
       }
     }
+    // Guarantee chronological order regardless of merge order.
+    merged.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     return merged;
+  }
+
+  Future<void> clearDirectMessages(String threadId) async {
+    final db = await _database.database;
+    await db.delete('direct_messages',
+        where: 'thread_id = ?', whereArgs: [threadId]);
   }
 
   Future<void> insertDirectMessage(
@@ -134,7 +142,14 @@ class ChatLocalStore {
         await insertGroupMessage(threadId, m);
       }
     }
+    merged.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     return merged;
+  }
+
+  Future<void> clearGroupMessages(String threadId) async {
+    final db = await _database.database;
+    await db.delete('group_messages',
+        where: 'thread_id = ?', whereArgs: [threadId]);
   }
 
   Future<void> insertGroupMessage(

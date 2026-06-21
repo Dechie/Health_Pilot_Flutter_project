@@ -51,4 +51,22 @@ class MockAuthRepository implements IAuthRepository {
   @override
   Future<Map<String, dynamic>> updateMe(Map<String, dynamic> fields) async =>
       {..._demoUser, ...fields};
+
+  @override
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {}
+
+  @override
+  Future<void> requestPasswordReset({required String email}) async {}
+
+  @override
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {}
+
+  @override
+  Future<void> deleteAccount() async {}
 }

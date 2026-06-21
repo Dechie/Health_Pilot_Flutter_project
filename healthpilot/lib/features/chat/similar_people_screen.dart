@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/public_profile_screen.dart';
 import 'package:healthpilot/features/chat/user_detail_screen.dart';
+import 'package:healthpilot/features/community/community_groups_screen.dart';
 import 'package:healthpilot/features/community/community_models.dart';
 import 'package:healthpilot/features/community/community_provider.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
@@ -40,6 +41,15 @@ class _SimilarPeopleScreenState extends State<SimilarPeopleScreen> {
                 Icons.arrow_back, 'Similar People', context),
           ),
           actions: [
+            IconButton(
+              tooltip: 'Community groups',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const CommunityGroupsScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.groups_outlined),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: IconButton(

@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
-/// Drives the two-step forgot-password flow (email → check inbox).
+/// Drives the two-step forgot-password flow (email → check inbox), calling the
+/// backend's password-reset request endpoint via [onRequestReset].
 class ForgotPasswordController extends ChangeNotifier {
-  ForgotPasswordController() : emailController = TextEditingController();
+  ForgotPasswordController({required this.onRequestReset})
+      : emailController = TextEditingController();
+
+  /// Sends the reset email; throws on failure.
+  final Future<void> Function(String email) onRequestReset;
 
   final TextEditingController emailController;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   /// 0 = enter email, 1 = check email confirmation.
   int step = 0;
+  bool isSubmitting = false;
+  String? errorMessage;
 
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -19,11 +26,22 @@ class ForgotPasswordController extends ChangeNotifier {
     return null;
   }
 
-  void submitEmail() {
+  Future<void> submitEmail() async {
+    if (isSubmitting) return;
     if (!(formKey.currentState?.validate() ?? false)) return;
     formKey.currentState!.save();
-    step = 1;
+    isSubmitting = true;
+    errorMessage = null;
     notifyListeners();
+    try {
+      await onRequestReset(emailController.text.trim());
+      step = 1;
+    } catch (_) {
+      errorMessage = 'Could not send the reset email. Please try again.';
+    } finally {
+      isSubmitting = false;
+      notifyListeners();
+    }
   }
 
   void backFromConfirmation() {

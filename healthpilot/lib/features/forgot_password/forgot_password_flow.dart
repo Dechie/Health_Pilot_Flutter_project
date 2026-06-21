@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/forgot_password/forgot_password_controller.dart';
+import 'package:healthpilot/features/forgot_password/reset_password_screen.dart';
 import 'package:healthpilot/features/forgot_password/widgets/forgot_password_header.dart';
 import 'package:healthpilot/features/forgot_password/widgets/forgot_password_primary_button.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
@@ -18,7 +20,10 @@ class ForgotPasswordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ForgotPasswordController(),
+      create: (_) => ForgotPasswordController(
+        onRequestReset: (email) =>
+            context.read<AuthState>().requestPasswordReset(email),
+      ),
       child: const _ForgotPasswordScaffold(),
     );
   }
@@ -161,10 +166,19 @@ class _EmailStep extends StatelessWidget {
                   ),
                 ),
               ),
+              if (controller.errorMessage != null)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                  child: Text(
+                    controller.errorMessage!,
+                    style: tt.bodySmall?.copyWith(color: cs.error),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               SizedBox(height: screenHeight * 0.06),
               ForgotPasswordPrimaryButton(
                 screenWidth: screenWidth,
-                label: 'Next',
+                label: controller.isSubmitting ? 'Sending…' : 'Next',
                 onPressed: () =>
                     context.read<ForgotPasswordController>().submitEmail(),
               ),
@@ -251,11 +265,20 @@ class _CheckEmailStep extends StatelessWidget {
               color: cs.onSurface,
             ),
           ),
-          SizedBox(height: screenHeight * 0.04),
+          SizedBox(height: screenHeight * 0.02),
           ForgotPasswordPrimaryButton(
             screenWidth: screenWidth,
-            label: 'Return to login',
+            label: 'Enter reset code',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const ResetPasswordScreen(),
+              ),
+            ),
+          ),
+          SizedBox(height: screenHeight * 0.02),
+          TextButton(
             onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Return to login'),
           ),
           SizedBox(height: screenHeight * 0.04),
         ],

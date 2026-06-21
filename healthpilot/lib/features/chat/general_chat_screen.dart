@@ -245,8 +245,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                             child: Text(
                                               provider.unreadCount(
                                                           g.groupId) >
-                                                      2
-                                                  ? '${provider.unreadCount(g.groupId)}+'
+                                                      9
+                                                  ? '9+'
                                                   : provider
                                                       .unreadCount(g.groupId)
                                                       .toString(),

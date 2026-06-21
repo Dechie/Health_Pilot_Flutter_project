@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
-import 'package:healthpilot/features/forgot_password/forgot_password_flow.dart';
+import 'package:healthpilot/features/forgot_password/change_password_screen.dart';
 import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/features/profile/terms_and_policy_dialog.dart';
@@ -28,6 +28,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await context.read<AuthState>().logout();
     if (!mounted) return;
     AppNavigation.replaceWithLogin(context);
+  }
+
+  Future<void> _deleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete account?'),
+        content: const Text(
+          'This permanently deletes your account and all associated data. '
+          'This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(ctx).colorScheme.error),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await context.read<AuthState>().deleteAccount();
+      if (!mounted) return;
+      AppNavigation.replaceWithLogin(context);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not delete account. Try again.')),
+        );
+      }
+    }
   }
 
   @override
@@ -76,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onpressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) =>
-                                const ForgotPasswordScreen()));
+                                const ChangePasswordScreen()));
                       },
                     ),
                     HealthInformationSettings(
@@ -119,6 +156,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       settingAdress: 'FAQ',
                       iconData: Icons.arrow_forward,
                       onpressed: null,
+                    ),
+                    HealthInformationSettings(
+                      imageAdress: 'assets/Icons/profile.svg',
+                      settingAdress: 'Delete Account',
+                      iconData: Icons.delete_outline,
+                      onpressed: _deleteAccount,
                     ),
                     _loggingOut
                         ? Padding(

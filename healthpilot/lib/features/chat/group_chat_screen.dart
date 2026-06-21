@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,6 +26,35 @@ class GroupChatScreen extends StatefulWidget {
 }
 
 class _GroupChatScreenState extends State<GroupChatScreen> {
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncThread();
+    });
+    _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) return;
+      _syncThread();
+    });
+  }
+
+  /// Pulls the latest group messages, then marks the thread read.
+  Future<void> _syncThread() async {
+    final provider = context.read<ChatProvider>();
+    await provider.fetchGroupMessages(widget.groupId);
+    if (!mounted) return;
+    provider.markRead(widget.groupId);
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
   void _onSend(String text) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
@@ -50,7 +81,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           preferredSize: Size(size.width, size.height * 0.15),
           child: _GroupAppBar(
             title: group.groupName,
-            subTitle: ' ${group.membersId.length} members',
+            subTitle: ' ${group.memberCount} members',
             profileImageUrl: devsImage,
             isMuted: group.isMuted,
             more: () {},
@@ -211,7 +242,7 @@ class _GroupAppBar extends StatelessWidget {
   }
 }
 
-class _GroupChatList extends StatelessWidget {
+class _GroupChatList extends StatefulWidget {
   final List<DirectMessage> chatList;
   final String senderId;
   final String userId;
@@ -223,12 +254,47 @@ class _GroupChatList extends StatelessWidget {
   });
 
   @override
+  State<_GroupChatList> createState() => _GroupChatListState();
+}
+
+class _GroupChatListState extends State<_GroupChatList> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleScrollToBottom();
+  }
+
+  @override
+  void didUpdateWidget(_GroupChatList old) {
+    super.didUpdateWidget(old);
+    if (widget.chatList.length != old.chatList.length) {
+      _scheduleScrollToBottom();
+    }
+  }
+
+  void _scheduleScrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.read<ChatProvider>();
     final size = MediaQuery.of(context).size;
     return Expanded(
       child: GroupedListView(
-        elements: chatList,
+        controller: _scrollController,
+        elements: widget.chatList,
         groupBy: (chat) => DateFormat.MMMd().format(chat.timestamp),
         groupSeparatorBuilder: (chat) => SizedBox(
           width: double.infinity,
@@ -272,7 +338,8 @@ class _GroupChatList extends StatelessWidget {
           ),
         ),
         itemBuilder: (context, chat) {
-          final isIncoming = int.parse(chat.senderId) != int.parse(userId);
+          // String compare avoids FormatException on any non-numeric id.
+          final isIncoming = chat.senderId != widget.userId;
           final cs = Theme.of(context).colorScheme;
           final isDark = Theme.of(context).brightness == Brightness.dark;
 

@@ -14,9 +14,13 @@ class CommunityProvider extends ChangeNotifier {
   List<ConnectionRequest> _connections = [];
   List<ConnectionRequest> _incomingRequests = [];
   List<ConnectionRequest> _sentRequests = [];
+  List<CommunityGroup> _groups = [];
   CommunityStatus _status = CommunityStatus.idle;
   bool _loading = false;
 
+  List<CommunityGroup> get groups => List.unmodifiable(_groups);
+  List<CommunityGroup> get joinedGroups =>
+      _groups.where((g) => g.isMember).toList();
   List<SuggestedPeer> get suggestedPeers => List.unmodifiable(_suggestedPeers);
   List<ConnectionRequest> get connections => List.unmodifiable(_connections);
   List<ConnectionRequest> get incomingRequests =>
@@ -53,6 +57,12 @@ class CommunityProvider extends ChangeNotifier {
       _suggestedPeers = results[0] as List<SuggestedPeer>;
       _connections = results[1] as List<ConnectionRequest>;
       _incomingRequests = results[2] as List<ConnectionRequest>;
+      // Groups are best-effort — don't fail the whole screen if unavailable.
+      try {
+        _groups = await _repo.fetchGroups();
+      } catch (_) {
+        _groups = [];
+      }
       _cleanupAcceptedSent();
       _status = CommunityStatus.loaded;
     } catch (_) {
@@ -92,6 +102,50 @@ class CommunityProvider extends ChangeNotifier {
     _incomingRequests = [
       for (final r in _incomingRequests)
         if (r.id == requestId) updated else r,
+    ];
+    notifyListeners();
+  }
+
+  // ── Community groups ───────────────────────────────────────────────────────
+
+  Future<void> refreshGroups() async {
+    _groups = await _repo.fetchGroups();
+    notifyListeners();
+  }
+
+  Future<void> createGroup({
+    required String name,
+    required String slug,
+    String? description,
+  }) async {
+    final group = await _repo.createGroup(
+        name: name, slug: slug, description: description);
+    _groups = [group, ..._groups];
+    notifyListeners();
+  }
+
+  Future<void> joinGroup(int groupId) async {
+    await _repo.joinGroup(groupId);
+    _groups = [
+      for (final g in _groups)
+        if (g.id == groupId)
+          g.copyWith(isMember: true, memberCount: g.memberCount + 1)
+        else
+          g,
+    ];
+    notifyListeners();
+  }
+
+  Future<void> leaveGroup(int groupId) async {
+    await _repo.leaveGroup(groupId);
+    _groups = [
+      for (final g in _groups)
+        if (g.id == groupId)
+          g.copyWith(
+              isMember: false,
+              memberCount: g.memberCount > 0 ? g.memberCount - 1 : 0)
+        else
+          g,
     ];
     notifyListeners();
   }

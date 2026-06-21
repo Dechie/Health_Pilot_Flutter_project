@@ -91,4 +91,41 @@ class RemoteAuthRepository implements IAuthRepository {
     );
     return data as Map<String, dynamic>;
   }
+
+  @override
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    await _client.post('${ApiConstants.authBase}/password/change/', data: {
+      'old_password': oldPassword,
+      'new_password': newPassword,
+      'new_password2': newPassword,
+    });
+  }
+
+  @override
+  Future<void> requestPasswordReset({required String email}) async {
+    await _client.post(
+      '${ApiConstants.authBase}/password/reset/',
+      data: {'email': email},
+    );
+  }
+
+  @override
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {
+    await _client.post('${ApiConstants.authBase}/password/reset/confirm/', data: {
+      'token': token,
+      'new_password': newPassword,
+      'new_password2': newPassword,
+    });
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    await _client.delete('${ApiConstants.authBase}/me/delete/');
+  }
 }

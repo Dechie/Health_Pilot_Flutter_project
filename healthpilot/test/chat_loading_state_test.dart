@@ -85,7 +85,7 @@ void main() {
   group('ChatScreen three-way conditional', () {
     /// Pumps a minimal scaffold that replicates the exact three-way logic
     /// from [ChatScreen.build] to verify it renders correctly for each state.
-    Future<void> _pumpTestScaffold(
+    Future<void> pumpTestScaffold(
       WidgetTester tester, {
       required bool loading,
       required bool empty,
@@ -114,7 +114,7 @@ void main() {
     }
 
     testWidgets('shows spinner when loading', (tester) async {
-      await _pumpTestScaffold(tester, loading: true, empty: true);
+      await pumpTestScaffold(tester, loading: true, empty: true);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.text('Be the first to say hello'), findsNothing);
       expect(find.text('Hello!'), findsNothing);
@@ -122,7 +122,7 @@ void main() {
 
     testWidgets('shows empty state when not loading and empty',
         (tester) async {
-      await _pumpTestScaffold(tester, loading: false, empty: true);
+      await pumpTestScaffold(tester, loading: false, empty: true);
       expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(find.text('Be the first to say hello'), findsOneWidget);
       expect(find.text('Hello!'), findsNothing);
@@ -130,7 +130,7 @@ void main() {
 
     testWidgets('shows messages when not loading and not empty',
         (tester) async {
-      await _pumpTestScaffold(tester, loading: false, empty: false);
+      await pumpTestScaffold(tester, loading: false, empty: false);
       expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(find.text('Be the first to say hello'), findsNothing);
       expect(find.text('Hello!'), findsOneWidget);

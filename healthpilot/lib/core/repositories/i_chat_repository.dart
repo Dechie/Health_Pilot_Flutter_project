@@ -2,7 +2,13 @@ import 'package:healthpilot/features/chat/chat_models.dart';
 
 abstract class IChatRepository {
   Future<List<ChatUser>> fetchUsers();
+
+  /// Groups the current user has joined — `GET /chat/groups/`.
   Future<List<ChatGroup>> fetchGroups();
+
+  /// All groups, joined or not, each flagged with `is_member`
+  /// — `GET /chat/groups/discover/`.
+  Future<List<ChatGroup>> discoverGroups();
   Future<DirectMessage> sendDirectMessage(String chatId, String content);
   Future<List<DirectMessage>> fetchPrivateMessages(String chatId);
   Future<DirectMessage> sendGroupMessage(String groupId, String content);

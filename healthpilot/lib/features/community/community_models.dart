@@ -1,5 +1,53 @@
 import 'package:flutter/foundation.dart';
 
+/// A community support group — `/community/groups/`.
+@immutable
+class CommunityGroup {
+  const CommunityGroup({
+    required this.id,
+    required this.name,
+    required this.slug,
+    this.description,
+    this.conditionTags = const [],
+    this.memberCount = 0,
+    this.isMember = false,
+    this.isActive = true,
+  });
+
+  final int id;
+  final String name;
+  final String slug;
+  final String? description;
+  final List<String> conditionTags;
+  final int memberCount;
+  final bool isMember;
+  final bool isActive;
+
+  CommunityGroup copyWith({bool? isMember, int? memberCount}) => CommunityGroup(
+        id: id,
+        name: name,
+        slug: slug,
+        description: description,
+        conditionTags: conditionTags,
+        memberCount: memberCount ?? this.memberCount,
+        isMember: isMember ?? this.isMember,
+        isActive: isActive,
+      );
+
+  factory CommunityGroup.fromJson(Map<String, dynamic> json) => CommunityGroup(
+        id: (json['id'] as num).toInt(),
+        name: json['name'] as String? ?? '',
+        slug: json['slug'] as String? ?? '',
+        description: json['description'] as String?,
+        conditionTags: (json['condition_tags'] as List<dynamic>? ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        memberCount: (json['member_count'] as num?)?.toInt() ?? 0,
+        isMember: json['is_member'] as bool? ?? false,
+        isActive: json['is_active'] as bool? ?? true,
+      );
+}
+
 @immutable
 class SuggestedPeer {
   final int id;

@@ -65,4 +65,43 @@ class RemoteCommunityRepository implements ICommunityRepository {
     }
     return [];
   }
+
+  // ── Community groups ────────────────────────────────────────────────────────
+  @override
+  Future<List<CommunityGroup>> fetchGroups() async {
+    final data = await _api.get('${ApiConstants.communityBase}/groups/');
+    // Enveloped `data` is a list when populated, or `{}` when empty.
+    if (data is List) {
+      return data
+          .map((e) => CommunityGroup.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
+  }
+
+  @override
+  Future<CommunityGroup> createGroup({
+    required String name,
+    required String slug,
+    String? description,
+  }) async {
+    final data = await _api.post(
+      '${ApiConstants.communityBase}/groups/',
+      data: {
+        'name': name,
+        'slug': slug,
+        if (description != null && description.isNotEmpty)
+          'description': description,
+      },
+    );
+    return CommunityGroup.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> joinGroup(int groupId) async =>
+      _api.post('${ApiConstants.communityBase}/groups/$groupId/join/');
+
+  @override
+  Future<void> leaveGroup(int groupId) async =>
+      _api.post('${ApiConstants.communityBase}/groups/$groupId/leave/');
 }

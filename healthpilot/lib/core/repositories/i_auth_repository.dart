@@ -26,4 +26,22 @@ abstract class IAuthRepository {
   Future<Map<String, dynamic>> getMe();
 
   Future<Map<String, dynamic>> updateMe(Map<String, dynamic> fields);
+
+  /// Change the password of the authenticated user.
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
+
+  /// Request a password-reset email for [email].
+  Future<void> requestPasswordReset({required String email});
+
+  /// Complete a password reset using the emailed [token].
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  });
+
+  /// Permanently delete the authenticated user's account.
+  Future<void> deleteAccount();
 }

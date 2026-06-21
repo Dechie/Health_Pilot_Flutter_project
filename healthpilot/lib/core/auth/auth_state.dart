@@ -171,6 +171,34 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    await _repo.changePassword(
+        oldPassword: oldPassword, newPassword: newPassword);
+  }
+
+  Future<void> requestPasswordReset(String email) async {
+    await _repo.requestPasswordReset(email: email);
+  }
+
+  Future<void> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+  }) async {
+    await _repo.confirmPasswordReset(token: token, newPassword: newPassword);
+  }
+
+  /// Permanently deletes the account, then tears down the local session.
+  Future<void> deleteAccount() async {
+    await _repo.deleteAccount();
+    await _clearUserSession();
+    _healthInfoCompleted = false;
+    _status = AuthStatus.unauthenticated;
+    notifyListeners();
+  }
+
   /// Called by ApiClient interceptor when the refresh token is expired or missing.
   Future<void> onAuthExpired() async {
     await _clearSession();

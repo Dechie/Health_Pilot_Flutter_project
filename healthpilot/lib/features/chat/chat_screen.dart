@@ -34,16 +34,21 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final provider = context.read<ChatProvider>();
-      provider.markRead(widget.senderId);
-      provider.fetchPrivateMessages(widget.senderId);
+      _syncThread();
     });
     _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       if (!mounted) return;
-      final provider = context.read<ChatProvider>();
-      provider.markRead(widget.senderId);
-      provider.fetchPrivateMessages(widget.senderId);
+      _syncThread();
     });
+  }
+
+  /// Pulls the latest messages, then marks the thread read (order matters so
+  /// freshly-fetched messages don't briefly count as unread while viewing).
+  Future<void> _syncThread() async {
+    final provider = context.read<ChatProvider>();
+    await provider.fetchPrivateMessages(widget.senderId);
+    if (!mounted) return;
+    provider.markRead(widget.senderId);
   }
 
   @override
@@ -77,7 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: CustomeAppBarForChatScreen(
             title: user.displayName,
             subTitle: user.chatHistory.isNotEmpty
-                ? 'Last seen ${DateFormat.yMMMMd().format(user.chatHistory.last.timestamp)}'
+                ? 'Last message ${DateFormat.yMMMMd().format(user.chatHistory.last.timestamp)}'
                 : '',
             profileImageUrl: devsImage,
             callNow: () {
@@ -309,7 +314,7 @@ class EmptyChat extends StatelessWidget {
   }
 }
 
-class ChatList extends StatelessWidget {
+class ChatList extends StatefulWidget {
   final List<DirectMessage> chatList;
   final String senderId;
   final String userId;
@@ -322,11 +327,47 @@ class ChatList extends StatelessWidget {
   });
 
   @override
+  State<ChatList> createState() => _ChatListState();
+}
+
+class _ChatListState extends State<ChatList> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleScrollToBottom();
+  }
+
+  @override
+  void didUpdateWidget(ChatList old) {
+    super.didUpdateWidget(old);
+    // Auto-scroll to the newest message when the list grows.
+    if (widget.chatList.length != old.chatList.length) {
+      _scheduleScrollToBottom();
+    }
+  }
+
+  void _scheduleScrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Expanded(
       child: GroupedListView(
-        elements: chatList,
+        controller: _scrollController,
+        elements: widget.chatList,
         groupBy: (chat) => DateFormat.MMMd().format(chat.timestamp),
         groupSeparatorBuilder: (chat) => SizedBox(
           width: double.infinity,
@@ -370,7 +411,8 @@ class ChatList extends StatelessWidget {
           ),
         ),
         itemBuilder: (context, chat) {
-          final isIncoming = int.parse(chat.senderId) != int.parse(userId);
+          // String compare avoids FormatException on any non-numeric id.
+          final isIncoming = chat.senderId != widget.userId;
           final cs = Theme.of(context).colorScheme;
           final isDark = Theme.of(context).brightness == Brightness.dark;
 

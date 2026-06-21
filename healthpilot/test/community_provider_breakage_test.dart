@@ -288,6 +288,23 @@ class MockCommunityRepo implements ICommunityRepository {
           createdAt: DateTime.now().subtract(const Duration(hours: 2)),
         ),
       ];
+
+  @override
+  Future<List<CommunityGroup>> fetchGroups() async => [];
+
+  @override
+  Future<CommunityGroup> createGroup({
+    required String name,
+    required String slug,
+    String? description,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> joinGroup(int groupId) async {}
+
+  @override
+  Future<void> leaveGroup(int groupId) async {}
 }
 
 class EmptyMockCommunityRepo implements ICommunityRepository {
@@ -310,6 +327,23 @@ class EmptyMockCommunityRepo implements ICommunityRepository {
 
   @override
   Future<List<ConnectionRequest>> fetchIncomingRequests() async => [];
+
+  @override
+  Future<List<CommunityGroup>> fetchGroups() async => [];
+
+  @override
+  Future<CommunityGroup> createGroup({
+    required String name,
+    required String slug,
+    String? description,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> joinGroup(int groupId) async {}
+
+  @override
+  Future<void> leaveGroup(int groupId) async {}
 }
 
 class _NullRespondRepo extends MockCommunityRepo {

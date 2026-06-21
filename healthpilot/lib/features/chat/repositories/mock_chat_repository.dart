@@ -6,7 +6,11 @@ class MockChatRepository implements IChatRepository {
   Future<List<ChatUser>> fetchUsers() async => List.of(kSeedUsers);
 
   @override
-  Future<List<ChatGroup>> fetchGroups() async => List.of(kSeedGroups);
+  Future<List<ChatGroup>> fetchGroups() async =>
+      kSeedGroups.where((g) => g.isJoined).toList();
+
+  @override
+  Future<List<ChatGroup>> discoverGroups() async => List.of(kSeedGroups);
 
   @override
   Future<DirectMessage> sendDirectMessage(
