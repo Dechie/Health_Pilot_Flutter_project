@@ -10,6 +10,10 @@ class MockMedicationRepository implements IMedicationRepository {
       _store.where((m) => !activeOnly || m.isActive).toList();
 
   @override
+  Future<Medication> fetchMedication(int id) async =>
+      _store.firstWhere((m) => m.id == id);
+
+  @override
   Future<Medication> addMedication(Medication medication) async {
     final created = medication.copyWith(id: _nextId++);
     _store.add(created);

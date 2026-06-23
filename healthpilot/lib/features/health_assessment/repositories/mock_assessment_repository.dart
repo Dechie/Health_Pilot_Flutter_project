@@ -21,6 +21,15 @@ class MockAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
+  Future<CompletedAssessmentEntry> submitGuestAssessment(
+          AssessmentSummary summary) =>
+      submitAssessment(summary);
+
+  @override
+  Future<CompletedAssessmentEntry> fetchEntry(String id) async =>
+      _entries.firstWhere((e) => e.id == id);
+
+  @override
   Future<void> deleteEntry(String id) async {
     _entries.removeWhere((e) => e.id == id);
   }

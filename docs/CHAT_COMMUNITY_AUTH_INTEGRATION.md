@@ -49,14 +49,34 @@ Accepting a connection turns a community peer into a DM-able chat user:
 
 These are **unlinked** — no shared ID or cross-reference field. Joining a
 community group does nothing to chat groups, and vice versa. A user can be a
-member of a community group with no way to message it. Likely intended model: a
-community group is the *entity* and a chat group is its *conversation*, linked
-1:1 — but the backend currently exposes them as unrelated resources.
+member of a community group with no way to message it.
 
-**Open question for backend:** should a community group carry a
-`chat_group_id`/`slug` link to its conversation? That answer decides whether to
-unify the two "Groups" surfaces or just rename them ("Support Groups" vs "Group
-Chats").
+**Backend's answer (confirmed):** there is **no link between them in the
+database**, and the team acknowledges this as a **design gap**. Their framing:
+
+- **CommunityGroup** = *identity / membership* — "I belong to the diabetes
+  community." For discovery / peer-matching. Has `members`, `condition_tags`,
+  `slug`. API: `/api/v1/community/groups/`.
+- **GroupChat** = *communication channel* — "I want to talk in this room right
+  now." For real-time messaging. Has `participants`, `Message` objects. API:
+  `/api/v1/chat/groups/`.
+
+Joining a CommunityGroup does **not** create or join a GroupChat (or vice
+versa). Ideally joining a CommunityGroup would grant access to a linked
+GroupChat; until the backend adds that link, **the Flutter client must call both
+APIs separately**.
+
+**Implication for the app / open decision:**
+- Proper fix is server-side: add a `chat_group_id` (or shared `slug`) on
+  CommunityGroup so the two can be resolved 1:1.
+- Interim client-side options (no backend change):
+  1. Keep them separate and **rename for clarity** — "Support Groups"
+     (community) vs "Group Chats" (chat) — so users aren't confused by two
+     "Groups". Lowest risk.
+  2. Best-effort bridge: on community-group join, also create/join a chat group
+     of the same name. **Fragile** — names aren't unique (the live data already
+     has several groups literally named "Diabetes Support"), so this can join the
+     wrong room. Not recommended without a real link field.
 
 ---
 
@@ -137,8 +157,85 @@ Verified live: password change round-trips (change → log in with new → resto
 
 ---
 
-## 5. Status / follow-ups
+## 5. Additional endpoint integrations (data layer)
+
+These complete previously-partial features. All are data-layer only (repository +
+model + interface + mock); UI wiring for off-flag features is deferred.
+
+### Assessments (`/assessments/`, FF on)
+- `submitGuestAssessment` → `POST /assessments/guest/` (body reuses
+  `AssessmentSummary.toApiJson()`, which includes the required `symptoms`).
+- `fetchEntry(id)` → `GET /assessments/{id}/` (single assessment detail).
+
+### Articles (`/articles/`, FF off)
+The article model and feed repo were **stale/broken** against the live API and
+are now fixed plus extended:
+- `ArticleFeedItem.fromJson` now maps the live shape `{id:int, headline,
+  summary|body, image_url, read_time_minutes, published_at}` (was expecting
+  `title/body/read_minutes` with a String id → would have crashed). Added
+  `copyWith`.
+- `fetchArticles` previously read `response.data['data']` (wrong — `ApiClient`
+  already returns unwrapped data) → now parses `results` and follows `next`
+  pagination.
+- Added: `fetchRecommended` (`/recommended/`), `fetchBookmarks` (`/bookmarks/`),
+  `fetchArticle(id)` (`/{id}/`), `toggleBookmark(id)` (`POST /{id}/bookmark/`),
+  `fetchComments(id)` + `addComment(id, text)` (`/{id}/comments/`, body `{text}`).
+- `likeArticle(id)` now returns `bool` (the endpoint returns `{liked}`, not a
+  full article); the provider adjusts the local like count accordingly.
+- New `ArticleComment` model `{id, author_name→authorName, text, created_at,
+  parent}`.
+
+### Medications (`/medications/`, FF off)
+- `fetchMedication(id)` → `GET /medications/{id}/` (single medication detail).
+
+## 6. Dedicated Community hub + community↔chat link
+
+### Community↔chat group link (forward-compatible)
+- `CommunityGroup` now carries a nullable `chatGroupId` (parsed from
+  `chat_group_id`/`group_chat_id`). It's null today, so nothing renders until the
+  backend ships the field.
+- Decision agreed with backend: **link, don't auto-join.** Joining a community
+  group stays membership-only; the linked GroupChat is **opt-in**. The community
+  group card shows an "Open group chat" action only when `chatGroupId != null`,
+  which joins the chat room (idempotent) then opens it.
+
+### CommunityHubScreen (new)
+A dedicated, first-class Community surface (`community_hub_screen.dart`) with
+tabs **For You / People / Groups**, reached from: the assessment result
+("Go to Community" → For You), the chat hub's person-search FAB, and a Home
+"Community" card. Composes existing pieces (`DiscoverablePeerCard`,
+`CommunityGroupsBody`/`CommunityGroupCard`, `ConnectionRequestsScreen`).
+
+### ⚠️ HELD: Chat page vs Community hub overlap (to reconcile)
+The existing **chat page** has tabs **All / People / Groups**; the new
+**Community hub** has **For You / People / Groups**. These now **overlap**:
+- "People" exists on both (chat = who I message; community = discover + my
+  connections).
+- "Groups" exists on both but they're *different resources* — chat = **Group
+  Chats** (conversations, UUID), community = **Support Groups** (membership,
+  int). This is the two-"Groups" confusion, now duplicated across two screens.
+
+Two near-identical 3-tab surfaces is redundant. **Intended end-state — one job
+each:**
+- **Chat = inbox.** Only active conversations (All / DMs / Group Chats). No peer
+  discovery, no group browsing/join.
+- **Community hub = discovery + identity.** Find people, manage
+  connections/requests, browse/join Support Groups; bridge *into* chat via
+  "Message" / "Open group chat".
+- Rename to kill the word collision: Chat "Groups" → **Group Chats**, Community
+  "Groups" → **Support Groups**.
+
+**Decision pending** (user to choose): slim the chat page down to the inbox
+(remove its People-discovery + Groups-browse role), **or** keep both surfaces and
+only relabel. Not yet actioned — the hub was built first; the chat page still
+carries its old discovery role.
+
+## 7. Status / follow-ups
+- Remaining unintegrated endpoints (subscriptions payment, notifications, ads,
+  chat message aliases) are catalogued with exact payload shapes in
+  `docs/UNINTEGRATED_ENDPOINTS.md`.
 - UI for off-flag features (notifications, ads, article/medication/subscription
-  extras) is deferred; data-layer integration tracked separately.
-- The community-group ↔ chat-group link question (section 1) is the main
-  architectural decision still open.
+  extras) is deferred; those are data-layer only.
+- Community↔chat link: awaiting the backend `chat_group_id` field (client side
+  ready).
+- **Chat vs Community overlap (section 6) is the main open UX decision.**

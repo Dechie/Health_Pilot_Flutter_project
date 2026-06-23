@@ -19,6 +19,12 @@ class RemoteMedicationRepository implements IMedicationRepository {
   }
 
   @override
+  Future<Medication> fetchMedication(int id) async {
+    final data = await _client.get('${ApiConstants.medicationsBase}/$id/');
+    return Medication.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
   Future<Medication> addMedication(Medication medication) async {
     final data = await _client.post(
       '${ApiConstants.medicationsBase}/',

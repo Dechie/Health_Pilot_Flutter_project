@@ -78,7 +78,7 @@ class _SimilarPeopleScreenState extends State<SimilarPeopleScreen> {
                           itemCount: peers.length,
                           itemBuilder: (context, index) {
                             final peer = peers[index];
-                            return _DiscoverablePeerCard(peer: peer);
+                            return DiscoverablePeerCard(peer: peer);
                           },
                         ),
             ),
@@ -97,9 +97,9 @@ class _SimilarPeopleScreenState extends State<SimilarPeopleScreen> {
   }
 }
 
-class _DiscoverablePeerCard extends StatelessWidget {
+class DiscoverablePeerCard extends StatelessWidget {
   final SuggestedPeer peer;
-  const _DiscoverablePeerCard({required this.peer});
+  const DiscoverablePeerCard({super.key, required this.peer});
 
   void _connect(BuildContext context) async {
     final provider = context.read<CommunityProvider>();

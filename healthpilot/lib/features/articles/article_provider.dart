@@ -32,10 +32,13 @@ class ArticleProvider extends ChangeNotifier {
   }
 
   Future<void> likeArticle(String id) async {
-    final updated = await _repo.likeArticle(id);
+    final liked = await _repo.likeArticle(id);
     _articles = [
       for (final a in _articles)
-        if (a.id == updated.id) updated else a,
+        if (a.id == id)
+          a.copyWith(likes: liked ? a.likes + 1 : a.likes - 1)
+        else
+          a,
     ];
     notifyListeners();
   }

@@ -31,6 +31,22 @@ class RemoteAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
+  Future<CompletedAssessmentEntry> submitGuestAssessment(
+      AssessmentSummary summary) async {
+    final data = await _client.post(
+      '${ApiConstants.assessmentsBase}/guest/',
+      data: summary.toApiJson(),
+    );
+    return CompletedAssessmentEntry.fromApiJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<CompletedAssessmentEntry> fetchEntry(String id) async {
+    final data = await _client.get('${ApiConstants.assessmentsBase}/$id/');
+    return CompletedAssessmentEntry.fromApiJson(data as Map<String, dynamic>);
+  }
+
+  @override
   Future<void> deleteEntry(String id) async =>
       _client.delete('${ApiConstants.assessmentsBase}/$id/');
 }

@@ -7,7 +7,7 @@ import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/features/chat/connection_requests_screen.dart';
 import 'package:healthpilot/features/chat/group_chat_screen.dart';
-import 'package:healthpilot/features/chat/similar_people_screen.dart';
+import 'package:healthpilot/features/community/community_hub_screen.dart';
 import 'package:healthpilot/features/chat/widgets/custom_profile_tile.dart';
 import 'package:healthpilot/features/community/community_provider.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
@@ -479,8 +479,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     final cs = Theme.of(context).colorScheme;
     return FloatingActionButton(
       onPressed: () {
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => SimilarPeopleScreen()));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const CommunityHubScreen()));
       },
       backgroundColor: cs.primary,
       child: Icon(

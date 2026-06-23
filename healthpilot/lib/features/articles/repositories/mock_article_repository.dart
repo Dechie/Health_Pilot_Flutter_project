@@ -43,25 +43,56 @@ class MockArticleRepository implements IArticleRepository {
 
   final List<ArticleFeedItem> _articles = List.of(_seed);
 
+  final Set<String> _bookmarks = {};
+  final Map<String, List<ArticleComment>> _comments = {};
+  int _nextCommentId = 1;
+
   @override
   Future<List<ArticleFeedItem>> fetchArticles() async => List.of(_articles);
 
   @override
-  Future<ArticleFeedItem> likeArticle(String id) async {
+  Future<List<ArticleFeedItem>> fetchRecommended() async =>
+      _articles.take(2).toList();
+
+  @override
+  Future<List<ArticleFeedItem>> fetchBookmarks() async =>
+      _articles.where((a) => _bookmarks.contains(a.id)).toList();
+
+  @override
+  Future<ArticleFeedItem> fetchArticle(String id) async =>
+      _articles.firstWhere((a) => a.id == id);
+
+  @override
+  Future<bool> likeArticle(String id) async {
     final idx = _articles.indexWhere((a) => a.id == id);
-    if (idx == -1) throw StateError('Article $id not found');
-    final updated = ArticleFeedItem(
-      id: _articles[idx].id,
-      title: _articles[idx].title,
-      body: _articles[idx].body,
-      imageUrl: _articles[idx].imageUrl,
-      author: _articles[idx].author,
-      publishedAt: _articles[idx].publishedAt,
-      readMinutes: _articles[idx].readMinutes,
-      likes: _articles[idx].likes + 1,
-      commentsCount: _articles[idx].commentsCount,
+    if (idx == -1) return false;
+    _articles[idx] = _articles[idx].copyWith(likes: _articles[idx].likes + 1);
+    return true;
+  }
+
+  @override
+  Future<bool> toggleBookmark(String id) async {
+    if (_bookmarks.contains(id)) {
+      _bookmarks.remove(id);
+      return false;
+    }
+    _bookmarks.add(id);
+    return true;
+  }
+
+  @override
+  Future<List<ArticleComment>> fetchComments(String id) async =>
+      List.of(_comments[id] ?? const []);
+
+  @override
+  Future<ArticleComment> addComment(String id, String text) async {
+    final comment = ArticleComment(
+      id: _nextCommentId++,
+      authorName: 'You',
+      text: text,
+      createdAt: DateTime(2026, 6, 21),
     );
-    _articles[idx] = updated;
-    return updated;
+    (_comments[id] ??= []).add(comment);
+    return comment;
   }
 }

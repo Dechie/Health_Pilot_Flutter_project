@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:healthpilot/core/navigation/app_navigation.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
+import 'package:healthpilot/features/community/community_hub_screen.dart';
 import 'package:healthpilot/features/health_assessment/health_assessment_flow_screen.dart';
 
 class ResultBackToHomeScreen extends StatelessWidget {
@@ -42,9 +42,14 @@ class ResultBackToHomeScreen extends StatelessWidget {
                 height: 44,
                 child: FilledButton(
                   onPressed: () {
-                    AppNavigation.replaceRootHomeTab(
-                      context,
-                      initialTabIndex: HomeTab.chat,
+                    // Leave the assessment flow, then open the Community hub
+                    // (lands on "For You" — peers + groups relevant to you).
+                    final nav = Navigator.of(context, rootNavigator: true);
+                    nav.popUntil((route) => route.isFirst);
+                    nav.push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const CommunityHubScreen(),
+                      ),
                     );
                   },
                   child: const Text('Go to Community'),

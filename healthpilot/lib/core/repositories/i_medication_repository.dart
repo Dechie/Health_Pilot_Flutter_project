@@ -2,6 +2,9 @@ import 'package:healthpilot/features/medication/medication_models.dart';
 
 abstract class IMedicationRepository {
   Future<List<Medication>> fetchMedications({bool activeOnly = true});
+
+  /// A single medication — `GET /medications/{id}/`.
+  Future<Medication> fetchMedication(int id);
   Future<Medication> addMedication(Medication medication);
   Future<Medication> updateMedication(Medication medication);
   Future<void> deleteMedication(int id);

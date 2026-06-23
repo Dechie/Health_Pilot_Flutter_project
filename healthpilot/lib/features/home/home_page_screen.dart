@@ -21,6 +21,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:healthpilot/features/chatbot/chatbot_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/profile/profile_screen.dart';
+import 'package:healthpilot/features/community/community_hub_screen.dart';
 import 'package:healthpilot/features/tutorials/tutorials_entry_screen.dart';
 import 'package:healthpilot/features/home/overview_card.dart';
 import 'package:healthpilot/theme/app_theme.dart';
@@ -479,6 +480,30 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (context) => const TutorialsEntryScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            SizedBox(height: size.height * 0.02),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.groups_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: const Text('Community'),
+                  subtitle:
+                      const Text('Find people like you and join support groups'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const CommunityHubScreen(),
                       ),
                     );
                   },
