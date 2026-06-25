@@ -23,9 +23,9 @@ class RemoteSubscriptionRepository implements ISubscriptionRepository {
 
   @override
   Future<SubscriptionStatus> subscribe(String planId) async {
+    // Plan is a path segment (`/subscribe/{plan}/`), not a body field.
     final data = await _api.post(
-      '${ApiConstants.subscriptionsBase}/subscribe/',
-      data: {'plan_id': planId},
+      '${ApiConstants.subscriptionsBase}/subscribe/$planId/',
     );
     return SubscriptionStatus.fromJson(data as Map<String, dynamic>);
   }
@@ -33,5 +33,40 @@ class RemoteSubscriptionRepository implements ISubscriptionRepository {
   @override
   Future<void> cancelSubscription() async {
     await _api.delete('${ApiConstants.subscriptionsBase}/cancel/');
+  }
+
+  @override
+  Future<Payment> createPayment({
+    required double amount,
+    required String paymentMethod,
+  }) async {
+    final data = await _api.post(
+      '${ApiConstants.subscriptionsBase}/payment/',
+      data: {'amount': amount, 'payment_method': paymentMethod},
+    );
+    return Payment.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Payment> confirmPayment(int paymentId) async {
+    final data = await _api.post(
+      '${ApiConstants.subscriptionsBase}/payment/confirm/',
+      data: {'payment_id': paymentId},
+    );
+    // Response is `{payment: {...}, membership: {...}}`; the payment is nested.
+    final map = data as Map<String, dynamic>;
+    final payment =
+        map['payment'] is Map ? map['payment'] as Map<String, dynamic> : map;
+    return Payment.fromJson(payment);
+  }
+
+  @override
+  Future<List<Payment>> fetchPaymentHistory() async {
+    final data =
+        await _api.get('${ApiConstants.subscriptionsBase}/payment/history/');
+    final list = data is Map ? (data['results'] as List? ?? const []) : data;
+    return (list as List)
+        .map((e) => Payment.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

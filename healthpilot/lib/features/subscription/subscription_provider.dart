@@ -59,4 +59,16 @@ class SubscriptionProvider extends ChangeNotifier {
     _status = const SubscriptionStatus(planId: 'free', isActive: false);
     notifyListeners();
   }
+
+  // ── Payments ───────────────────────────────────────────────────────────────
+  Future<Payment> createPayment({
+    required double amount,
+    required String paymentMethod,
+  }) =>
+      _repo.createPayment(amount: amount, paymentMethod: paymentMethod);
+
+  Future<Payment> confirmPayment(int paymentId) =>
+      _repo.confirmPayment(paymentId);
+
+  Future<List<Payment>> fetchPaymentHistory() => _repo.fetchPaymentHistory();
 }

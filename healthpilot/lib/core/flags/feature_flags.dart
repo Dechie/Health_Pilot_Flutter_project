@@ -23,4 +23,5 @@ abstract final class FeatureFlags {
       bool.fromEnvironment('FF_NOTIFICATIONS', defaultValue: false);
   static const bool subscriptions =
       bool.fromEnvironment('FF_SUBSCRIPTIONS', defaultValue: false);
+  static const bool ads = bool.fromEnvironment('FF_ADS', defaultValue: false);
 }

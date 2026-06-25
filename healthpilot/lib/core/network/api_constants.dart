@@ -11,6 +11,7 @@ abstract final class ApiConstants {
   static const String nutritionBase = '/api/v1/nutrition';
   static const String notificationsBase = '/api/v1/notifications';
   static const String subscriptionsBase = '/api/v1/subscriptions';
+  static const String adsBase = '/api/v1/ads';
 
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 30);

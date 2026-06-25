@@ -51,4 +51,51 @@ class MockSubscriptionRepository implements ISubscriptionRepository {
   Future<void> cancelSubscription() async {
     _status = const SubscriptionStatus(planId: 'free', isActive: false);
   }
+
+  final List<Payment> _payments = [];
+  int _nextPaymentId = 1;
+
+  @override
+  Future<Payment> createPayment({
+    required double amount,
+    required String paymentMethod,
+  }) async {
+    final payment = Payment(
+      id: _nextPaymentId++,
+      amount: amount,
+      currency: 'USD',
+      paymentMethod: paymentMethod,
+      status: 'pending',
+      createdAt: DateTime(2026, 6, 21),
+    );
+    _payments.insert(0, payment);
+    return payment;
+  }
+
+  @override
+  Future<Payment> confirmPayment(int paymentId) async {
+    final idx = _payments.indexWhere((p) => p.id == paymentId);
+    final base = idx == -1
+        ? Payment(
+            id: paymentId,
+            amount: 0,
+            currency: 'USD',
+            paymentMethod: '',
+            status: 'pending')
+        : _payments[idx];
+    final confirmed = Payment(
+      id: base.id,
+      amount: base.amount,
+      currency: base.currency,
+      paymentMethod: base.paymentMethod,
+      status: 'succeeded',
+      membershipDays: 30,
+      createdAt: base.createdAt,
+    );
+    if (idx != -1) _payments[idx] = confirmed;
+    return confirmed;
+  }
+
+  @override
+  Future<List<Payment>> fetchPaymentHistory() async => List.of(_payments);
 }

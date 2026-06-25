@@ -60,3 +60,50 @@ class SubscriptionStatus {
             : null,
       );
 }
+
+/// Valid `payment_method` values accepted by `POST /subscriptions/payment/`.
+const List<String> kPaymentMethods = [
+  'bank',
+  'paypal',
+  'credit_card',
+  'stripe',
+  'other',
+];
+
+/// A payment record — `/subscriptions/payment/...`.
+class Payment {
+  const Payment({
+    required this.id,
+    required this.amount,
+    required this.currency,
+    required this.paymentMethod,
+    required this.status,
+    this.externalRef,
+    this.membershipDays,
+    this.createdAt,
+  });
+
+  final int id;
+  final double amount;
+  final String currency;
+  final String paymentMethod;
+  final String status; // pending | succeeded | failed | …
+  final String? externalRef;
+  final int? membershipDays;
+  final DateTime? createdAt;
+
+  static double _toDouble(dynamic v) => v is num
+      ? v.toDouble()
+      : double.tryParse('${v ?? ''}') ?? 0;
+
+  factory Payment.fromJson(Map<String, dynamic> json) => Payment(
+        id: (json['id'] as num?)?.toInt() ?? 0,
+        amount: _toDouble(json['amount']),
+        currency: json['currency'] as String? ?? 'USD',
+        paymentMethod: json['payment_method'] as String? ?? '',
+        status: json['status'] as String? ?? '',
+        externalRef: json['external_ref'] as String?,
+        membershipDays: (json['membership_days'] as num?)?.toInt(),
+        createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      );
+}

@@ -51,6 +51,14 @@ import 'package:healthpilot/core/repositories/i_subscription_repository.dart';
 import 'package:healthpilot/features/subscription/subscription_provider.dart';
 import 'package:healthpilot/features/subscription/repositories/mock_subscription_repository.dart';
 import 'package:healthpilot/features/subscription/repositories/remote_subscription_repository.dart';
+import 'package:healthpilot/core/repositories/i_notification_repository.dart';
+import 'package:healthpilot/features/notifications/notification_provider.dart';
+import 'package:healthpilot/features/notifications/repositories/mock_notification_repository.dart';
+import 'package:healthpilot/features/notifications/repositories/remote_notification_repository.dart';
+import 'package:healthpilot/core/repositories/i_ads_repository.dart';
+import 'package:healthpilot/features/ads/ads_provider.dart';
+import 'package:healthpilot/features/ads/repositories/mock_ads_repository.dart';
+import 'package:healthpilot/features/ads/repositories/remote_ads_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -243,6 +251,37 @@ abstract final class RepositoryLocator {
                 ? RemoteSubscriptionRepository(apiClient)
                     as ISubscriptionRepository
                 : MockSubscriptionRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 15 — Notifications; auto-loads on authentication.
+        ChangeNotifierProxyProvider<AuthState, NotificationProvider>(
+          create: (_) => NotificationProvider(
+            FeatureFlags.notifications
+                ? RemoteNotificationRepository(apiClient)
+                    as INotificationRepository
+                : MockNotificationRepository(),
+          ),
+          update: (_, authState, provider) {
+            if (authState.status == AuthStatus.authenticated) {
+              provider!.load();
+            }
+            return provider!;
+          },
+        ),
+
+        // Branch 16 — Ads; auto-loads on authentication.
+        ChangeNotifierProxyProvider<AuthState, AdsProvider>(
+          create: (_) => AdsProvider(
+            FeatureFlags.ads
+                ? RemoteAdsRepository(apiClient) as IAdsRepository
+                : MockAdsRepository(),
           ),
           update: (_, authState, provider) {
             if (authState.status == AuthStatus.authenticated) {
