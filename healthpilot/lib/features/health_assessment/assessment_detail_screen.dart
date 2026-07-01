@@ -78,7 +78,13 @@ class AssessmentDetailScreen extends StatelessWidget {
                 height: 48,
                 child: FilledButton(
                   style: FilledButton.styleFrom(backgroundColor: buttonColor),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Hospital locator coming soon'),
+                      ),
+                    );
+                  },
                   child: const Text('Show nearest hospitals'),
                 ),
               ),

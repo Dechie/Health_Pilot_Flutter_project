@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
 import 'package:healthpilot/core/network/api_error.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
@@ -60,7 +61,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
     setState(() => _submitting = true);
     try {
-      final entry = await context.read<AssessmentProvider>().submit(_summary);
+      final isGuest = context.read<AuthState>().isGuest;
+      final provider = context.read<AssessmentProvider>();
+      final entry = isGuest
+          ? await provider.submitGuestAssessment(_summary)
+          : await provider.submit(_summary);
       if (!mounted) return;
       setState(() {
         _entry = entry;

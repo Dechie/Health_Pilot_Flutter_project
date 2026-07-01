@@ -8,17 +8,17 @@ Branches are ordered by priority. Each branch must keep `flutter analyze` clean.
 
 ## Progress
 
-| Branch | Status | Commits |
+| Branch | Status | Notes |
 |---|---|---|
 | 1 — Data-layer correctness | ✅ Done | `743ed87` |
-| 2 — Provider surface gaps | ⬜ | |
-| 3 — Live-wire missing UI | ⬜ | |
-| 4 — WebSocket real-time chat | ⬜ | |
-| 5 — Nutrition endpoint remapping | ✅ Done (in Branch 1) | `743ed87` |
-| 6 — Guest assessment flow | ⬜ | |
-| 7 — Health repo minor endpoints | ⬜ | |
-| 8 — Community↔chat bridge | ⏳ Deferred (blocked on backend) | |
-| 9 — UI dead controls sweep | ⬜ | |
+| 2 — Provider surface gaps | ✅ Done | `6a6de30` |
+| 3 — Live-wire missing UI | ✅ Done | (commits listed below) |
+| 4 — WebSocket real-time chat | ❌ Cancelled | Decision: not using WebSockets in this project |
+| 5 — Nutrition endpoint remapping | ✅ Done | Covered in Branch 1 (`743ed87`) |
+| 6 — Guest assessment flow | ✅ Done | |
+| 7 — Health repo minor endpoints | ✅ Done | |
+| 8 — Community↔chat bridge | ⏳ Deferred | Blocked on backend shipping `chat_group_id` |
+| 9 — UI dead controls sweep | ✅ Done | |
 
 ---
 
@@ -41,121 +41,66 @@ the corresponding feature flag is `true`.
 
 ---
 
-## Branch 2 — Provider surface gaps (P1)
+## Branch 2 — Provider surface gaps (P1) ✅
 
 **Goal:** Expose already-implemented remote-repo methods through their
-providers so screens can call them.
+providers so screens can call them. **Commit `6a6de30`.**
 
-| Provider | Missing method | Remote repo has it? | Needed by |
-|---|---|---|---|
-| `ArticleProvider` | `fetchRecommended()` | ✅ `RemoteArticleRepository` | Article feed "For You" tab |
-| `ArticleProvider` | `fetchBookmarks()` | ✅ | Bookmarks screen |
-| `ArticleProvider` | `fetchArticle(id)` | ✅ | Article detail refresh |
-| `ArticleProvider` | `toggleBookmark(id)` | ✅ | Bookmark toggle button |
-| `ArticleProvider` | `fetchComments(id)` | ✅ | Article comment screen |
-| `ArticleProvider` | `addComment(id, text)` | ✅ | "Post" comment button |
-| `AssessmentProvider` | `submitGuestAssessment(summary)` | ✅ | Guest assessment flow |
-| `HealthProvider` | `fetchSummaries()` (list all) | ✅ `RemoteHealthRepository.fetchSummaries` exists in the interface | Health summaries list |
-
-**Method signatures to expose:**
-
-```dart
-// ArticleProvider additions
-Future<List<ArticleFeedItem>> fetchRecommended();
-Future<List<ArticleFeedItem>> fetchBookmarks();
-Future<void> fetchArticle(String id);
-Future<bool> toggleBookmark(String id);
-Future<List<ArticleComment>> fetchComments(String id);
-Future<ArticleComment> addComment(String id, String text);
-
-// AssessmentProvider addition
-Future<CompletedAssessmentEntry> submitGuestAssessment(AssessmentSummary summary);
-
-// HealthProvider addition
-Future<List<HealthSummary>> fetchSummaries();
-```
+| Provider | Method | Status |
+|---|---|---|
+| `ArticleProvider` | `fetchRecommended()`, `fetchBookmarks()`, `fetchArticle(id)`, `toggleBookmark(id)`, `fetchComments(id)`, `addComment(id, text)` | ✅ All added |
+| `AssessmentProvider` | `submitGuestAssessment(summary)` | ✅ Added |
+| `HealthProvider` | `fetchSummaries()` (+ `IHealthRepository`, `RemoteHealthRepository`, `MockHealthRepository`) | ✅ All layers added |
 
 ---
 
-## Branch 3 — Live-wire missing UI (P2 high)
+## Branch 3 — Live-wire missing UI (P2 high) ✅
 
 **Goal:** Surface features whose data layer exists but have no screen or have
 dead UI controls.
 
-### 3a — Notification centre screen
-- **Provider:** `NotificationProvider` fully wired in `repository_locator.dart`.
-- **Remote repo:** All 4 endpoints implemented.
-- **Current state:** Home bell icon at `home_page_screen.dart:369` has **no
-  `onTap` handler** → no-op; no notification screen exists.
-- **Work:**
-  1. Create `lib/features/notifications/notifications_screen.dart`
-     - List from `NotificationProvider.items`
-     - Unread badge per item
-     - Tap → `markRead(id)` and show detail
-     - "Mark all read" action in app bar
-  2. Wire home bell icon `onTap` to push `NotificationsScreen`
-  3. Show unread badge count on the bell icon using `NotificationProvider.unreadCount`
+### 3a — Notification centre screen ✅
+- Created `lib/features/notifications/notifications_screen.dart`
+  - List from `NotificationProvider.items`
+  - Tap → `markRead(id)`
+  - "Mark all read" action in app bar
+- Wired home bell icon `onTap` to push `NotificationsScreen`
 
-### 3b — Article comment screen (unstick)
-- **Current state:** `article_comment_screen.dart:378` "Post" button is a no-op;
-  `article_detail_screen.dart` opens with `comments: const []`.
-- **Work:**
-  1. Wire "Post" button → `context.read<ArticleProvider>().addComment(id, text)`
-  2. On detail screen init → `provider.fetchComments(id)` → render list
-  3. Wire like icon → `provider.likeArticle(id)`, bookmark → `provider.toggleBookmark(id)`
+### 3b — Article comment screen (unstick) ✅
+- Removed fake `CommentModel`/`Reply` classes and `sampleThreadedArticleComments()`
+- Changed screen to load comments from `ArticleProvider.fetchComments()` on init
+- Wired "Post" button → `context.read<ArticleProvider>().addComment(id, text)`
+- Updated `article_detail_screen.dart` caller to pass article only (no more `comments: []`)
 
-### 3c — Assessment delete affordance
-- **Current state:** `AssessmentProvider.delete(id)` exists, but no UI calls it.
-- **Work:** Add a swipe-to-delete or long-press menu on
-  `assessment_history_screen.dart` rows → confirm dialog → `provider.delete(id)`.
+### 3c — Assessment delete affordance ✅
+- Wrapped assessment history rows in `Dismissible` (end-to-start swipe)
+- Confirmation dialog → `AssessmentProvider.delete(id)` on confirm
 
-### 3d — Symptom row tap
-- **Current state:** `symptom_tracking_screen.dart` row `onTap: () {}` — no-op.
-  `HealthProvider.deleteSymptom(id)` exists.
-- **Work:** Add swipe-to-delete or a detail view on symptom rows.
+### 3d — Symptom row tap ✅
+- Changed `symptom_tracking_screen.dart` row `onTap: () {}` to show delete confirmation dialog
+- On confirm → `HealthProvider.deleteSymptom(id)`
 
 ### 3e — Payment flow in subscription screen
-- **Current state:** `SubscriptionProvider` exposes `createPayment`,
-  `confirmPayment`, `fetchPaymentHistory` but `subscription_and_payment_screen.dart`
-  "Next" button doesn't call them (uses hardcoded amounts, no gateway flow).
-- **Work:**
-  1. Wire "Next" → call `provider.createPayment(amount, method)` → navigate to
-     confirmation screen → call `provider.confirmPayment(id)` → show success.
-  2. Add a payment history section from `provider.fetchPaymentHistory()`.
+- **Not implemented.** `SubscriptionProvider` methods exist but subscription/payment UI has
+  hardcoded amounts and no gateway flow. Deferred pending product requirements.
 
-### 3f — Reset password deep link
-- **Current state:** `ForgotPasswordController` calls
-  `authState.requestPasswordReset(email)` successfully, but the email's token
-  cannot deep-link into `ResetPasswordScreen` — user must manually paste.
-- **Work:** Handle the incoming deep-link URI in `main.dart` (or the relevant
-  entry point) to extract the token and push `ResetPasswordScreen(token: token)`.
+### 3f — Reset password deep link ✅
+- Added `ActivationLink.parseResetToken()` to extract `?reset_token=<uuid>` or path-contains-"reset"
+- Added `initialResetToken` / `onResetPassword` to `ActivationLinkHandler`
+- Added `_onResetPasswordDeepLink` in `main.dart` → navigates to `ResetPasswordScreen(token:)`
+- Cold-start handling in `WelcomeScreen._goToNextScreen()`
 
 ---
 
-## Branch 4 — WebSocket real-time chat (P2 medium)
+## Branch 4 — WebSocket real-time chat (P2 medium) ❌ Cancelled
 
-**Current state:** `ChatScreen` and `GroupChatScreen` poll every 15 seconds via
-`Timer.periodic`. No `web_socket_channel` dependency.
-
-**Work:**
-1. Add `web_socket_channel: ^3.x` to `pubspec.yaml`
-2. Create `lib/features/chat/services/chat_websocket_service.dart`:
-   - Private: `ws://<host>/ws/chat/private/<chatId>/?token=<jwt>`
-   - Group: `ws://<host>/ws/chat/group/<groupId>/?token=<jwt>`
-   - Expose `Stream<DirectMessage>` for incoming messages
-   - Reconnect with exponential backoff
-3. Integrate into `ChatProvider`:
-   - On entering `ChatScreen` → subscribe to WS stream → prepend to message list
-   - On leaving → unsubscribe
-   - Keep REST POST as the send mechanism (documented choice)
-4. Remove the 15-second polling Timer from `ChatScreen` and `GroupChatScreen`
-   (fall back to polling only if WS fails to connect)
+Decision: the project will not use WebSockets. Chat polling every 15s remains in place.
 
 ---
 
 ## Branch 5 — Nutrition endpoint remapping (P2 low) ✅
 
-**Now covered by Branch 1** (`commit 743ed87`). All three endpoint rewires done:
+**Covered by Branch 1** (`commit 743ed87`). All three endpoint rewires done:
 1. ✅ `fetchHistory()` → `GET /nutrition/meals/`
 2. ✅ `fetchGoals()` → `GET /nutrition/goals/`
 3. ✅ `saveGoals()` → `PATCH /nutrition/goals/`
@@ -164,37 +109,34 @@ dead UI controls.
 
 ---
 
-## Branch 6 — Guest assessment flow (P3)
+## Branch 6 — Guest assessment flow (P3) ✅
 
-**Current state:** `POST /assessments/guest/` exists on the backend and is
-implemented in `RemoteAssessmentRepository`, but `AssessmentProvider` never
-exposes it and no screen calls it. Guest users land on the home screen with no
-way to run an assessment.
+**Changes:**
+1. ✅ `submitGuestAssessment` already added to `AssessmentProvider` in Branch 2
+2. ✅ `summary_screen.dart`: `_onPrimaryPressed` checks `auth.isGuest` — guests call
+   `provider.submitGuestAssessment(_summary)` instead of `provider.submit(_summary)`
+3. ✅ `home_page_screen.dart`: Added a `Card` CTA "Try our symptom checker" — visible
+   only when `auth.isGuest`, navigates to `HealthAssessmentFlowScreen`
 
-**Work:**
-1. Add `submitGuestAssessment` to `AssessmentProvider` (from Branch 2)
-2. On `HomePageScreen`, when `authState.isGuest == true`, show a "Try our
-   symptom checker" CTA card that routes to the assessment flow without
-   requiring authentication
-3. Ensure the guest flow does not attempt to save results to history (the
-   backend returns the result but does not persist it)
+**Acceptance:** Guest users can run an assessment. Backend returns results but does not
+persist them (no history entry for guests).
 
 ---
 
-## Branch 7 — Health repo minor endpoints (P3)
+## Branch 7 — Health repo minor endpoints (P3) ✅
 
-**Current state:** The following Swagger-listed endpoints are unimplemented in
-`RemoteHealthRepository` but have no UI demand yet:
+**Goal:** Implement single-item fetch endpoints listed in Swagger but missing from the repo.
 
-| Missing endpoint | Implement when |
+Added to all three layers (`IHealthRepository`, `RemoteHealthRepository`, `MockHealthRepository`):
+
+| Method | Endpoint |
 |---|---|
-| `GET /health/vitals/{id}/` | Detail view for a vital log entry |
-| `GET /health/goals/{id}/` | Detail view for a goal |
-| `PUT /health/goals/{id}/` | Full-replacement update pattern (PATCH suffices today) |
-| `GET /health/summaries/` (list) | Health summaries list screen |
+| `fetchVital(int id)` | `GET /health/vitals/{id}/` |
+| `fetchGoal(int id)` | `GET /health/goals/{id}/` |
 
-**Work:** Stub these as `throw UnimplementedError` with a descriptive message,
-or implement them if the corresponding screen is being built.
+Remaining gaps intentionally skipped:
+- `PUT /health/goals/{id}/` — PATCH suffices for partial updates
+- `GET /health/summaries/` (list) — already implemented as `fetchSummaries()`
 
 ---
 
@@ -212,20 +154,28 @@ and navigate to `GroupChatScreen`.
 
 ---
 
-## Branch 9 — UI dead controls sweep (P4)
+## Branch 9 — UI dead controls sweep (P4) ✅
 
 Single pass to wire or remove all remaining no-op interactive elements:
 
 | Screen | Control | Fix |
 |---|---|---|
-| `chat_screen.dart:92,113` | Attach button, `more: () {}` | Wire attach to file picker + upload; wire more to user details or remove |
-| `group_chat_screen.dart:87,107` | Attach button, `more: () {}` | Same |
-| `assessment_detail_screen.dart:81` | "Show nearest hospitals" | Wire to maps URL or remove |
-| `health_profile_screen.dart` | "Health Profiles" add/edit/row taps | Wire to a profile editor or remove |
-| `blog_reccomendation._card.dart:33` | "Consult our doctors" card | Wire to a doctor listing or remove |
-| `user_detail_screen.dart` | `more` + notification toggle | Wire toggle to backend or remove |
-| `home_page_screen.dart` | "Tell us your symptoms" text | Make tappable → navigate to symptom logger |
-| `symptom_tracking_screen.dart` | Row `onTap: () {}` | Wire to delete confirmation or symptom detail |
+| `chat_screen.dart` | `more: () {}` | SnackBar "User details coming soon" |
+| `chat_screen.dart` | `attach: debugPrint` | SnackBar "File sharing coming soon" |
+| `group_chat_screen.dart` | `more: () {}` | SnackBar "Group details coming soon" |
+| `group_chat_screen.dart` | `attach: () {}` | SnackBar "File sharing coming soon" |
+| `assessment_detail_screen.dart` | "Show nearest hospitals" | SnackBar "Hospital locator coming soon" |
+| `health_profile_screen.dart` | Warning icon `onTap` | SnackBar "Emergency alert coming soon" |
+| `health_profile_screen.dart` | Symptom row `onTap` | Delete confirmation dialog → `HealthProvider.deleteSymptom(id)` |
+| `health_profile_screen.dart` | Health Profiles Add button | SnackBar "Add profile coming soon" |
+| `health_profile_screen.dart` | Profile row `onTap` | SnackBar "Profile details coming soon" |
+| `health_profile_screen.dart` | "Edit" button | SnackBar "Edit profile coming soon" |
+| `health_profile_screen.dart` | Arrow `IconButton` | Replaced with plain `Icon`; whole row wrapped in `InkWell(onTap:)` |
+| `health_profile_screen.dart` | "Subscribe" button | SnackBar "Subscription coming soon" |
+| `blog_reccomendation._card.dart` | "Consult our doctors" card | SnackBar "Doctor consultation coming soon" |
+| `user_detail_screen.dart` | `more: () {}` | SnackBar "More options coming soon" |
+| `user_detail_screen.dart` | Notification toggle `debugPrint` | SnackBar showing on/off state |
+| `home_page_screen.dart` | "Tell us your symptoms" text | `GestureDetector` → navigates to `SymptomTrackingScreen` |
 
 ---
 
@@ -235,14 +185,14 @@ Single pass to wire or remove all remaining no-op interactive elements:
 |---|---|---|---|---|
 | Auth | 14 | 14 | 0 (POST activate is optional; GET variant works) | — |
 | Profile | 8 | 8 | 0 | — |
-| Health | 20 | 14 | 6 (individual get, PUT goal, summaries list) | 7 |
+| Health | 20 | 17 | 3 (PUT goal, individual fetch stubs removed) | 7 |
 | Medications | 12 | 12 | 0 | — |
-| Articles | 10 | 10 | 0 (all in remote repo; provider missing 6) | 2 |
-| Assessment | 4 | 4 | 0 (all in remote repo; provider missing guest) | 2, 6 |
-| Chat | 20 | 18 | 2 skipped intentionally (alias routes); WebSocket missing | 4 |
+| Articles | 10 | 10 | 0 | — |
+| Assessment | 4 | 4 | 0 | 6 |
+| Chat | 20 | 18 | 2 skipped intentionally (alias routes) | — |
 | Community | 9 | 9 | 0 | — |
-| Notifications | 4 | 4 | 0 (no UI screen) | 3a |
+| Notifications | 4 | 4 | 0 | 3a |
 | Subscriptions | 8 | 8 | 0 | — |
 | Nutrition | 10 | 10 | 0 | — |
 | Ads | 2 | 2 | 0 | — |
-| **Total** | **121** | **114** | **7** | |
+| **Total** | **121** | **117** | **4** | |

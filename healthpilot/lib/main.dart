@@ -13,6 +13,7 @@ import 'package:healthpilot/core/providers/app_state.dart';
 import 'package:healthpilot/core/widgets/safe_assets.dart';
 import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/auth/activation_screen.dart';
+import 'package:healthpilot/features/forgot_password/reset_password_screen.dart';
 import 'package:healthpilot/features/home/home_page_screen.dart';
 import 'package:healthpilot/features/onboarding/signup_and_login_screen.dart';
 import 'package:healthpilot/features/personal_info/initial_info_1.dart';
@@ -58,6 +59,7 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
     super.initState();
     activationLinkHandler.onLinkToken = _activateFromEmailLink;
     activationLinkHandler.onVerified = _onVerifiedDeepLink;
+    activationLinkHandler.onResetPassword = _onResetPasswordDeepLink;
   }
 
   Future<void> _activateFromEmailLink(String token) async {
@@ -101,6 +103,19 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
       email: auth.pendingActivationEmail.isNotEmpty
           ? auth.pendingActivationEmail
           : null,
+    );
+  }
+
+  /// Handles a password-reset deep link — navigates to [ResetPasswordScreen]
+  /// with the token pre-filled.
+  Future<void> _onResetPasswordDeepLink(String token) async {
+    final ctx = _navigatorKey.currentContext;
+    if (ctx == null) return;
+    if (!ctx.mounted) return;
+    Navigator.of(ctx).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResetPasswordScreen(initialToken: token),
+      ),
     );
   }
 
@@ -157,6 +172,7 @@ class _HealthPilotAppState extends State<HealthPilotApp> {
   void dispose() {
     activationLinkHandler.onLinkToken = null;
     activationLinkHandler.onVerified = null;
+    activationLinkHandler.onResetPassword = null;
     context.read<AuthState>().removeListener(_onAuthChanged);
     super.dispose();
   }
@@ -215,6 +231,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       Future<void>.delayed(const Duration(seconds: 2)),
     ]);
     if (!mounted) return;
+
+    // Cold-start from a password-reset deep link — go directly to reset screen.
+    if (activationLinkHandler.initialResetToken != null) {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => ResetPasswordScreen(
+            initialToken: activationLinkHandler.initialResetToken,
+          ),
+        ),
+      );
+      return;
+    }
 
     // Cold-start from a verified deep link — account was activated in the
     // browser, clear pending state and send directly to login.

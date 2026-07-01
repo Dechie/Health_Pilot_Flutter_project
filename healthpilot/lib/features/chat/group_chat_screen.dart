@@ -85,7 +85,11 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             subTitle: ' ${group.memberCount} members',
             profileImageUrl: devsImage,
             isMuted: group.isMuted,
-            more: () {},
+            more: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Group details coming soon')),
+              );
+            },
           )),
       body: SafeArea(
         bottom: true,
@@ -105,7 +109,11 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                     userId: widget.userId,
                     chatList: group.groupChatHistory),
               SendMessage(
-                attach: () {},
+                attach: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('File sharing coming soon')),
+                  );
+                },
                 sendMessage: _onSend,
               ),
             ],

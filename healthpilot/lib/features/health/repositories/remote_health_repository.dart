@@ -84,6 +84,12 @@ class RemoteHealthRepository implements IHealthRepository {
   }
 
   @override
+  Future<VitalLog> fetchVital(int id) async {
+    final data = await _client.get('${ApiConstants.healthBase}/vitals/$id/');
+    return VitalLog.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
   Future<VitalLog> addVital(VitalLog vital) async {
     final data = await _client.post(
       '${ApiConstants.healthBase}/vitals/',
@@ -99,6 +105,12 @@ class RemoteHealthRepository implements IHealthRepository {
     return results
         .map((e) => HealthGoal.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<HealthGoal> fetchGoal(int id) async {
+    final data = await _client.get('${ApiConstants.healthBase}/goals/$id/');
+    return HealthGoal.fromJson(data as Map<String, dynamic>);
   }
 
   @override

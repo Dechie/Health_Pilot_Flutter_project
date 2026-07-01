@@ -28,6 +28,24 @@ abstract final class ActivationLink {
         uri.queryParameters['verified'] == 'true';
   }
 
+  /// Extracts a password-reset token from a deep link.
+  ///
+  /// Supports:
+  /// - `?reset_token=<uuid>` query param
+  /// - Paths containing "reset-password" or "reset" with a `token` query param
+  static String? parseResetToken(Uri uri) {
+    final resetToken = uri.queryParameters['reset_token']?.trim();
+    if (resetToken != null && resetToken.isNotEmpty) return resetToken;
+
+    final token = uri.queryParameters['token']?.trim();
+    if (token != null &&
+        token.isNotEmpty &&
+        (uri.path.contains('reset-password') || uri.path.contains('reset'))) {
+      return token;
+    }
+    return null;
+  }
+
   static bool _looksLikeUuid(String value) {
     return RegExp(
       r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',

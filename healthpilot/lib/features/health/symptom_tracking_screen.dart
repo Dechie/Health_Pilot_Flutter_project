@@ -283,7 +283,32 @@ class _SymptomTrackingScreenState extends State<SymptomTrackingScreen> {
                   itemBuilder: (context, index) {
                     return SymptomTracking(
                       disorder: symptoms[index].name,
-                      onTap: () {},
+                      onTap: () async {
+                        final id = symptoms[index].id;
+                        if (id == null) return;
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Delete Symptom'),
+                            content: Text(
+                              'Delete "${symptoms[index].name}"?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed == true && context.mounted) {
+                          context.read<HealthProvider>().deleteSymptom(id);
+                        }
+                      },
                     );
                   },
                 ),

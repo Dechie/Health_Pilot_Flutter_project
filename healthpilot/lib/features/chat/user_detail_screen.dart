@@ -114,7 +114,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           id: peer.id.toString(),
                         )));
               },
-              more: () {},
+              more: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('More options coming soon')),
+                );
+              },
               subTitle: '',
             )),
         body: SafeArea(
@@ -412,7 +416,13 @@ class UserProfileInfo extends StatelessWidget {
               CustomeSwitch(
                 status: true,
                 onChange: (value) {
-                  debugPrint('$value');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        value ? 'Notifications on' : 'Notifications off',
+                      ),
+                    ),
+                  );
                 },
               ),
             ],

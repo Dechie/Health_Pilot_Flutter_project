@@ -30,7 +30,13 @@ class BlogRecomendationCard extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const ArticleScreen()));
         }
 
-        if (blogType == 'consult') {}
+        if (blogType == 'consult') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Doctor consultation coming soon'),
+            ),
+          );
+        }
       },
       child: Stack(
         children: [

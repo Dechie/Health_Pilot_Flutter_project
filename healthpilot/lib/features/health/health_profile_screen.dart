@@ -76,7 +76,13 @@ class _HealthProfileState extends State<HealthProfile> {
                       const SizedBox(width: 10),
                       InkWell(
                         splashColor: const Color.fromARGB(100, 0, 0, 0),
-                        onTap: () {},
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Emergency alert coming soon'),
+                            ),
+                          );
+                        },
                         child: SvgPicture.asset(
                           triangleExclamationIcon,
                           colorFilter: ColorFilter.mode(
@@ -232,7 +238,32 @@ class _HealthProfileState extends State<HealthProfile> {
                   itemBuilder: (context, index) {
                     return SymptomTracking(
                       disorder: symptoms[index].name,
-                      onTap: () {},
+                      onTap: () async {
+                        final id = symptoms[index].id;
+                        if (id == null) return;
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Delete Symptom'),
+                            content: Text(
+                              'Delete "${symptoms[index].name}"?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed == true && context.mounted) {
+                          context.read<HealthProvider>().deleteSymptom(id);
+                        }
+                      },
                     );
                   },
                 ),
@@ -320,7 +351,13 @@ class _HealthProfileState extends State<HealthProfile> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Add profile coming soon'),
+                        ),
+                      );
+                    },
                     icon: Icon(Icons.add_circle_outline, color: cs.onSurface),
                   ),
                 ],
@@ -333,7 +370,13 @@ class _HealthProfileState extends State<HealthProfile> {
                   itemBuilder: (context, index) {
                     return HealthProfileModel(
                       disorder: peoples[index],
-                      onTap: () {},
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profile details coming soon'),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -387,7 +430,13 @@ class PremiumTags extends StatelessWidget {
                 height: size.height * 0.03,
                 elevation: 0,
                 color: cs.primary,
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Subscription coming soon'),
+                    ),
+                  );
+                },
                 child: const Text(
                   'Subscribe',
                   style: TextStyle(
@@ -495,56 +544,60 @@ class SymptomTracking extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final cs = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: size.width * 0.003,
-              height: size.height * 0.08,
-              color: const Color.fromRGBO(110, 182, 255, 0.25),
-            ),
-            Container(
-              width: size.width * 0.03,
-              height: size.width * 0.03,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size.width * 0.015),
-                color: const Color.fromRGBO(110, 182, 255, 0.25),
-              ),
-            ),
-            Container(
-              width: size.width * 0.03,
-              height: size.width * 0.03,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size.width * 0.015),
-                color: const Color.fromRGBO(110, 182, 255, 0.25),
-              ),
-            ),
-          ],
-        ),
-        Expanded(
-          child: Row(
+    return InkWell(
+      onTap: () => onTap(),
+      child: Row(
+        children: [
+          Stack(
+            alignment: Alignment.center,
             children: [
-              Expanded(
-                child: Text(
-                  disorder,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontFamily: "PlusJakartaSans",
-                    fontWeight: FontWeight.w400,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              Container(
+                width: size.width * 0.003,
+                height: size.height * 0.08,
+                color: const Color.fromRGBO(110, 182, 255, 0.25),
+              ),
+              Container(
+                width: size.width * 0.03,
+                height: size.width * 0.03,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(size.width * 0.015),
+                  color: const Color.fromRGBO(110, 182, 255, 0.25),
                 ),
               ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.arrow_forward, color: cs.onSurface),
+              Container(
+                width: size.width * 0.03,
+                height: size.width * 0.03,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(size.width * 0.015),
+                  color: const Color.fromRGBO(110, 182, 255, 0.25),
+                ),
               ),
             ],
           ),
-        ),
-      ],
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    disorder,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontFamily: "PlusJakartaSans",
+                      fontWeight: FontWeight.w400,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward,
+                  color: cs.onSurface,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -617,7 +670,13 @@ class HealthProfileModel extends StatelessWidget {
                       borderRadius: BorderRadius.circular(size.width * 0.015),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Edit profile coming soon'),
+                      ),
+                    );
+                  },
                   child: const Text(
                     "Edit",
                     style: TextStyle(

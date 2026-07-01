@@ -137,21 +137,51 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                 )
               else
                 for (var i = 0; i < assessmentEntries.length; i++)
-                  _TimelineHistoryRow(
-                    title: _assessmentRowTitle(assessmentEntries[i].summary),
-                    trailing: _dateFmt
-                        .format(assessmentEntries[i].completedAt.toLocal()),
-                    showConnector: i != assessmentEntries.length - 1,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => AssessmentHistoryStepperScreen(
-                            summary: assessmentEntries[i].summary,
-                            result: assessmentEntries[i].result,
-                          ),
+                  Dismissible(
+                    key: ValueKey('assessment-${assessmentEntries[i].id}'),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 16),
+                      color: Colors.red,
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    confirmDismiss: (_) => showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Delete Assessment'),
+                        content: const Text(
+                          'Delete this assessment record?',
                         ),
-                      );
-                    },
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onDismissed: (_) => store.delete(assessmentEntries[i].id),
+                    child: _TimelineHistoryRow(
+                      title: _assessmentRowTitle(assessmentEntries[i].summary),
+                      trailing: _dateFmt
+                          .format(assessmentEntries[i].completedAt.toLocal()),
+                      showConnector: i != assessmentEntries.length - 1,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => AssessmentHistoryStepperScreen(
+                              summary: assessmentEntries[i].summary,
+                              result: assessmentEntries[i].result,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
             ];
 

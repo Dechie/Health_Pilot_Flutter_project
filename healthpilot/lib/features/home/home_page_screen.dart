@@ -12,8 +12,11 @@ import 'package:healthpilot/features/chat/general_chat_screen.dart';
 import 'package:healthpilot/features/home/discover_healthpilot.dart';
 
 import 'package:healthpilot/features/health/health_profile_screen.dart';
+import 'package:healthpilot/features/health/symptom_tracking_screen.dart';
 
 import 'package:healthpilot/features/health_assessment/assessment_history_screen.dart';
+import 'package:healthpilot/features/health_assessment/health_assessment_flow_screen.dart';
+import 'package:healthpilot/features/notifications/notifications_screen.dart';
 import 'package:healthpilot/features/profile/language_translation.dart';
 import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:line_icons/line_icons.dart';
@@ -366,17 +369,94 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      SafeSvgAsset(
-                        bellReminder,
-                        width: size.width * 0.06,
-                        height: size.width * 0.06,
-                        color: cs.onSurface,
+                      InkWell(
+                        splashColor: const Color.fromARGB(100, 0, 0, 0),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const NotificationsScreen(),
+                            ),
+                          );
+                        },
+                        child: SafeSvgAsset(
+                          bellReminder,
+                          width: size.width * 0.06,
+                          height: size.width * 0.06,
+                          color: cs.onSurface,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
+            Builder(builder: (context) {
+              final auth = context.watch<AuthState>();
+              if (!auth.isGuest) return const SizedBox.shrink();
+              return Padding(
+                padding: EdgeInsets.fromLTRB(
+                  size.width * 0.06,
+                  size.width * 0.04,
+                  size.width * 0.06,
+                  0,
+                ),
+                child: Card(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const HealthAssessmentFlowScreen(),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Try our symptom checker',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Get insights on your symptoms — no account needed.',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
             Container(
               margin: EdgeInsets.only(
                   left: size.width * 0.06, top: size.width * 0.06),
@@ -431,26 +511,34 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
-            Container(
-                margin: EdgeInsets.only(
-                  left: size.width * 0.06,
-                ),
-                width: double.infinity,
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 6,
-                  children: [
-                    Text(
-                      'Tell us your symptoms',
-                      style: AppTheme.bodyMuted(context),
+            GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SymptomTrackingScreen(),
                     ),
-                    Icon(
-                      LineIcons.arrowRight,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  );
+                },
+                child: Container(
+                    margin: EdgeInsets.only(
+                      left: size.width * 0.06,
                     ),
-                  ],
-                )),
+                    width: double.infinity,
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 6,
+                      children: [
+                        Text(
+                          'Tell us your symptoms',
+                          style: AppTheme.bodyMuted(context),
+                        ),
+                        Icon(
+                          LineIcons.arrowRight,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ))),
             Container(
               margin: EdgeInsets.only(
                   left: size.width * 0.06, top: size.height * 0.03),

@@ -92,7 +92,11 @@ class _ChatScreenState extends State<ChatScreen> {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => AudioCallScreen(id: widget.senderId)));
             },
-            more: () {},
+            more: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('User details coming soon')),
+              );
+            },
             senderId: user.userId,
           )),
       body: SafeArea(
@@ -114,7 +118,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     chatList: user.chatHistory),
               SendMessage(
                 attach: () {
-                  debugPrint('add file');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('File sharing coming soon')),
+                  );
                 },
                 sendMessage: (message) {
                   context

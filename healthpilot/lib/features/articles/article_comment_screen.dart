@@ -1,29 +1,13 @@
-//This is the screen where the user commets on the post
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import 'package:healthpilot/data/asset_paths.dart';
 import 'package:healthpilot/features/articles/article_feed_item.dart';
+import 'package:healthpilot/features/articles/article_provider.dart';
 
 import 'article_detail_screen.dart';
 import 'article_screen.dart';
-
-class CommentModel {
-  CommentModel({
-    required this.reply,
-    required this.poster,
-    required this.postedDate,
-    required this.post,
-    required this.imageUrl,
-  });
-
-  final String poster;
-  final String postedDate;
-  final String post;
-  final String imageUrl;
-  final List<Reply> reply;
-}
 
 class Reply {
   Reply({
@@ -41,43 +25,13 @@ class Reply {
   final bool isUSer;
 }
 
-/// Sample threaded comments for previews or tests (optional).
-List<CommentModel> sampleThreadedArticleComments() => [
-      CommentModel(
-        reply: [
-          Reply(
-            replier: 'Ashkay Mauray',
-            reply: 'I agree, growing up sucks. Age is coming for us.',
-            replyDate: '7 months',
-            replierImage: 'assets/images/ashkay.png',
-            isUSer: false,
-          ),
-          Reply(
-            replier: 'Mohamed Ibrahim',
-            reply: 'I agree, growing up sucks. Age is coming for us.',
-            replyDate: '7 months',
-            isUSer: true,
-            replierImage: 'assets/images/mohamed.png',
-          ),
-        ],
-        poster: 'Amanda Richarlson',
-        postedDate: '9 months ago',
-        post:
-            'It is sad we’re getting old so quick wish we could stay at this age fot more years to come. It is sad we’re getting old so quick wish we could stay at this age fot more years to come ... ',
-        imageUrl: 'assets/images/amanda.png',
-      ),
-    ];
-
-/// Threaded comments for one article. Pass [comments] empty for the empty state.
 class ArticleCommentScreen extends StatefulWidget {
   const ArticleCommentScreen({
     super.key,
     required this.article,
-    required this.comments,
   });
 
   final ArticleFeedItem article;
-  final List<CommentModel> comments;
 
   @override
   State<ArticleCommentScreen> createState() => _ArticleCommentScreenState();
@@ -85,17 +39,64 @@ class ArticleCommentScreen extends StatefulWidget {
 
 class _ArticleCommentScreenState extends State<ArticleCommentScreen> {
   late final TextEditingController _controller;
+  List<ArticleComment> _comments = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _loadComments();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadComments() async {
+    try {
+      final comments =
+          await context.read<ArticleProvider>().fetchComments(widget.article.id);
+      if (mounted) {
+        setState(() {
+          _comments = comments;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _postComment() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    try {
+      await context
+          .read<ArticleProvider>()
+          .addComment(widget.article.id, text);
+      _controller.clear();
+      await _loadComments();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to post comment')),
+        );
+      }
+    }
+  }
+
+  static String _formatDate(DateTime? dt) {
+    if (dt == null) return '';
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inDays > 365) return '${diff.inDays ~/ 365}y ago';
+    if (diff.inDays > 30) return '${diff.inDays ~/ 30}mo ago';
+    if (diff.inDays > 0) return '${diff.inDays}d ago';
+    if (diff.inHours > 0) return '${diff.inHours}h ago';
+    return '${diff.inMinutes}m ago';
   }
 
   void _showCommentFilterShell(BuildContext context) {
@@ -126,7 +127,7 @@ class _ArticleCommentScreenState extends State<ArticleCommentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final comments = widget.comments;
+    final comments = _comments;
     final article = widget.article;
     return Scaffold(
       body: LayoutBuilder(builder: (context, constraints) {
@@ -266,14 +267,14 @@ class _ArticleCommentScreenState extends State<ArticleCommentScreen> {
                               SizedBox(
                                 height: screenHeight * 0.07,
                                 width: screenWidth * 0.8,
-                                child: CommentInputField(
+                                child:                                 CommentInputField(
                                     screenWidth: screenWidth,
                                     screenHeight: screenHeight,
                                     icon: null,
                                     controller: _controller,
                                     inputAction: TextInputAction.done,
                                     hintText: 'What is on your mind?',
-                                    onChanged: (st) {},
+                                    onChanged: (_) {},
                                     suffixIcon: null),
                               )
                             ],
@@ -286,11 +287,16 @@ class _ArticleCommentScreenState extends State<ArticleCommentScreen> {
                               child: Padding(
                                   padding: EdgeInsets.only(
                                       right: screenWidth * 0.05),
-                                  child: const Button())),
+                                  child: Button(onPressed: _postComment))),
                           SizedBox(
                             height: screenHeight * 0.01,
                           ),
-                          if (comments.isEmpty)
+                          if (_loading)
+                            const SizedBox(
+                              height: 200,
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          else if (comments.isEmpty)
                             Column(
                               children: [
                                 SizedBox(
@@ -332,14 +338,15 @@ class _ArticleCommentScreenState extends State<ArticleCommentScreen> {
                                 child: ListView.builder(
                                   itemCount: comments.length,
                                   itemBuilder: (context, index) {
+                                    final c = comments[index];
                                     return CommentCard(
                                       screenWidth: screenWidth,
                                       screenHeight: screenHeight,
-                                      imageUrl: comments[index].imageUrl,
-                                      post: comments[index].post,
-                                      postedDate: comments[index].postedDate,
-                                      poster: comments[index].poster,
-                                      replies: comments[index].reply,
+                                      imageUrl: 'assets/images/mohamed.png',
+                                      post: c.text,
+                                      postedDate: _formatDate(c.createdAt),
+                                      poster: c.authorName,
+                                      replies: const [],
                                     );
                                   },
                                 ),
@@ -358,10 +365,10 @@ class _ArticleCommentScreenState extends State<ArticleCommentScreen> {
   }
 }
 
-//  a  button that used for posting the comment
-
 class Button extends StatelessWidget {
-  const Button({super.key});
+  const Button({super.key, this.onPressed});
+
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -372,10 +379,10 @@ class Button extends StatelessWidget {
           height: 30,
           decoration: const BoxDecoration(
             color: Color.fromRGBO(110, 182, 255, 1),
-          ), // Adjust the width as needed
+          ),
           child: Center(
             child: TextButton(
-              onPressed: () {},
+              onPressed: onPressed,
               child: const Text(
                 "Post",
                 style: TextStyle(

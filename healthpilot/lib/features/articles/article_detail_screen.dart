@@ -158,7 +158,6 @@ class ArticleDetail extends StatelessWidget {
                                                 builder: (context) =>
                                                     ArticleCommentScreen(
                                                   article: item,
-                                                  comments: const [],
                                                 ),
                                               ),
                                             );

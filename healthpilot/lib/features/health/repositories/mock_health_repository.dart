@@ -84,6 +84,13 @@ class MockHealthRepository implements IHealthRepository {
   Future<List<VitalLog>> fetchVitals() async => List.of(_vitals);
 
   @override
+  Future<VitalLog> fetchVital(int id) async {
+    final idx = _vitals.indexWhere((v) => v.id == id);
+    if (idx == -1) throw Exception('Vital $id not found');
+    return _vitals[idx];
+  }
+
+  @override
   Future<VitalLog> addVital(VitalLog vital) async {
     final created = VitalLog(
       id: _nextId++,
@@ -115,6 +122,13 @@ class MockHealthRepository implements IHealthRepository {
 
   @override
   Future<List<HealthGoal>> fetchGoals() async => List.of(_goals);
+
+  @override
+  Future<HealthGoal> fetchGoal(int id) async {
+    final idx = _goals.indexWhere((g) => g.id == id);
+    if (idx == -1) throw Exception('HealthGoal $id not found');
+    return _goals[idx];
+  }
 
   @override
   Future<HealthGoal> addGoal(HealthGoal goal) async {

@@ -13,10 +13,12 @@ abstract class IHealthRepository {
 
   // Vitals — `/health/vitals/`
   Future<List<VitalLog>> fetchVitals();
+  Future<VitalLog> fetchVital(int id);
   Future<VitalLog> addVital(VitalLog vital);
 
   // Goals — `/health/goals/`
   Future<List<HealthGoal>> fetchGoals();
+  Future<HealthGoal> fetchGoal(int id);
   Future<HealthGoal> addGoal(HealthGoal goal);
   Future<HealthGoal> updateGoal(int id, HealthGoal goal);
   Future<void> deleteGoal(int id);
