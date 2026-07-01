@@ -131,6 +131,14 @@ class RemoteHealthRepository implements IHealthRepository {
     return HealthSummary.fromJsonOrNull(data as Map<String, dynamic>);
   }
 
+  @override
+  Future<List<HealthSummary>> fetchSummaries() async {
+    final results = await _fetchAllPages('${ApiConstants.healthBase}/summaries/');
+    return results
+        .map((e) => HealthSummary.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   // ── Dashboard ───────────────────────────────────────────────────────────────
   @override
   Future<HealthDashboard> fetchDashboard() async {

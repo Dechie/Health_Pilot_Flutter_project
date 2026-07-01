@@ -153,6 +153,9 @@ class MockHealthRepository implements IHealthRepository {
   Future<HealthSummary?> fetchLatestSummary() async => null;
 
   @override
+  Future<List<HealthSummary>> fetchSummaries() async => const [];
+
+  @override
   Future<HealthDashboard> fetchDashboard() async => HealthDashboard(
         periodDays: 7,
         symptomTotal: _symptoms.length,

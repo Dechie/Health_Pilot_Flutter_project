@@ -31,6 +31,14 @@ class ArticleProvider extends ChangeNotifier {
     }
   }
 
+  // ── Feed extras ──────────────────────────────────────────────────────────────
+  Future<List<ArticleFeedItem>> fetchRecommended() => _repo.fetchRecommended();
+
+  Future<List<ArticleFeedItem>> fetchBookmarks() => _repo.fetchBookmarks();
+
+  Future<ArticleFeedItem> fetchArticle(String id) => _repo.fetchArticle(id);
+
+  // ── Interactions ─────────────────────────────────────────────────────────────
   Future<void> likeArticle(String id) async {
     final liked = await _repo.likeArticle(id);
     _articles = [
@@ -42,4 +50,13 @@ class ArticleProvider extends ChangeNotifier {
     ];
     notifyListeners();
   }
+
+  Future<bool> toggleBookmark(String id) => _repo.toggleBookmark(id);
+
+  // ── Comments ─────────────────────────────────────────────────────────────────
+  Future<List<ArticleComment>> fetchComments(String id) =>
+      _repo.fetchComments(id);
+
+  Future<ArticleComment> addComment(String id, String text) =>
+      _repo.addComment(id, text);
 }

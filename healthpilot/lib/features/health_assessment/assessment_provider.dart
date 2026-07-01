@@ -84,6 +84,11 @@ class AssessmentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Run an assessment without an account — `POST /assessments/guest/`.
+  Future<CompletedAssessmentEntry> submitGuestAssessment(
+          AssessmentSummary summary) =>
+      _repo.submitGuestAssessment(summary);
+
   Future<void> delete(String id) async {
     await _repo.deleteEntry(id);
     _entries = _entries.where((e) => e.id != id).toList();

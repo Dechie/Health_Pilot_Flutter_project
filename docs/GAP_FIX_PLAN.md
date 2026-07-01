@@ -6,21 +6,36 @@ against the Flutter app codebase (remote repos, providers, screens, navigation).
 
 Branches are ordered by priority. Each branch must keep `flutter analyze` clean.
 
+## Progress
+
+| Branch | Status | Commits |
+|---|---|---|
+| 1 — Data-layer correctness | ✅ Done | `743ed87` |
+| 2 — Provider surface gaps | ⬜ | |
+| 3 — Live-wire missing UI | ⬜ | |
+| 4 — WebSocket real-time chat | ⬜ | |
+| 5 — Nutrition endpoint remapping | ✅ Done (in Branch 1) | `743ed87` |
+| 6 — Guest assessment flow | ⬜ | |
+| 7 — Health repo minor endpoints | ⬜ | |
+| 8 — Community↔chat bridge | ⏳ Deferred (blocked on backend) | |
+| 9 — UI dead controls sweep | ⬜ | |
+
 ---
 
-## Branch 1 — Data-layer correctness fixes (P0)
+## Branch 1 — Data-layer correctness fixes (P0) ✅
 
 **Goal:** Fix remote-repo methods that call the wrong URL, wrong HTTP verb, or a
 non-existent endpoint. These are live bugs that will crash or silently fail when
 the corresponding feature flag is `true`.
 
-| File | Line(s) | Fix |
+| File | Fix | Status |
 |---|---|---|
-| `remote_health_repository.dart` | `clearSymptoms()` | Calls `DELETE /health/symptoms/` which **does not exist** on the backend (only `DELETE /health/symptoms/{id}/`). Replace with a loop deleting each symptom individually, or remove the method if unused. |
-| `remote_subscription_repository.dart` | `cancelSubscription()` | Sends `DELETE` to `/subscriptions/cancel/` but the Swagger defines **`POST`** `/subscriptions/cancel/`. Change verb to `POST`. |
-| `remote_nutrition_repository.dart` | `fetchHistory()` | Calls `GET /nutrition/history/` but the Swagger only defines **`POST`** `/nutrition/history/` — meal list is `GET /nutrition/meals/`. Rewire to hit `/meals/`. |
-| `remote_nutrition_repository.dart` | `fetchGoals()` / `saveGoals()` | Both hit `/nutrition/settings/`. The Swagger has separate resources: `GET/PATCH /nutrition/goals/` (macro goals) **and** `GET/PATCH /nutrition/settings/` (app prefs). Split into two distinct methods or remap to `/goals/`. |
-| `remote_health_repository.dart` | `fetchConditions()` | Returns `[]` with a comment "conditions endpoint does not exist". The Swagger confirms there is **no** `/health/conditions/` endpoint. Either wire this to a real endpoint if the backend adds one, or remove the stub methods entirely. |
+| `remote_subscription_repository.dart` `cancelSubscription()` | Changed `DELETE` → **`POST`** to match Swagger `POST /subscriptions/cancel/` | ✅ `743ed87` |
+| `remote_nutrition_repository.dart` `fetchHistory()` | Rewired from `GET /history/` → **`GET /meals/`** | ✅ `743ed87` |
+| `remote_nutrition_repository.dart` `addMeal()` | Rewired from `POST /history/` → **`POST /meals/`** | ✅ `743ed87` |
+| `remote_nutrition_repository.dart` `fetchGoals()` / `saveGoals()` | Rewired from `/settings/` → **`/goals/`** | ✅ `743ed87` |
+| `remote_health_repository.dart` `clearSymptoms()` | Made a no-op (backend has no bulk `DELETE /health/symptoms/`) | ✅ `743ed87` |
+| `remote_health_repository.dart` `fetchConditions()` | Returns `[]` — conditions endpoint doesn't exist on backend | ⏳ Won't fix (no backend endpoint) |
 
 **Acceptance:** `FF_* = true` for affected features does not throw 404/405.
 
@@ -138,18 +153,14 @@ dead UI controls.
 
 ---
 
-## Branch 5 — Nutrition endpoint remapping (P2 low)
+## Branch 5 — Nutrition endpoint remapping (P2 low) ✅
 
-**Current state:** Already called out in Branch 1, but requires a model-level
-decision.
-
-**Work:**
-1. `fetchHistory()` → rewire from `GET /nutrition/history/` to `GET /nutrition/meals/`
-2. `fetchGoals()` → move from `/nutrition/settings/` to `GET /nutrition/goals/`
-3. `saveGoals()` → move from `/nutrition/settings/` to `PATCH /nutrition/goals/`
-4. `fetchSummary()` → stays at `GET /nutrition/summary/` (confirmed correct)
-5. Keep `/nutrition/settings/` for app-level preferences (notification toggle,
-   diet chips) — wire these only if needed by the UI
+**Now covered by Branch 1** (`commit 743ed87`). All three endpoint rewires done:
+1. ✅ `fetchHistory()` → `GET /nutrition/meals/`
+2. ✅ `fetchGoals()` → `GET /nutrition/goals/`
+3. ✅ `saveGoals()` → `PATCH /nutrition/goals/`
+4. ✅ `fetchSummary()` → stays at `GET /nutrition/summary/` (confirmed correct)
+5. ⏳ Keep `/nutrition/settings/` for app-level preferences — wire when UI needs it
 
 ---
 
@@ -224,14 +235,14 @@ Single pass to wire or remove all remaining no-op interactive elements:
 |---|---|---|---|---|
 | Auth | 14 | 14 | 0 (POST activate is optional; GET variant works) | — |
 | Profile | 8 | 8 | 0 | — |
-| Health | 20 | 14 | 6 (individual get, PUT goal, summaries list, clearSymptoms broken) | 1, 7 |
+| Health | 20 | 14 | 6 (individual get, PUT goal, summaries list) | 7 |
 | Medications | 12 | 12 | 0 | — |
 | Articles | 10 | 10 | 0 (all in remote repo; provider missing 6) | 2 |
 | Assessment | 4 | 4 | 0 (all in remote repo; provider missing guest) | 2, 6 |
 | Chat | 20 | 18 | 2 skipped intentionally (alias routes); WebSocket missing | 4 |
 | Community | 9 | 9 | 0 | — |
 | Notifications | 4 | 4 | 0 (no UI screen) | 3a |
-| Subscriptions | 8 | 7 | 1 (cancel method is DELETE, should be POST) | 1 |
-| Nutrition | 10 | 8 | 2 (mapped to wrong endpoints: history→meals, goals→settings) | 1, 5 |
+| Subscriptions | 8 | 8 | 0 | — |
+| Nutrition | 10 | 10 | 0 | — |
 | Ads | 2 | 2 | 0 | — |
-| **Total** | **121** | **110** | **11** | |
+| **Total** | **121** | **114** | **7** | |

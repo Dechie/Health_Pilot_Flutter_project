@@ -13,6 +13,7 @@ class HealthProvider extends ChangeNotifier {
   List<VitalLog> _vitals = [];
   List<HealthGoal> _goals = [];
   HealthSummary? _latestSummary;
+  List<HealthSummary> _summaries = [];
   HealthDashboard? _dashboard;
   HealthLoadStatus _status = HealthLoadStatus.idle;
   String? _error;
@@ -25,6 +26,7 @@ class HealthProvider extends ChangeNotifier {
   List<HealthGoal> get activeGoals =>
       _goals.where((g) => g.isActive).toList();
   HealthSummary? get latestSummary => _latestSummary;
+  List<HealthSummary> get summaries => List.unmodifiable(_summaries);
   HealthDashboard? get dashboard => _dashboard;
   HealthLoadStatus get status => _status;
   String? get error => _error;
@@ -135,6 +137,12 @@ class HealthProvider extends ChangeNotifier {
   Future<void> clearSymptoms() async {
     await _repo.clearSymptoms();
     _symptoms = [];
+    notifyListeners();
+  }
+
+  // ── Summaries ───────────────────────────────────────────────────────────────
+  Future<void> fetchSummaries() async {
+    _summaries = await _repo.fetchSummaries();
     notifyListeners();
   }
 

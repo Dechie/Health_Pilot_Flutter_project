@@ -24,6 +24,9 @@ abstract class IHealthRepository {
   // AI summaries — `/health/summaries/`
   Future<HealthSummary?> fetchLatestSummary();
 
+  /// List all AI summaries — `GET /health/summaries/`.
+  Future<List<HealthSummary>> fetchSummaries();
+
   // Aggregate overview — `/health/dashboard/`
   Future<HealthDashboard> fetchDashboard();
 }
