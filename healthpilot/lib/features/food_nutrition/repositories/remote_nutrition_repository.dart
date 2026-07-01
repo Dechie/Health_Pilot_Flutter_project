@@ -35,7 +35,7 @@ class RemoteNutritionRepository implements INutritionRepository {
 
   @override
   Future<List<MealLog>> fetchHistory() async {
-    final items = await _fetchAllPages('${ApiConstants.nutritionBase}/history/');
+    final items = await _fetchAllPages('${ApiConstants.nutritionBase}/meals/');
     return items
         .map((e) => MealLog.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -44,7 +44,7 @@ class RemoteNutritionRepository implements INutritionRepository {
   @override
   Future<MealLog> addMeal(MealLog log) async {
     final data = await _api.post(
-      '${ApiConstants.nutritionBase}/history/',
+      '${ApiConstants.nutritionBase}/meals/',
       data: log.toJson(),
     );
     return MealLog.fromJson(data as Map<String, dynamic>);
@@ -52,14 +52,14 @@ class RemoteNutritionRepository implements INutritionRepository {
 
   @override
   Future<NutritionGoals> fetchGoals() async {
-    final data = await _api.get('${ApiConstants.nutritionBase}/settings/');
+    final data = await _api.get('${ApiConstants.nutritionBase}/goals/');
     return NutritionGoals.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<NutritionGoals> saveGoals(NutritionGoals goals) async {
     final data = await _api.patch(
-      '${ApiConstants.nutritionBase}/settings/',
+      '${ApiConstants.nutritionBase}/goals/',
       data: goals.toJson(),
     );
     return NutritionGoals.fromJson(data as Map<String, dynamic>);

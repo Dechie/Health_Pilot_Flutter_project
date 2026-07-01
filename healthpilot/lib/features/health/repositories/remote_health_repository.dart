@@ -70,8 +70,9 @@ class RemoteHealthRepository implements IHealthRepository {
       _client.delete('${ApiConstants.healthBase}/symptoms/$id/');
 
   @override
-  Future<void> clearSymptoms() async =>
-      _client.delete('${ApiConstants.healthBase}/symptoms/');
+  Future<void> clearSymptoms() async {
+    // Backend has no bulk DELETE for symptoms; UI clears local state only.
+  }
 
   // ── Vitals ────────────────────────────────────────────────────────────────
   @override

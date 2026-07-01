@@ -32,7 +32,7 @@ class RemoteSubscriptionRepository implements ISubscriptionRepository {
 
   @override
   Future<void> cancelSubscription() async {
-    await _api.delete('${ApiConstants.subscriptionsBase}/cancel/');
+    await _api.post('${ApiConstants.subscriptionsBase}/cancel/');
   }
 
   @override

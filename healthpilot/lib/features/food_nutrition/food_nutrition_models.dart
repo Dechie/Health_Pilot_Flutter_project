@@ -21,7 +21,7 @@ int _toInt(dynamic v) {
   return 0;
 }
 
-/// Daily macro targets — `GET/PATCH /nutrition/settings/` (alias `/goals/`).
+/// Daily macro targets — `GET/PATCH /nutrition/goals/`.
 @immutable
 class NutritionGoals {
   const NutritionGoals({
@@ -126,7 +126,7 @@ const List<String> kMealTypes = [
 String mealTypeLabel(String type) =>
     type.isEmpty ? 'Meal' : '${type[0].toUpperCase()}${type.substring(1)}';
 
-/// A logged meal — `GET/POST /nutrition/history/`.
+/// A logged meal — `GET/POST /nutrition/meals/`.
 @immutable
 class MealLog {
   const MealLog({
