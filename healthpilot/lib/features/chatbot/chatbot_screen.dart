@@ -322,10 +322,20 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   Widget _bubbleForMessage(ChatMessage msg) {
+    final String? footer;
+    if (msg.hasFailed) {
+      footer = 'Failed — tap to retry';
+    } else if (msg.showSentLabel) {
+      footer = 'Sent';
+    } else if (msg.deliveryStatus == OutgoingDeliveryStatus.pending) {
+      footer = 'Sending…';
+    } else {
+      footer = null;
+    }
     final bubble = ChatBubble(
       body: msg.body,
       time: _formatTime(msg.sentAt),
-      footerLabel: msg.showSentLabel ? 'Sent' : null,
+      footerLabel: footer,
       nipPosition: msg.fromUser ? BubbleNip.rightBottom : BubbleNip.leftBottom,
     );
     return Padding(
@@ -336,7 +346,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           widthFactor: 0.92,
           alignment:
               msg.fromUser ? Alignment.centerRight : Alignment.centerLeft,
-          child: bubble,
+          child: msg.hasFailed
+              ? GestureDetector(
+                  onTap: () =>
+                      context.read<AiAssistantProvider>().retry(msg.id),
+                  child: bubble,
+                )
+              : bubble,
         ),
       ),
     );

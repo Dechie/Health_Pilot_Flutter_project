@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/public_profile_screen.dart';
 import 'package:healthpilot/features/chat/user_detail_screen.dart';
@@ -143,10 +144,7 @@ class DiscoverablePeerCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundImage: AssetImage(devsImage),
-              ),
+              UserAvatar(url: peer.profilePicture, radius: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

@@ -125,6 +125,7 @@ class ChatProvider extends ChangeNotifier {
                   u.chatHistory.isNotEmpty ? u.chatHistory.last.content : '',
               isPro: u.isPro,
               isGroupChat: false,
+              avatarUrl: u.profilePictureUrl.isEmpty ? null : u.profilePictureUrl,
             )),
         ...joinedGroups.map((g) => ChatThread(
               id: g.groupId,
@@ -209,7 +210,20 @@ class ChatProvider extends ChangeNotifier {
       for (final chat in privateChats) {
         for (final participant in chat.participants) {
           final id = participant.id.toString();
-          if (_users.any((u) => u.userId == id)) continue;
+          // Skip ourselves — a private chat lists both participants, and adding
+          // the current user would surface "me" as a peer whose thread shows the
+          // real peer's messages.
+          if (id == _currentUserId) continue;
+          final existingIdx = _users.indexWhere((u) => u.userId == id);
+          if (existingIdx != -1) {
+            // Peers from /chat/users/ arrive without a chatId; backfill it from
+            // the private chat so opening the thread can fetch its messages.
+            final existing = _users[existingIdx];
+            if (existing.chatId == null || existing.chatId!.isEmpty) {
+              _users[existingIdx] = existing.copyWith(chatId: chat.id);
+            }
+            continue;
+          }
           _users.add(ChatUser(
             userId: id,
             displayName: participant.fullName,
@@ -315,9 +329,21 @@ class ChatProvider extends ChangeNotifier {
     _loadingThreads.add(targetUserId);
     notifyListeners();
     try {
-      final user = _users.firstWhere((u) => u.userId == targetUserId);
-      if (user.chatId == null) return;
-      final messages = await _repo.fetchPrivateMessages(user.chatId!);
+      final idx = _users.indexWhere((u) => u.userId == targetUserId);
+      if (idx == -1) return;
+      var chatId = _users[idx].chatId;
+      if (chatId == null || chatId.isEmpty) {
+        // No chat yet (e.g. a /chat/users/ peer never messaged) — resolve it.
+        final uid = int.tryParse(targetUserId);
+        if (uid == null) return;
+        final chat = await _repo.startPrivateChat(uid);
+        chatId = chat.id;
+        _users = [
+          for (final u in _users)
+            if (u.userId == targetUserId) u.copyWith(chatId: chatId) else u,
+        ];
+      }
+      final messages = await _repo.fetchPrivateMessages(chatId);
       final merged = await _localStore.loadDirectMessages(
         targetUserId,
         messages,
@@ -405,7 +431,13 @@ class ChatProvider extends ChangeNotifier {
     await _repo.joinGroup(groupId);
     _groups = [
       for (final g in _groups)
-        if (g.groupId == groupId) g.copyWith(isJoined: true) else g,
+        if (g.groupId == groupId)
+          g.copyWith(
+            isJoined: true,
+            participantCount: g.memberCount + 1,
+          )
+        else
+          g,
     ];
     notifyListeners();
   }
@@ -419,7 +451,11 @@ class ChatProvider extends ChangeNotifier {
     _groups = [
       for (final g in _groups)
         if (g.groupId == groupId)
-          g.copyWith(isJoined: false, groupChatHistory: [])
+          g.copyWith(
+            isJoined: false,
+            groupChatHistory: [],
+            participantCount: g.memberCount > 0 ? g.memberCount - 1 : 0,
+          )
         else
           g,
     ];

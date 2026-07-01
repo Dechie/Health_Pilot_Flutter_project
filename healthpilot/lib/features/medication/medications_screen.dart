@@ -49,6 +49,32 @@ class _MedicationScreenState extends State<MedicationScreen> {
     );
   }
 
+  /// Confirms before deleting — a row tap must never silently destroy a med.
+  Future<void> _confirmDelete(Medication medication) async {
+    if (medication.id == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete medication?'),
+        content: Text(
+            'Remove "${medication.medicationName}" and its reminders? This '
+            'cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await context.read<MedicationProvider>().delete(medication.id!);
+  }
+
   void _openAddScreen() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -242,13 +268,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                               medicationName: med.medicationName,
                               screenHeight: screenHeight,
                               screenWidth: screenWidth,
-                              onTap: () {
-                                if (med.id != null) {
-                                  context
-                                      .read<MedicationProvider>()
-                                      .delete(med.id!);
-                                }
-                              },
+                              onTap: () => _confirmDelete(med),
                               edit: () => _editMedication(med),
                             );
                           },

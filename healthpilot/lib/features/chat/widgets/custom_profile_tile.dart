@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 
 class CustomChatProfileTile extends StatelessWidget {
   final String name;
   final String profilePic;
+
+  /// Network avatar URL; falls back to [profilePic] asset when null/empty.
+  final String? avatarUrl;
   final String chat;
   final bool? isPro;
   final int? unreadMessage;
@@ -13,6 +17,7 @@ class CustomChatProfileTile extends StatelessWidget {
       {super.key,
       required this.name,
       required this.profilePic,
+      this.avatarUrl,
       required this.chat,
       this.unreadMessage = 0,
       this.isPro = false,
@@ -28,9 +33,10 @@ class CustomChatProfileTile extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              leading: CircleAvatar(
+              leading: UserAvatar(
+                url: avatarUrl,
                 radius: 40,
-                backgroundImage: AssetImage(profilePic),
+                fallbackAsset: profilePic,
               ),
               title: SizedBox(
                 child: Row(

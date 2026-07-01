@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/network/api_error.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -49,6 +50,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         const SnackBar(content: Text('Password reset. You can now log in.')),
       );
       Navigator.of(context).popUntil((r) => r.isFirst);
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.userMessage)),
+        );
+      }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

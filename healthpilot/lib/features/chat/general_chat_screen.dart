@@ -126,6 +126,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                 isPro: c.isPro,
                                 unreadMessage: provider.unreadCount(c.id),
                                 profilePic: devsImage,
+                                avatarUrl: c.avatarUrl,
                                 chat: c.lastMessage,
                                 onPressed: () {
                                   final currentUserId =
@@ -179,6 +180,9 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                         isPro: u.isPro,
                         unreadMessage: provider.unreadCount(u.userId),
                         profilePic: devsImage,
+                        avatarUrl: u.profilePictureUrl.isEmpty
+                            ? null
+                            : u.profilePictureUrl,
                         chat: u.chatHistory.isNotEmpty
                             ? u.chatHistory.last.content
                             : '',
@@ -261,15 +265,19 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                             ),
                                           ),
                                         const SizedBox(width: 4),
-                                        InkWell(
-                                          onTap: () async {
+                                        OutlinedButton.icon(
+                                          onPressed: () async {
                                             await provider
                                                 .leaveGroup(g.groupId);
                                           },
-                                          child: Icon(
-                                            Icons.exit_to_app,
-                                            size: 20,
-                                            color: cs.error,
+                                          icon: const Icon(
+                                              Icons.exit_to_app, size: 16),
+                                          label: const Text('Leave'),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: cs.error,
+                                            side: BorderSide(color: cs.error),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8),
                                           ),
                                         ),
                                       ],
@@ -339,15 +347,15 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                           ],
                                         ),
                                         subtitle: Text(
-                                          g.isJoined
-                                              ? (g.groupChatHistory.isNotEmpty
-                                                  ? g
-                                                      .groupChatHistory
-                                                      .last
-                                                      .content
-                                                  : '')
-                                              : (g.description ??
-                                                  '${g.membersId.length} members'),
+                                          g.isJoined &&
+                                                  g.groupChatHistory.isNotEmpty
+                                              ? g.groupChatHistory.last.content
+                                              : [
+                                                  if (g.description != null &&
+                                                      g.description!.isNotEmpty)
+                                                    g.description!,
+                                                  '${g.memberCount} member${g.memberCount == 1 ? '' : 's'}',
+                                                ].join(' · '),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),

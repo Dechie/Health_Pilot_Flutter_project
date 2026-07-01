@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/core/flags/feature_flags.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/health/health_profile_screen.dart';
@@ -66,15 +67,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
                     child: Row(
                       children: [
-                        ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(screenWidth * 0.1),
-                          child: Image.asset(
-                            'assets/images/personel.png',
-                            width: screenWidth * 0.15,
-                            height: screenWidth * 0.15,
-                            fit: BoxFit.cover,
-                          ),
+                        UserAvatar(
+                          url: context
+                              .watch<ProfileProvider>()
+                              .profile
+                              .profilePictureUrl,
+                          radius: screenWidth * 0.075,
+                          fallbackAsset: 'assets/images/personel.png',
                         ),
                         const SizedBox(width: 12),
                         Expanded(

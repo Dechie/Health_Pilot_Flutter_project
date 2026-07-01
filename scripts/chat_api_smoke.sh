@@ -111,11 +111,21 @@ fi
 step "5. GET /chat/private/  (list private chats)"
 call GET "/chat/private/"
 
-# --- 6. Create a group -------------------------------------------------------
-step "6. POST /chat/groups/  (create group)"
-call POST "/chat/groups/" '{"name": "Diabetes Support", "description": "Support group"}'
-GROUP_ID="$(echo "$LAST_BODY" | jq -r '.data.id // .data.group_id // .group_id // .id // empty' 2>/dev/null)"
-info "group_id = ${GROUP_ID:-<none>}"
+# --- 6. Reuse (or, opt-in, create) a group -----------------------------------
+# By default this REUSES an existing group from discovery so repeat runs don't
+# pollute the backend with duplicate "Diabetes Support" groups (the chat API has
+# no delete endpoint). Set CREATE_GROUP=1 to force-create a fresh group.
+GROUP_ID=""
+if [[ "${CREATE_GROUP:-0}" == "1" ]]; then
+  step "6. POST /chat/groups/  (create group — CREATE_GROUP=1)"
+  call POST "/chat/groups/" '{"name": "Diabetes Support", "description": "Support group"}'
+  GROUP_ID="$(echo "$LAST_BODY" | jq -r '.data.id // .data.group_id // .group_id // .id // empty' 2>/dev/null)"
+else
+  step "6. GET /chat/groups/discover/  (reuse an existing group)"
+  call GET "/chat/groups/discover/"
+  GROUP_ID="$(echo "$LAST_BODY" | jq -r '(.data // .results // . // [])[0].id // empty' 2>/dev/null)"
+  info "reusing group_id = ${GROUP_ID:-<none>}  (set CREATE_GROUP=1 to create a new one)"
+fi
 
 # --- 7. List all groups ------------------------------------------------------
 step "7. GET /chat/groups/  (list groups)"

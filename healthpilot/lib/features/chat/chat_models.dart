@@ -4,6 +4,10 @@ import 'package:flutter/foundation.dart';
 class DirectMessage {
   final String? id;
   final String senderId;
+
+  /// Display name of the sender — server-provided (`sender_name`), used to
+  /// label senders in group chats. Null for the current user's own messages.
+  final String? senderName;
   final String content;
   final DateTime timestamp;
 
@@ -16,6 +20,7 @@ class DirectMessage {
   const DirectMessage({
     this.id,
     required this.senderId,
+    this.senderName,
     required this.content,
     required this.timestamp,
     this.isDelivered = true,
@@ -25,6 +30,7 @@ class DirectMessage {
   DirectMessage copyWith({
     String? id,
     String? senderId,
+    String? senderName,
     String? content,
     DateTime? timestamp,
     bool? isDelivered,
@@ -33,6 +39,7 @@ class DirectMessage {
       DirectMessage(
         id: id ?? this.id,
         senderId: senderId ?? this.senderId,
+        senderName: senderName ?? this.senderName,
         content: content ?? this.content,
         timestamp: timestamp ?? this.timestamp,
         isDelivered: isDelivered ?? this.isDelivered,
@@ -44,6 +51,7 @@ class DirectMessage {
     return DirectMessage(
       id: json['id'] as String?,
       senderId: rawSenderId is int ? rawSenderId.toString() : rawSenderId as String,
+      senderName: json['sender_name'] as String?,
       content: json['content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
     );
@@ -222,6 +230,7 @@ class ChatThread {
   final String lastMessage;
   final bool isPro;
   final bool isGroupChat;
+  final String? avatarUrl;
 
   const ChatThread({
     required this.id,
@@ -229,6 +238,7 @@ class ChatThread {
     required this.lastMessage,
     required this.isPro,
     required this.isGroupChat,
+    this.avatarUrl,
   });
 }
 

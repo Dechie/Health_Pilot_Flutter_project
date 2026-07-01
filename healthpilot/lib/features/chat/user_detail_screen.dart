@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/features/chat/vidoe_call_screen.dart';
@@ -82,9 +84,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             height: size.height * 0.075,
             child: FloatingActionButton(
               onPressed: () {
+                final currentUserId = context.read<AuthState>().userId;
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => ChatScreen(
-                        senderId: peer.id.toString(), userId: '123')));
+                        senderId: peer.id.toString(),
+                        userId: currentUserId)));
               },
               backgroundColor: const Color.fromRGBO(110, 182, 255, 0.25),
               elevation: 0,
@@ -97,6 +101,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             child: CustomeAppBarForUserDetailScreen(
               title: peer.fullName,
               profileImageUrl: devsImage,
+              avatarUrl: peer.profilePicture,
               audioCall: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => AudioCallScreen(
@@ -202,6 +207,7 @@ class CustomeAppBarForUserDetailScreen extends StatelessWidget {
   final String title;
   final String subTitle;
   final String profileImageUrl;
+  final String? avatarUrl;
   final VoidCallback audioCall;
   final VoidCallback videoCall;
   final VoidCallback more;
@@ -211,6 +217,7 @@ class CustomeAppBarForUserDetailScreen extends StatelessWidget {
       required this.title,
       required this.subTitle,
       required this.profileImageUrl,
+      this.avatarUrl,
       required this.audioCall,
       required this.videoCall,
       required this.more});
@@ -285,9 +292,10 @@ class CustomeAppBarForUserDetailScreen extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: CircleAvatar(
+                      child: UserAvatar(
+                        url: avatarUrl,
                         radius: size.height * 0.026,
-                        backgroundImage: AssetImage(profileImageUrl),
+                        fallbackAsset: profileImageUrl,
                       ),
                     ),
                   ),

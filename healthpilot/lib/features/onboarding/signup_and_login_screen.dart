@@ -98,6 +98,11 @@ class _SignupAndLoginScreenState extends State<SignupAndLoginScreen> {
   }
 
   Future<void> _register() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!(_isChecked ?? false)) {
+      _showError('Please accept the terms and conditions to continue.');
+      return;
+    }
     if (passwordController.text != confirmPasswordController.text) {
       _showError('Passwords do not match.');
       return;

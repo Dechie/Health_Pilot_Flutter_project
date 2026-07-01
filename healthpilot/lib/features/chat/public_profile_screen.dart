@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/features/profile/profile_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:provider/provider.dart';
 
 class PublicProfileScreen extends StatefulWidget {
   const PublicProfileScreen({super.key});
@@ -100,9 +103,12 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                                         File(_pickedImage!.path),
                                         fit: BoxFit.cover,
                                       )
-                                    : Image.asset(
-                                        devsImage,
-                                        fit: BoxFit.cover,
+                                    : UserAvatar(
+                                        url: context
+                                            .watch<ProfileProvider>()
+                                            .profile
+                                            .profilePictureUrl,
+                                        radius: size.height * 0.06,
                                       ),
                               ),
                             ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthpilot/data/constants.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/public_profile_screen.dart';
 import 'package:healthpilot/features/community/community_models.dart';
@@ -110,6 +110,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen> {
                 final request = requests[index];
                 return _RequestCard(
                   fullName: request.fromUserFullName,
+                  avatarUrl: request.fromUserAvatar,
                   createdAt: request.createdAt,
                   onAccept: () => _handleRespond(request, true),
                   onReject: () => _handleRespond(request, false),
@@ -122,12 +123,14 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen> {
 
 class _RequestCard extends StatelessWidget {
   final String fullName;
+  final String? avatarUrl;
   final DateTime createdAt;
   final VoidCallback onAccept;
   final VoidCallback onReject;
 
   const _RequestCard({
     required this.fullName,
+    this.avatarUrl,
     required this.createdAt,
     required this.onAccept,
     required this.onReject,
@@ -144,10 +147,7 @@ class _RequestCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundImage: AssetImage(devsImage),
-            ),
+            UserAvatar(url: avatarUrl, radius: 28),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

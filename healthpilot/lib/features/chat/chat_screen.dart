@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grouped_list/grouped_list.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/chat/audio_call_screen.dart';
 import 'package:healthpilot/features/chat/chat_models.dart';
@@ -85,6 +86,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ? 'Last message ${DateFormat.yMMMMd().format(user.chatHistory.last.timestamp)}'
                 : '',
             profileImageUrl: devsImage,
+            avatarUrl:
+                user.profilePictureUrl.isEmpty ? null : user.profilePictureUrl,
             callNow: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => AudioCallScreen(id: widget.senderId)));
@@ -132,6 +135,7 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
 
   final String subTitle;
   final String profileImageUrl;
+  final String? avatarUrl;
   final VoidCallback callNow;
   final VoidCallback more;
   final String senderId;
@@ -140,6 +144,7 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
       required this.title,
       required this.subTitle,
       required this.profileImageUrl,
+      this.avatarUrl,
       required this.callNow,
       required this.more,
       required this.senderId});
@@ -202,9 +207,10 @@ class CustomeAppBarForChatScreen extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: CircleAvatar(
+                  child: UserAvatar(
+                    url: avatarUrl,
                     radius: size.height * 0.026,
-                    backgroundImage: AssetImage(profileImageUrl),
+                    fallbackAsset: profileImageUrl,
                   ),
                 ),
               ),

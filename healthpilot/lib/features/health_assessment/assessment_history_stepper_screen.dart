@@ -6,9 +6,14 @@ class AssessmentHistoryStepperScreen extends StatefulWidget {
   const AssessmentHistoryStepperScreen({
     super.key,
     required this.summary,
+    this.result,
   });
 
   final AssessmentSummary summary;
+
+  /// The completed AI result for this assessment, when available. Null for a
+  /// freshly-built summary (no result yet) or a pending/failed assessment.
+  final AssessmentAiResult? result;
 
   @override
   State<AssessmentHistoryStepperScreen> createState() =>
@@ -65,19 +70,7 @@ class _AssessmentHistoryStepperScreenState
         title: const Text('Result'),
         content: Align(
           alignment: Alignment.centerLeft,
-          child: FilledButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const AssessmentDetailScreen(
-                    disease: 'Tuberculosis',
-                    severity: AssessmentSeverity.urgent,
-                  ),
-                ),
-              );
-            },
-            child: const Text('Open assessment detail'),
-          ),
+          child: _buildResultContent(),
         ),
         isActive: _step >= 7,
       ),
@@ -110,6 +103,34 @@ class _AssessmentHistoryStepperScreenState
           );
         },
       ),
+    );
+  }
+
+  Widget _buildResultContent() {
+    final result = widget.result;
+    if (result == null || result.possibleCauses.isEmpty) {
+      return Text(
+        'AI result is not available for this assessment.',
+        style: Theme.of(context).textTheme.bodyMedium,
+      );
+    }
+    // Top cause + urgency drive the detail view (no hardcoded diagnosis).
+    final topCause = result.possibleCauses.first;
+    final severity = result.seekEmergencyCare
+        ? AssessmentSeverity.urgent
+        : AssessmentSeverity.mild;
+    return FilledButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AssessmentDetailScreen(
+              disease: topCause.name,
+              severity: severity,
+            ),
+          ),
+        );
+      },
+      child: const Text('Open assessment detail'),
     );
   }
 }

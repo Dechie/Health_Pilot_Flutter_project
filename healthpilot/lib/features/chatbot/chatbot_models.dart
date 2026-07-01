@@ -4,6 +4,7 @@ enum OutgoingDeliveryStatus {
   notApplicable,
   pending,
   sent,
+  failed,
 }
 
 class ChatMessage {
@@ -23,6 +24,9 @@ class ChatMessage {
 
   bool get showSentLabel =>
       fromUser && deliveryStatus == OutgoingDeliveryStatus.sent;
+
+  bool get hasFailed =>
+      fromUser && deliveryStatus == OutgoingDeliveryStatus.failed;
 
   ChatMessage copyWith({
     String? id,

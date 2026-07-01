@@ -16,8 +16,9 @@ class ChatDatabase {
     final path = join(dir.path, 'healthpilot_chat.db');
     _database = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: onCreate,
+      onUpgrade: onUpgrade,
     );
     return _database!;
   }
@@ -48,6 +49,7 @@ class ChatDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         thread_id TEXT NOT NULL,
         sender_id TEXT NOT NULL,
+        sender_name TEXT,
         content TEXT NOT NULL,
         timestamp TEXT NOT NULL,
         is_delivered INTEGER NOT NULL DEFAULT 1
@@ -61,6 +63,7 @@ class ChatDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         thread_id TEXT NOT NULL,
         sender_id TEXT NOT NULL,
+        sender_name TEXT,
         content TEXT NOT NULL,
         timestamp TEXT NOT NULL,
         is_delivered INTEGER NOT NULL DEFAULT 1
@@ -69,6 +72,14 @@ class ChatDatabase {
     await db.execute(
       'CREATE INDEX idx_group_thread ON group_messages(thread_id, timestamp)',
     );
+  }
+
+  /// v1 → v2: add `sender_name` so group messages can label each sender.
+  static Future<void> onUpgrade(Database db, int oldV, int newV) async {
+    if (oldV < 2) {
+      await db.execute('ALTER TABLE direct_messages ADD COLUMN sender_name TEXT');
+      await db.execute('ALTER TABLE group_messages ADD COLUMN sender_name TEXT');
+    }
   }
 
   Future<void> close() async {

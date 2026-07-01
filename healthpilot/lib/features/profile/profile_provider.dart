@@ -59,6 +59,18 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Uploads a new avatar image (multipart) and merges the returned profile.
+  Future<void> uploadAvatar(String filePath) async {
+    if (!FeatureFlags.userProfile) {
+      _profile = _profile.copyWith(avatarAssetPath: filePath);
+      notifyListeners();
+      return;
+    }
+    final saved = await _repo.uploadAvatar(filePath);
+    _profile = _profile.mergeWith(saved);
+    notifyListeners();
+  }
+
   /// Onboarding step 1 — gender, date_of_birth (from age), height, weight, bmi.
   Future<void> saveOnboardingStep1({
     required String? gender,

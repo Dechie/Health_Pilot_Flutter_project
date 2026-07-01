@@ -91,6 +91,7 @@ class ChatLocalStore {
     await db.insert('direct_messages', {
       'thread_id': threadId,
       'sender_id': message.senderId,
+      'sender_name': message.senderName,
       'content': message.content,
       'timestamp': message.timestamp.toIso8601String(),
       'is_delivered': message.isDelivered ? 1 : 0,
@@ -158,6 +159,7 @@ class ChatLocalStore {
     await db.insert('group_messages', {
       'thread_id': threadId,
       'sender_id': message.senderId,
+      'sender_name': message.senderName,
       'content': message.content,
       'timestamp': message.timestamp.toIso8601String(),
       'is_delivered': message.isDelivered ? 1 : 0,
@@ -200,6 +202,7 @@ class ChatLocalStore {
   DirectMessage _directMessageFromRow(Map<String, Object?> row) =>
       DirectMessage(
         senderId: row['sender_id']! as String,
+        senderName: row['sender_name'] as String?,
         content: row['content']! as String,
         timestamp: DateTime.parse(row['timestamp']! as String),
         isDelivered: (row['is_delivered']! as int) == 1,

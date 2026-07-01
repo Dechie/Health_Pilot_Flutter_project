@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthpilot/core/network/api_error.dart';
 
 /// Drives the two-step forgot-password flow (email → check inbox), calling the
 /// backend's password-reset request endpoint via [onRequestReset].
@@ -36,6 +37,8 @@ class ForgotPasswordController extends ChangeNotifier {
     try {
       await onRequestReset(emailController.text.trim());
       step = 1;
+    } on ApiException catch (e) {
+      errorMessage = e.userMessage;
     } catch (_) {
       errorMessage = 'Could not send the reset email. Please try again.';
     } finally {

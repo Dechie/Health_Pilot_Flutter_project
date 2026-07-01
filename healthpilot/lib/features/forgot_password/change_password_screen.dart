@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/network/api_error.dart';
 import 'package:healthpilot/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
@@ -40,6 +41,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         const SnackBar(content: Text('Password changed.')),
       );
       Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.userMessage)),
+        );
+      }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

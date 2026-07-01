@@ -686,13 +686,21 @@ class PaymentReviewScreen extends StatelessWidget {
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                       buttonText: "Next",
-                      buttonAction: () {
-                        context
-                            .read<SubscriptionProvider>()
-                            .confirmSubscription();
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                const SubscriptionFinishScreen()));
+                      buttonAction: () async {
+                        final provider =
+                            context.read<SubscriptionProvider>();
+                        final navigator = Navigator.of(context);
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          await provider.confirmSubscription();
+                          navigator.push(MaterialPageRoute(
+                              builder: (context) =>
+                                  const SubscriptionFinishScreen()));
+                        } catch (_) {
+                          messenger.showSnackBar(const SnackBar(
+                              content: Text(
+                                  'Could not complete subscription. Please try again.')));
+                        }
                       },
                     ),
                   ),

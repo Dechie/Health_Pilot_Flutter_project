@@ -147,6 +147,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                         MaterialPageRoute<void>(
                           builder: (_) => AssessmentHistoryStepperScreen(
                             summary: assessmentEntries[i].summary,
+                            result: assessmentEntries[i].result,
                           ),
                         ),
                       );
@@ -177,6 +178,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                         MaterialPageRoute<void>(
                           builder: (_) => AssessmentHistoryStepperScreen(
                             summary: symptomRows[i].entry.summary,
+                            result: symptomRows[i].entry.result,
                           ),
                         ),
                       );

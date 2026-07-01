@@ -67,11 +67,35 @@ class AiAssistantProvider extends ChangeNotifier {
     _messages = [..._messages, userMessage];
     notifyListeners();
     await _localStore.insertAiMessage(userMessage);
+    await _deliver(userId, trimmed);
+  }
+
+  /// Re-sends a previously failed outgoing message (by id), reusing its body.
+  Future<void> retry(String messageId) async {
+    final idx = _messages.indexWhere((m) => m.id == messageId);
+    if (idx == -1) return;
+    final body = _messages[idx].body;
+    final pending = _messages[idx].copyWith(
+      deliveryStatus: OutgoingDeliveryStatus.pending,
+    );
+    _messages = [
+      for (final m in _messages)
+        if (m.id == messageId) pending else m,
+    ];
+    notifyListeners();
+    await _localStore.insertAiMessage(pending);
+    await _deliver(messageId, body);
+  }
+
+  /// Sends [body], marking the outgoing message [userId] sent or failed.
+  /// Never throws — failure is surfaced via the message's delivery status so
+  /// the UI can show a retry affordance.
+  Future<void> _deliver(String userId, String body) async {
     try {
-      final reply = await _repo.sendMessage(trimmed);
-      final deliveredUser = userMessage.copyWith(
-        deliveryStatus: OutgoingDeliveryStatus.sent,
-      );
+      final reply = await _repo.sendMessage(body);
+      final deliveredUser = _messages
+          .firstWhere((m) => m.id == userId)
+          .copyWith(deliveryStatus: OutgoingDeliveryStatus.sent);
       _messages = [
         for (final m in _messages)
           if (m.id == userId) deliveredUser else m,
@@ -81,8 +105,19 @@ class AiAssistantProvider extends ChangeNotifier {
       await _localStore.insertAiMessage(deliveredUser);
       await _localStore.insertAiMessage(reply);
     } catch (e) {
+      final failed = _messages
+          .firstWhere((m) => m.id == userId)
+          .copyWith(deliveryStatus: OutgoingDeliveryStatus.failed);
+      _messages = [
+        for (final m in _messages)
+          if (m.id == userId) failed else m,
+      ];
       notifyListeners();
-      rethrow;
+      await _localStore.insertAiMessage(failed);
+      if (kDebugMode) {
+        // ignore: avoid_print
+        print('[HealthPilot] AI send failed: $e');
+      }
     }
   }
 

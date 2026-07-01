@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"onTap:\\\\|onPressed:\\\\|\\(\\) {}\\\\|\\(\\) {},\\\\|more:\\\\|attach:\" lib/features/chat/general_chat_screen.dart)",
+      "Bash(flutter --version)",
+      "Bash(flutter build *)",
+      "Bash(awk '{print $5\"\\\\t\"$9}')",
+      "Bash(cp /home/dechasa/Dev/Work/Flutter/Health_Pilot_Flutter_project/healthpilot/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ~/Desktop/ && ls -lh ~/Desktop/app-arm64-v8a-release.apk)"
+    ],
+    "additionalDirectories": [
+      "/home/dechasa/Desktop"
+    ]
+  }
+}

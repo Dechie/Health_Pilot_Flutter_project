@@ -16,4 +16,8 @@ class MockProfileRepository implements IProfileRepository {
 
   @override
   Future<UserProfile> updatePublicProfile(UserProfile profile) async => profile;
+
+  @override
+  Future<UserProfile> uploadAvatar(String filePath) async =>
+      kDemoUserProfile.copyWith(avatarAssetPath: filePath);
 }

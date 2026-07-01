@@ -24,6 +24,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:healthpilot/core/network/api_error.dart';
 import 'package:healthpilot/core/widgets/setup_promo_card.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/data/constants.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_history_screen.dart';
 import 'package:healthpilot/features/food_nutrition/food_nutrition_tracking_screen.dart';
@@ -56,6 +57,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   late final TextEditingController _firstNameCtrl;
   late final TextEditingController _lastNameCtrl;
   late final TextEditingController _emailCtrl;
+  String _phone = '';
 
   @override
   void initState() {
@@ -64,6 +66,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
     _firstNameCtrl = TextEditingController(text: profile.firstName ?? '');
     _lastNameCtrl = TextEditingController(text: profile.lastName ?? '');
     _emailCtrl = TextEditingController(text: profile.email ?? '');
+    _phone = profile.phoneE164 ?? '';
   }
 
   @override
@@ -72,6 +75,27 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
     _lastNameCtrl.dispose();
     _emailCtrl.dispose();
     super.dispose();
+  }
+
+  /// Avatar precedence: just-picked local file → server URL → default asset.
+  Widget _avatarImage(BuildContext context) {
+    const fallback = Image(
+      image: AssetImage('assets/images/personel.png'),
+      fit: BoxFit.cover,
+    );
+    if (_profileImagePath != null) {
+      return Image.file(File(_profileImagePath!), fit: BoxFit.cover);
+    }
+    final url = UserAvatar.resolveUrl(
+        context.watch<ProfileProvider>().profile.profilePictureUrl);
+    if (url != null) {
+      return Image.network(
+        url,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    }
+    return fallback;
   }
 
   Future<void> _pickProfilePhoto() async {
@@ -84,13 +108,20 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   Future<void> _save() async {
     setState(() => _saving = true);
     try {
-      final updated = context.read<ProfileProvider>().profile.copyWith(
+      final provider = context.read<ProfileProvider>();
+      final updated = provider.profile.copyWith(
             firstName: _firstNameCtrl.text.trim(),
             lastName: _lastNameCtrl.text.trim(),
             email: _emailCtrl.text.trim(),
+            phoneE164: _phone.trim().isEmpty ? null : _phone.trim(),
             avatarAssetPath: _profileImagePath,
           );
-      await context.read<ProfileProvider>().save(updated);
+      await provider.save(updated);
+      // A newly picked photo needs a separate multipart upload — the JSON
+      // PATCH above can't carry a file.
+      if (_profileImagePath != null && _profileImagePath!.isNotEmpty) {
+        await provider.uploadAvatar(_profileImagePath!);
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated.')),
@@ -275,17 +306,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                             child: ClipRRect(
                               borderRadius:
                                   BorderRadius.circular(screenWidth * 0.15),
-                              child: _profileImagePath != null
-                                  ? Image.file(
-                                      File(_profileImagePath!),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const Image(
-                                      image: AssetImage(
-                                        'assets/images/personel.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
+                              child: _avatarImage(context),
                             ),
                           ),
                           Positioned(
@@ -360,6 +381,8 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                       screenWidth: screenWidth,
                       screenHeight: screenHeight,
                       keyboardType: TextInputType.phone,
+                      initialValue: _phone,
+                      onChanged: (value) => _phone = value,
                     ),
                     SetupPromoCard(
                       screenWidth: screenWidth,
@@ -581,6 +604,8 @@ class PhoneInputFields extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
   final TextInputType keyboardType;
+  final String? initialValue;
+  final ValueChanged<String>? onChanged;
 
   const PhoneInputFields({
     super.key,
@@ -588,6 +613,8 @@ class PhoneInputFields extends StatelessWidget {
     required this.screenWidth,
     required this.screenHeight,
     required this.keyboardType,
+    this.initialValue,
+    this.onChanged,
   });
 
   @override
@@ -621,6 +648,10 @@ class PhoneInputFields extends StatelessWidget {
               disableLengthCheck: true,
               disableLengthCounter: true,
               initialCountryCode: 'ET',
+              initialValue: (initialValue == null || initialValue!.isEmpty)
+                  ? null
+                  : initialValue,
+              onChanged: (phone) => onChanged?.call(phone.completeNumber),
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),

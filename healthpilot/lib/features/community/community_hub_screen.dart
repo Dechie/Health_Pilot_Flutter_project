@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:healthpilot/core/auth/auth_state.dart';
+import 'package:healthpilot/core/widgets/user_avatar.dart';
 import 'package:healthpilot/features/chat/chat_provider.dart';
 import 'package:healthpilot/features/chat/chat_screen.dart';
 import 'package:healthpilot/features/chat/connection_requests_screen.dart';
@@ -185,7 +186,10 @@ class _ConnectionTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: const CircleAvatar(child: Icon(Icons.person_outline)),
+        leading: UserAvatar(
+          url: connection.peerAvatarOf(currentUserId),
+          radius: 20,
+        ),
         title: Text(connection.peerNameOf(currentUserId)),
         trailing: FilledButton.tonalIcon(
           onPressed: () => _message(context),
